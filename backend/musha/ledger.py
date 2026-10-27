@@ -14,18 +14,23 @@ STOCK_IN = "stock_in"
 WAGES = "wages"
 SALE = "sale"
 EXPENSE = "expense"
+ASSET = "asset"
 BANKED = "banked"
+
+# What a released request becomes in the books, by request kind
+SPEND_KIND = {"stock": STOCK_IN, "expense": EXPENSE, "asset": ASSET}
 
 
 def post(session: Session, *, shop_id: int, kind: str, ref: str, amount_cents: int = 0,
          item: str = "", quantity: int = 0, memo: str = "", source: str = "api",
-         at=None) -> tuple[LedgerEntry, bool]:
+         at=None, request_id: int | None = None) -> tuple[LedgerEntry, bool]:
     """Post once per ref. Returns the entry and whether this call created it."""
     existing = session.scalar(select(LedgerEntry).where(LedgerEntry.ref == ref))
     if existing:
         return existing, False
     entry = LedgerEntry(shop_id=shop_id, kind=kind, ref=ref, amount_cents=amount_cents,
-                        item=item, quantity=quantity, memo=memo, source=source)
+                        item=item, quantity=quantity, memo=memo, source=source,
+                        request_id=request_id)
     if at is not None:
         entry.at = at
     session.add(entry)
@@ -54,5 +59,8 @@ def summary(session: Session, shop_id: int) -> dict:
         "returned_cents": totals[FUNDS_RELEASED],
         "wages_cents": totals[WAGES],
         "sales_cents": totals[SALE],
+        "expenses_cents": totals[EXPENSE],
+        "assets_cents": totals[ASSET],
+        "banked_cents": totals[BANKED],
         "stock": dict(stock),
     }

@@ -11,7 +11,7 @@ from .conftest import AUTH_ID, ORDER_ID
 def fund(client, amount="180.00"):
     r = client.post("/api/shops/1/requests", json={
         "item": "eggs", "quantity": 40, "unit": "trays", "amount": amount,
-        "supplier": "Mbare wholesale", "words": "Tinoda matray makumi mana emazai"})
+        "payee": "Mbare wholesale", "words": "Tinoda matray makumi mana emazai"})
     assert r.status_code == 201
     rid = r.json()["id"]
     assert client.post(f"/api/requests/{rid}/order").json() == {"order_id": ORDER_ID}
@@ -30,7 +30,12 @@ def test_money_is_cents_inside_and_strings_outside():
     assert to_value(900) == "9.00"
 
 
+def capture_call(sandbox):
+    return [c for c in sandbox.calls if c.request.url.path.endswith("/capture")][-1]
+
+
 def test_partial_capture_returns_the_rest(client, sandbox):
+    eggs_before = books(client)["stock"].get("eggs", 0)
     rid = fund(client)
     assert books(client)["held_cents"] == 18000
 
@@ -38,14 +43,35 @@ def test_partial_capture_returns_the_rest(client, sandbox):
     assert v == {"status": "part_captured", "held_cents": 18000, "captured_cents": 17100,
                  "returned_cents": 900, "reason": ""}
 
-    capture = json.loads(sandbox.calls[-1].request.content)
+    call = capture_call(sandbox)
+    capture = json.loads(call.request.content)
     assert capture["amount"] == {"currency_code": "USD", "value": "171.00"}
     assert capture["final_capture"] is True
-    assert sandbox.calls[-1].request.headers["PayPal-Request-Id"] == f"musha-capture-{rid}"
+    assert call.request.headers["PayPal-Request-Id"] == f"musha-capture-{rid}"
 
     b = books(client)
     assert (b["held_cents"], b["funded_cents"], b["returned_cents"]) == (0, 17100, 900)
-    assert b["stock"]["eggs"] == 6 * 2 + 40  # seeded weeks leave 2 trays each, plus 40
+    assert b["stock"]["eggs"] == eggs_before + 40
+
+
+def test_released_money_goes_to_the_shop_by_payout(client, sandbox):
+    rid = fund(client)
+    client.post(f"/api/requests/{rid}/settle", json={"spent": "171.00"})
+    payout = json.loads(sandbox.calls[-1].request.content)
+    assert sandbox.calls[-1].request.url.path == "/v1/payments/payouts"
+    assert payout["sender_batch_header"]["sender_batch_id"] == f"musha-release-{rid}"
+    assert payout["items"][0]["amount"] == {"value": "171.00", "currency": "USD"}
+    # settling again cannot pay twice
+    assert client.post(f"/api/requests/{rid}/settle", json={"spent": "171.00"}).status_code == 409
+
+
+def test_expense_requests_post_as_expenses(client):
+    r = client.post("/api/shops/1/requests", json={
+        "kind": "expense", "item": "fridge door seal", "amount": "25.00", "payee": "Mbare fridge repairs"})
+    assert r.status_code == 201
+    assert r.json()["kind"] == "expense"
+    bad = client.post("/api/shops/1/requests", json={"kind": "loan", "item": "x", "amount": "5.00"})
+    assert bad.status_code == 422
 
 
 def test_spending_more_than_the_hold_captures_the_hold(client):

@@ -3,6 +3,7 @@ import pytest
 import respx
 from fastapi.testclient import TestClient
 
+from musha.ai import Scripted
 from musha.api import create_app
 from musha.config import SANDBOX_BASE, Settings
 from musha.paypal import PayPal
@@ -16,7 +17,7 @@ ORDER_ID = "ORDER-1"
 def settings(tmp_path):
     return Settings(paypal_client_id="cid", paypal_client_secret="secret",
                     paypal_webhook_id="WH-1", database_url=f"sqlite:///{tmp_path / 'musha.db'}",
-                    currency="USD", jobs_key="jobs")
+                    currency="USD", jobs_key="jobs", jobs_every_minutes=0)
 
 
 @pytest.fixture
@@ -49,8 +50,14 @@ def _capture(request: httpx.Request):
 
 
 @pytest.fixture
-def app(settings, sandbox):
-    app = create_app(settings, PayPal(settings))
+def model():
+    """A scripted Gemini. Tests set `model.answers[task]` to a value or a function of the parts."""
+    return Scripted()
+
+
+@pytest.fixture
+def app(settings, sandbox, model):
+    app = create_app(settings, PayPal(settings), model=model)
     reset(app.state.engine, app.state.sessions)
     return app
 
