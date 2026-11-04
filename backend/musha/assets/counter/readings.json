@@ -6,7 +6,7 @@
     "shelves": [
       {
         "item": "eggs",
-        "level": "ok"
+        "level": "full"
       },
       {
         "item": "bread",
@@ -26,7 +26,7 @@
       "goods": "",
       "quantity_estimate": 0.0
     },
-    "line": "Open, three customers, busy"
+    "line": "Open, three customers at counter, busy"
   },
   "closed": {
     "open": false,
@@ -63,15 +63,15 @@
     "busy": false,
     "shelves": [
       {
-        "item": "eggs",
-        "level": "full"
+        "item": "cooking oil",
+        "level": "ok"
       },
       {
         "item": "bread",
         "level": "ok"
       },
       {
-        "item": "cooking oil",
+        "item": "eggs",
         "level": "full"
       },
       {
@@ -84,7 +84,7 @@
       "goods": "bread",
       "quantity_estimate": 20.0
     },
-    "line": "Open, bread delivery arriving, two people inside"
+    "line": "Open, bread delivery arriving"
   },
   "delivery-cooking-oil": {
     "open": true,
@@ -105,15 +105,15 @@
       },
       {
         "item": "sugar",
-        "level": "low"
+        "level": "ok"
       }
     ],
     "delivery": {
       "seen": true,
       "goods": "cooking oil",
-      "quantity_estimate": 2.0
+      "quantity_estimate": 16.0
     },
-    "line": "Open, delivery of cooking oil, sugar low"
+    "line": "Open, delivery of cooking oil arriving"
   },
   "delivery-eggs": {
     "open": true,
@@ -126,23 +126,19 @@
       },
       {
         "item": "bread",
-        "level": "ok"
+        "level": "full"
       },
       {
         "item": "cooking oil",
-        "level": "ok"
-      },
-      {
-        "item": "sugar",
-        "level": "ok"
+        "level": "full"
       }
     ],
     "delivery": {
       "seen": true,
       "goods": "eggs",
-      "quantity_estimate": 7.0
+      "quantity_estimate": 40.0
     },
-    "line": "Open, delivery of eggs"
+    "line": "Open, delivery of eggs arriving, supplier handing delivery note"
   },
   "delivery-sugar": {
     "open": true,
@@ -155,7 +151,7 @@
       },
       {
         "item": "bread",
-        "level": "ok"
+        "level": "full"
       },
       {
         "item": "cooking oil",
@@ -163,7 +159,7 @@
       },
       {
         "item": "sugar",
-        "level": "low"
+        "level": "ok"
       }
     ],
     "delivery": {
@@ -171,7 +167,7 @@
       "goods": "sugar",
       "quantity_estimate": 10.0
     },
-    "line": "Open, sugar delivery arriving"
+    "line": "Open, sugar delivery arriving, shelves well stocked"
   },
   "opening": {
     "open": true,
@@ -184,7 +180,7 @@
       },
       {
         "item": "bread",
-        "level": "full"
+        "level": "ok"
       },
       {
         "item": "cooking oil",
@@ -200,7 +196,7 @@
       "goods": "",
       "quantity_estimate": 0.0
     },
-    "line": "Open, quiet"
+    "line": "Open, quiet, restocking shelves"
   },
   "quiet": {
     "open": true,

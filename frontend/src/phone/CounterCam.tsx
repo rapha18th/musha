@@ -86,6 +86,8 @@ export function CounterCam({ shopId, embedded = false }: { shopId: number; embed
   const [staging, setStaging] = useState("");
   const [copied, setCopied] = useState(false);
   const [viewing, setViewing] = useState(false);
+  // The owner pressed Disconnect, and the shop's counter key changed: this page's link opens nothing more.
+  const [replaced, setReplaced] = useState(false);
 
   const video = useRef<HTMLVideoElement>(null);
   const stream = useRef<MediaStream | null>(null);
@@ -115,16 +117,19 @@ export function CounterCam({ shopId, embedded = false }: { shopId: number; embed
   // The shop and the camera's record, kept fresh while the page is open.
   useEffect(() => {
     let live = true;
+    const shut = (e: unknown) => {
+      if (live && e instanceof ApiError && e.status === 403) setReplaced(true);
+    };
     api.shop(shopId).then((s) => {
       if (live) setShop(s);
-    }).catch(() => {});
+    }).catch(shut);
     const load = () => {
       phone.camera(shopId).then((s) => {
         if (!live) return;
         setStatus(s);
         if (s.consented === false && !stream.current) forget();
         if (s.latest) take(s.latest);
-      }).catch(() => {});
+      }).catch(shut);
     };
     load();
     phone.frames(shopId, 24).then((fs) => {
@@ -156,6 +161,10 @@ export function CounterCam({ shopId, embedded = false }: { shopId: number; embed
         // the server has no agreement on record: the terms come back on screen
         stopRef.current();
         forget();
+      }
+      if (e instanceof ApiError && e.status === 403) {
+        stopRef.current(); // the counter key changed: the camera stops, and the page says why
+        setReplaced(true);
       }
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -341,6 +350,18 @@ export function CounterCam({ shopId, embedded = false }: { shopId: number; embed
     ? sending ? "Sending a still" : lastSent ? `Watching. Last sent ${clock(lastSent)}` : "Watching. The first still is on its way"
     : elsewhere ? `The counter phone is on. Last seen ${clock(status!.seen_at!)}` : latest ? `Camera off. Last still ${clock(latest.at)}` : "Camera off";
 
+  if (replaced) {
+    return (
+      <div className={`cc cc-consent${embedded ? " cc-embedded" : ""}`}>
+        <div className="cc-consent-in" role="status">
+          <span className="cc-badge"><Camera size={28} /></span>
+          <h2>Counter camera</h2>
+          <p className="cc-consent-text">The owner gave this shop a new counter link. Ask for it, or scan the new code in Connect your shop.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!consented && mode === "off" && !viewing) {
     return (
       <div className={`cc cc-consent${embedded ? " cc-embedded" : ""}`}>
@@ -366,13 +387,13 @@ export function CounterCam({ shopId, embedded = false }: { shopId: number; embed
         {!live && latest && <img src={latest.url || undefined} alt={latest.line || "The latest still from the counter"} />}
         {!live && !latest && <div className="cc-blank"><Camera size={30} /></div>}
         {live && <span className="cc-live"><i /> Watching</span>}
-        {!live && latest && <span className="cc-tag">{latest.kind === "staged" ? "Staged" : latest.kind === "look_in" ? "Look in" : "Still"} · {clock(latest.at)}</span>}
+        {!live && latest && <span className="cc-tag">{latest.kind === "staged" ? "Staged" : latest.kind === "feed" ? "Video feed" : latest.kind === "look_in" ? "Look in" : "Still"} · {clock(latest.at)}</span>}
         {live && latest && <img className="cc-last" src={latest.url || undefined} alt="The last still sent" />}
       </div>
 
       <div className="cc-reading">
         <p className="cc-line">{line || "Waiting for the first reading"}</p>
-        {read && <span className="cc-when">Musha read this at {clock(read.at)}{read.kind === "staged" ? ", from a staged scene" : ""}</span>}
+        {read && <span className="cc-when">Musha read this at {clock(read.at)}{read.kind === "staged" ? ", from a staged scene" : read.kind === "feed" ? ", from the video feed" : ""}</span>}
         {read?.reading && <Facts frame={read} />}
         <p className={`cc-status${live ? " on" : ""}`}><i />{statusLine}</p>
         {lookedIn && <p className="cc-lookin">{owner} looked in. A fresh still went at {clock(lookedIn)}.</p>}

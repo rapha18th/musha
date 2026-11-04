@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type KeyboardEvent, type PointerEvent } from "react";
 import type { SpendRequest } from "../api";
 import { VARIANTS, type Variant } from "./api";
-import { Box, Chevron, Clip, Clock, Close, Mic, Receipt, Send } from "./icons";
+import { Camera, Clip, Clock, Close, Doc, Gallery, MicFill, SendFill, Smile, Spark } from "./icons";
 import { describe, seconds, typesNumbers } from "./util";
 
 export type Attach = {
@@ -25,9 +25,11 @@ function recordingType(): string {
   return "";
 }
 
-export function Composer({ onText, onVoice, attach, reply, clearReply, say }: {
+export function Composer({ onText, onVoice, onCamera, attach, reply, clearReply, say }: {
   onText: (text: string) => void;
   onVoice: (audio: Blob, ms: number) => void;
+  /** The camera in the bar: proof for the newest request waiting for it. */
+  onCamera: () => void;
   attach: Attach;
   /** Musha's open question; `sending` while the answer to it is on its way. */
   reply: { text: string; sending: boolean } | null;
@@ -49,48 +51,57 @@ export function Composer({ onText, onVoice, attach, reply, clearReply, say }: {
 
   const voice = useVoice(onVoice, say);
   const canRecord = typeof navigator !== "undefined" && !!navigator.mediaDevices && typeof MediaRecorder !== "undefined";
+  const typed = !!text.trim() && !voice.recording;
 
   return (
     <div className="ph-compose-wrap">
-      {reply && (
-        <div className={`ph-replyto${reply.sending ? " sending" : ""}`} role="status">
-          <div>
-            <strong>{reply.sending ? "Your answer is on its way" : "Reply to Musha"}</strong>
-            <span>{reply.text}</span>
-          </div>
-          {reply.sending ? (
-            <span className="ph-replyto-wait" aria-hidden="true"><Clock /></span>
+      <form className="ph-compose" onSubmit={submit}>
+        <div className="ph-pill">
+          {reply && (
+            <div className={`ph-replyto${reply.sending ? " sending" : ""}`} role="status">
+              <div>
+                <strong>{reply.sending ? "Your answer is on its way" : "Reply to Musha"}</strong>
+                <span>{reply.text}</span>
+              </div>
+              {reply.sending ? (
+                <span className="ph-replyto-wait" aria-hidden="true"><Clock /></span>
+              ) : (
+                <button type="button" onClick={clearReply} aria-label="Clear the reply"><Close size={16} /></button>
+              )}
+            </div>
+          )}
+          {voice.recording ? (
+            <div className={`ph-recording${voice.away ? " away" : ""}${voice.rolling ? "" : " waking"}`} role="status">
+              <span className="ph-rec-dot" />
+              <span className="ph-rec-time">{seconds(voice.elapsed)}</span>
+              <span className="ph-rec-hint">
+                {voice.away ? "Release to cancel" : voice.rolling ? "Release to send. Slide away to cancel." : "Starting the microphone"}
+              </span>
+            </div>
           ) : (
-            <button type="button" onClick={clearReply} aria-label="Clear the reply"><Close size={16} /></button>
+            <div className="ph-field">
+              <span className="ph-emoji" aria-hidden="true"><Smile /></span>
+              <input
+                ref={input}
+                value={text}
+                placeholder="Message"
+                aria-label="Message to Musha"
+                onChange={(e) => setText(e.target.value)}
+                enterKeyHint="send"
+              />
+              <button type="button" className="ph-clip" aria-label="Attach" aria-expanded={menu} onClick={() => setMenu((v) => !v)}>
+                <Clip />
+              </button>
+              {!typed && (
+                <button type="button" className="ph-cam" aria-label="Send proof with the camera" onClick={onCamera}>
+                  <Camera size={22} />
+                </button>
+              )}
+            </div>
           )}
         </div>
-      )}
-      <form className="ph-compose" onSubmit={submit}>
-        {voice.recording ? (
-          <div className={`ph-recording${voice.away ? " away" : ""}${voice.rolling ? "" : " waking"}`} role="status">
-            <span className="ph-rec-dot" />
-            <span className="ph-rec-time">{seconds(voice.elapsed)}</span>
-            <span className="ph-rec-hint">
-              {voice.away ? "Release to cancel" : voice.rolling ? "Release to send. Slide away to cancel." : "Starting the microphone"}
-            </span>
-          </div>
-        ) : (
-          <div className="ph-field">
-            <input
-              ref={input}
-              value={text}
-              placeholder="Message"
-              aria-label="Message to Musha"
-              onChange={(e) => setText(e.target.value)}
-              enterKeyHint="send"
-            />
-            <button type="button" className="ph-clip" aria-label="Attach" aria-expanded={menu} onClick={() => setMenu((v) => !v)}>
-              <Clip />
-            </button>
-          </div>
-        )}
-        {text.trim() && !voice.recording ? (
-          <button type="submit" className="ph-round" aria-label="Send"><Send /></button>
+        {typed ? (
+          <button type="submit" className="ph-round" aria-label="Send"><SendFill /></button>
         ) : (
           <button
             type="button"
@@ -106,7 +117,7 @@ export function Composer({ onText, onVoice, attach, reply, clearReply, say }: {
             onKeyUp={voice.keyUp}
             onContextMenu={(e) => e.preventDefault()}
           >
-            <Mic />
+            <MicFill />
           </button>
         )}
       </form>
@@ -289,22 +300,29 @@ function AttachMenu({ attach, close }: { attach: Attach; close: () => void }) {
                 <strong>{describe(req)}</strong>
               )}
             </div>
-            <button type="button" role="menuitem" className="ph-menu-item" onClick={() => receipt.current?.click()}>
-              <span className="ph-menu-icon"><Receipt /></span>
-              <span><strong>Receipt photo</strong><small>{typesNumbers(req, attach.ai) ? "Then type its total, number and date" : "Camera or files"}</small></span>
-            </button>
-            <button type="button" role="menuitem" className="ph-menu-item" onClick={() => goods.current?.click()}>
-              <span className="ph-menu-icon"><Box /></span>
-              <span><strong>Goods photo</strong><small>Camera or files</small></span>
-            </button>
-            <div className="ph-menu-rule">Samples</div>
-            <button type="button" role="menuitem" className="ph-menu-item" aria-expanded={samples} onClick={() => setSamples((v) => !v)}>
-              <span className="ph-menu-icon"><Receipt /></span>
-              <span><strong>Sample receipt</strong><small>Five versions to test Musha</small></span>
-              <span className={`ph-menu-more${samples ? " open" : ""}`}><Chevron /></span>
-            </button>
+            <div className="ph-menu-grid">
+              <button type="button" role="menuitem" className="ph-menu-item" onClick={() => receipt.current?.click()}>
+                <span className="ph-menu-icon ph-hue-doc"><Doc /></span>
+                <strong>Receipt photo</strong>
+              </button>
+              <button type="button" role="menuitem" className="ph-menu-item" onClick={() => goods.current?.click()}>
+                <span className="ph-menu-icon ph-hue-photo"><Gallery /></span>
+                <strong>Goods photo</strong>
+              </button>
+              <button type="button" role="menuitem" className="ph-menu-item" aria-expanded={samples} onClick={() => setSamples((v) => !v)}>
+                <span className="ph-menu-icon ph-hue-sample"><Spark /></span>
+                <strong>Sample receipt</strong>
+              </button>
+              <button type="button" role="menuitem" className="ph-menu-item" onClick={() => {
+                attach.onGoods(req);
+                close();
+              }}>
+                <span className="ph-menu-icon ph-hue-goods"><Gallery /></span>
+                <strong>Sample goods photo</strong>
+              </button>
+            </div>
             {samples && (
-              <div className="ph-variants">
+              <div className="ph-variants" role="group" aria-label="Sample receipts">
                 {VARIANTS.map((v) => (
                   <button key={v.key} type="button" role="menuitem" onClick={() => {
                     attach.onSample(v.key, req);
@@ -315,13 +333,11 @@ function AttachMenu({ attach, close }: { attach: Attach; close: () => void }) {
                 ))}
               </div>
             )}
-            <button type="button" role="menuitem" className="ph-menu-item" onClick={() => {
-              attach.onGoods(req);
-              close();
-            }}>
-              <span className="ph-menu-icon"><Box /></span>
-              <span><strong>Sample goods photo</strong><small>The {req.item} on the counter</small></span>
-            </button>
+            <p className="ph-menu-hint">
+              {typesNumbers(req, attach.ai)
+                ? "A receipt photo goes with its total, number and date. You type them next."
+                : "Musha reads the receipt photo. The five sample receipts test Musha."}
+            </p>
             <input ref={receipt} type="file" accept="image/*,application/pdf" hidden onChange={picked("receipt")} />
             <input ref={goods} type="file" accept="image/*" hidden onChange={picked("goods")} />
           </>

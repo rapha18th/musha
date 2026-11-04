@@ -86,8 +86,10 @@ def checks(p) -> dict:
 
 
 def seeded_receipt(s) -> Attachment:
+    """Last week's eggs receipt from the shop's history: the newest seeded receipt, the one the
+    reused sample sends again."""
     return s.scalar(select(Attachment).join(SpendRequest).where(
-        Attachment.kind == "receipt", SpendRequest.status == "captured").order_by(Attachment.id))
+        Attachment.kind == "receipt", SpendRequest.status == "captured").order_by(Attachment.id.desc()))
 
 
 def jpeg(im: Image.Image, **kw) -> bytes:
@@ -397,7 +399,7 @@ async def test_without_the_model_the_question_is_a_template(world):
     p = await send(world, req, spec_for(req, payee="Mbare bakery", no="MB-1"))
     assert p.decision == "ask"
     assert p.question == ("The receipt is from Mbare bakery, and the request named Mbare wholesale. "
-                          "Why did you buy from Mbare bakery?")
+                          "What took you to Mbare bakery for the eggs?")
 
 
 async def test_an_answer_that_explains_the_price_releases(world):
@@ -441,7 +443,7 @@ async def test_words_never_clear_a_duplicate(world, no_camera):
     p = await send(world, req, spec_for(req, unit=430, no=printed["receipt_no"]), seed=7)
     assert p.decision == "ask" and checks(p)["duplicate"]["points"] == 0
     world.model.answers[proof.ANSWER_TASK] = {"resolves": ["duplicate", "price", "freshness", "photo"],
-                                              "reason": "He says it is a new receipt."}
+                                              "reason": "Farai says it is a new receipt."}
     second = await proof.answer(world.s, world.pp, world.model, req, "It is a new receipt, I promise.")
     assert checks(second)["duplicate"]["points"] == 0
     assert second.decision == "hold" and req.hold.status == "held"
@@ -634,7 +636,7 @@ async def test_a_stale_receipt_asks_even_with_a_high_score(world, no_camera):
     assert (p.score, p.decision) == (87, "ask") and c["freshness"]["data"]["hard"]
     assert proof.asked_about(p) == "freshness"
     # a purchase date that fits eases it, and the money goes
-    world.model.answers[proof.ANSWER_TASK] = {"resolves": ["freshness"], "reason": "He paid a deposit then."}
+    world.model.answers[proof.ANSWER_TASK] = {"resolves": ["freshness"], "reason": "Farai paid a deposit then."}
     second = await proof.answer(world.s, world.pp, world.model, req, "I paid a deposit before you approved.")
     assert checks(second)["freshness"]["data"]["eased"] and second.decision == "release"
     assert req.hold.captured_cents == 2400
@@ -672,9 +674,10 @@ def test_goods_photos_are_served_for_the_shop_products(world):
 
 def test_the_seed_keeps_last_weeks_receipt(world):
     s = world.s
-    req = s.scalar(select(SpendRequest).where(SpendRequest.status == "captured"))
-    assert req and req.hold.status == "captured" and req.hold.captured_cents == req.amount_cents
     receipt = seeded_receipt(s)
+    req = receipt.request
+    assert req and req.status == "captured" and req.item == "eggs"
+    assert req.hold.status == "captured" and req.hold.captured_cents == req.amount_cents
     printed = JsonText.load(receipt.reading)
     assert printed["source"] == "seed" and printed["payee"] == req.payee
     assert proof._cents(printed["total"]) == req.amount_cents
@@ -767,7 +770,7 @@ async def test_the_answer_round_sees_goods_that_arrive_after_the_receipt(world, 
     first = await send(world, req, spec_for(req, at=today() - timedelta(days=9), no="MW-130001"))
     assert first.decision == "ask" and proof.asked_about(first) == "freshness"
     arrived["at"] = flows.now()  # the trays reach the counter after the receipt went in
-    world.model.answers[proof.ANSWER_TASK] = {"resolves": ["freshness"], "reason": "He paid a deposit then."}
+    world.model.answers[proof.ANSWER_TASK] = {"resolves": ["freshness"], "reason": "Farai paid a deposit then."}
     second = await proof.answer(world.s, world.pp, world.model, req, "I paid a deposit before you approved.")
     c = checks(second)
     assert c["camera"]["points"] == 20 and asked_until[-1] >= arrived["at"]
@@ -868,7 +871,7 @@ async def test_a_goods_photo_sent_before_scores_nothing(world):
     assert p.question == (f"That photo was sent before, for request {old.request_id}. "
                           "Please send a new photo of the 40 trays of eggs.")
     # words never clear a reused photo
-    world.model.answers[proof.ANSWER_TASK] = {"resolves": ["photo"], "reason": "He says it is today's photo."}
+    world.model.answers[proof.ANSWER_TASK] = {"resolves": ["photo"], "reason": "Farai says it is today's photo."}
     second = await proof.answer(world.s, world.pp, world.model, req, "Ifoto yanhasi.")
     assert checks(second)["photo"]["points"] == 0 and second.decision == "hold"
 

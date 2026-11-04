@@ -89,6 +89,9 @@ export type CashRow = {
   counted_cents: number | null;
   gap_cents: number | null;
   question: string | null;
+  /** The manager's answer to the gap's question, in English, once it came. */
+  answer?: string | null;
+  answered_at?: string | null;
 };
 
 export type StockRow = {
@@ -103,6 +106,8 @@ export type StockRow = {
   counted: number | null;
   gap: number | null;
   question: string | null;
+  answer?: string | null;
+  answered_at?: string | null;
 };
 
 export type WeekFacts = {
@@ -171,6 +176,8 @@ export type Decision = {
   item: string;
   amount_cents: number;
   decision: "approved" | "waiting" | "asked";
+  /** Who asked for the request: "musha" for stock Musha asked for itself. */
+  origin: string;
   status: string;
   at: string | null;
   line: string;
@@ -187,6 +194,8 @@ export type Mandate = {
   kinds: string[];
   known_payees_only: boolean;
   price_tolerance_pct: number;
+  /** Musha asks for stock itself when it runs low, while the agent is on. */
+  restock: boolean;
   week: { since: string; agent_cents: number; left_cents: number };
   decisions: Decision[];
   updated_at: string | null;
@@ -199,6 +208,7 @@ export type MandateIn = Partial<{
   kinds: string[];
   known_payees_only: boolean;
   price_tolerance_pct: number;
+  restock: boolean;
 }>;
 
 export type Assessment = {
@@ -238,6 +248,8 @@ export const ownerApi = {
     post<{ question: Message; answer: Message }>(`/api/shops/${shopId}/ask`, { question }),
   toManager: (shopId: number, text: string) => post<Message>(`/api/shops/${shopId}/owner/to-manager`, { text }),
   assessment: (requestId: number) => call<Assessment>(`/api/requests/${requestId}/assessment`),
+  /** Says no to a request Musha asked for itself, while it waits for the owner. */
+  decline: (requestId: number) => post<OwnerRequest>(`/api/requests/${requestId}/decline`),
   decide: (requestId: number, action: "release" | "return", amount?: string) =>
     post<Verdict>(`/api/requests/${requestId}/decide`, amount ? { action, amount } : { action }),
   mandate: (shopId: number) => call<Mandate>(`/api/shops/${shopId}/mandate`),

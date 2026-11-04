@@ -20,6 +20,12 @@ What a still proves:
   come in through the staged route; a sent still whose picture is a staged scene is stored
   as staged too. A staged still confirms a delivery in a demo shop alone, each staged still
   is a visit of its own, and the result says the still was staged.
+- Feed stills are frames of the demo video feed (feed.py), stored with the kind feed. They
+  count the way staged stills count, and a sent still whose picture is a feed still is a feed
+  still too.
+
+Where a still came from (the counter phone, the bridge beside an IP camera, or the feed) is kept
+on the shop as camera_source, for the owner's Connect your shop sheet.
 
 Contract for the proof engine:
     await delivery_check(session, model, shop, *, item, since, until, request_id=None, exclude=())
@@ -49,12 +55,15 @@ from .ai import Blob
 from .flows import now, utc
 from .models import CameraFrame, JsonText, Product, Proof, Shop, SpendRequest
 
-KINDS = ("sample", "look_in", "staged")
+KINDS = ("sample", "look_in", "staged", "feed")
+STAGED = ("staged", "feed")  # the app's own pictures: they count in a demo shop alone
+SOURCES = ("phone", "bridge", "feed")
 SCENES = ("quiet", "busy", "delivery", "shelf_low", "closed", "opening")
 ASSETS = Path(__file__).resolve().parent / "assets" / "counter"
+FEED_ASSETS = Path(__file__).resolve().parent / "assets" / "feed"
 
 # What the manager agrees to on the counter page. Whether and when the manager agreed is in status().
-CONSENT = ("The counter phone sends a still every few minutes, and more often while something moves. "
+CONSENT = ("The counter camera sends a still every few minutes, and more often while something moves. "
            "A sign at the counter says the camera is there. Stills that show a delivery are kept 30 days, "
            "and the rest go within a week.")
 
@@ -66,6 +75,7 @@ STALE = timedelta(minutes=15)  # a sample is read anyway when the last reading i
 KEEP = timedelta(days=30)  # stills that saw a delivery, the proof behind a release
 KEEP_READ = timedelta(days=2)  # stills read with no delivery in them
 KEEP_UNREAD = timedelta(days=7)  # stills the model has yet to read: the delivery check's window
+KEEP_FEED = timedelta(hours=2)  # feed stills with no delivery in them: the loop comes round again
 ONLINE = timedelta(minutes=2)
 LOOK_IN_WAIT = timedelta(minutes=2)
 SAMPLE_SECONDS = 30  # how often the counter page sends a sample
@@ -191,6 +201,22 @@ def is_scene(data: bytes, small: list[int] | None = None) -> bool:
     return any(change(t, small) <= COPY for t in deliveries)
 
 
+@functools.cache
+def feed_stills() -> tuple[Path, ...]:
+    """The demo feed's stills, in the order the loop plays them."""
+    return tuple(sorted(FEED_ASSETS.glob("*.jpg")))
+
+
+@functools.cache
+def _footage() -> frozenset[str]:
+    return frozenset(_digest(prepare(p.read_bytes())[0]) for p in feed_stills())
+
+
+def is_footage(data: bytes) -> bool:
+    """Is this picture one of the demo feed's stills, as the feed sends it?"""
+    return _digest(data) in _footage()
+
+
 # Readings
 
 def system_for(session: Session, shop: Shop, products: list[Product] | None = None) -> str:
@@ -288,18 +314,24 @@ def keep_reading(frame: CameraFrame, reading: dict) -> None:
 # Frames in, frames out
 
 async def ingest_frame(session: Session, model, shop: Shop, *, data: bytes, content_type: str = "",
-                       kind: str = "sample", known: dict | None = None) -> CameraFrame:
+                       kind: str = "sample", known: dict | None = None, reading: dict | None = None,
+                       source: str = "") -> CameraFrame:
     """Store a still from the counter, gate it, and read it when the gate says so.
     A look_in answers a pending Look in; with none pending it is a sample. A still whose picture
-    is a staged scene is stored as staged. `known` is a reading to keep when the model gives none
-    (a staged still's own reading)."""
+    is a staged scene is stored as staged, and one whose picture is a feed still as feed. `known`
+    is a reading to keep when the model gives none (a staged still's own reading). `reading` is a
+    reading this picture already has: it is kept as it is, and the model is left alone (the feed's
+    loop, after its first pass). `source` names what sent the still: phone, bridge or feed."""
     if kind not in KINDS:
         raise CameraError(f"A frame is one of {', '.join(KINDS)}.")
     data, content_type = prepare(data, content_type)
     small = thumb(data)
     scene = is_scene(data, small)
+    footage = not scene and is_footage(data)
     if kind == "staged" and not scene:
         raise CameraError("A staged still is one of the app's own scenes.")
+    if kind == "feed" and not footage:
+        raise CameraError("A feed still is one of the demo feed's own stills.")
     if kind == "look_in" and not look_in_pending(shop):
         kind = "sample"
     at = now()
@@ -314,14 +346,20 @@ async def ingest_frame(session: Session, model, shop: Shop, *, data: bytes, cont
         shop.look_in_requested_at = None
         session.commit()
     # read before writing the frame, so no write lock waits on the model
-    reading = (await read(session, model, shop, data, content_type) if due else None) or clean(known)
+    if reading is not None:
+        reading = clean(reading)
+    else:
+        reading = (await read(session, model, shop, data, content_type) if due else None) or clean(known)
 
     forget_old(session, at)
-    frame = CameraFrame(shop_id=shop.id, at=at, kind="staged" if scene else kind, content_type=content_type,
+    stored = "staged" if scene else "feed" if footage else kind
+    frame = CameraFrame(shop_id=shop.id, at=at, kind=stored, content_type=content_type,
                         data=data, change=moved, reading="", line="")
     if reading:
         keep_reading(frame, reading)
     shop.camera_seen_at = at
+    if source in SOURCES:
+        shop.camera_source = source
     if kind == "sample" and not scene and moved < GATE and not reading:
         # The same picture as the newest still, and nothing new read: the phone is on, and that is all.
         session.commit()
@@ -332,16 +370,20 @@ async def ingest_frame(session: Session, model, shop: Shop, *, data: bytes, cont
 
 
 def forget_old(session: Session, at: datetime | None = None) -> None:
-    """Stills that saw a delivery go after 30 days, other read stills after 2 days, unread stills after 7."""
+    """Stills that saw a delivery go after 30 days, other read stills after 2 days, unread stills after 7.
+    Feed stills with no delivery in them go after 2 hours: the loop brings them round again."""
     at = at or now()
     for older, *rule in ((KEEP,), (KEEP_READ, CameraFrame.reading != "", CameraFrame.reading.not_like(SEEN)),
-                         (KEEP_UNREAD, CameraFrame.reading == "")):
+                         (KEEP_UNREAD, CameraFrame.reading == ""),
+                         (KEEP_FEED, CameraFrame.kind == "feed", CameraFrame.reading.not_like(SEEN))):
         session.execute(delete(CameraFrame).where(CameraFrame.at < _naive(at - older), *rule)
                         .execution_options(synchronize_session=False))
 
 
-def heartbeat(session: Session, shop: Shop) -> dict:
+def heartbeat(session: Session, shop: Shop, source: str = "") -> dict:
     shop.camera_seen_at = now()
+    if source in SOURCES:
+        shop.camera_source = source
     forget_old(session)  # the beat writes anyway; retention holds while any counter phone is on
     session.commit()
     return {"look_in_requested": look_in_pending(shop), "sample_seconds": SAMPLE_SECONDS}
@@ -402,9 +444,13 @@ def consent_line(shop: Shop) -> str:
 
 
 def status(session: Session, shop: Shop) -> dict:
+    from . import feed  # feed.py ingests through this module
+
     f = latest(session, shop)
     at = getattr(shop, "camera_consent_at", None)
     return {
+        "source": shop.camera_source or None,
+        "feed": feed.view(shop),
         "online": online(shop),
         "seen_at": _iso(shop.camera_seen_at),
         "consent": CONSENT,
@@ -461,9 +507,10 @@ async def delivery_check(session: Session, model, shop: Shop, *, item: str, sinc
     if visit:
         first, r = visit[0]
         d = r["delivery"]
-        staged = first.kind == "staged"
+        staged = first.kind in STAGED
         counted = f" It counted about {d['quantity_estimate']:g}." if d["quantity_estimate"] else ""
-        reason = (f"A staged demo still shows {d['goods']} arriving {_when(first.at)}.{counted}" if staged
+        reason = (f"The demo video feed shows {d['goods']} arriving {_when(first.at)}.{counted}" if first.kind == "feed"
+                  else f"A staged demo still shows {d['goods']} arriving {_when(first.at)}.{counted}" if staged
                   else f"The counter camera saw {d['goods']} arrive {_when(first.at)}.{counted}")
         return {"seen": True, "frame_ids": [f.id for f, _ in visit][:SHOW], "at": _iso(first.at),
                 "reason": reason, "staged": staged}
@@ -481,6 +528,10 @@ async def delivery_check(session: Session, model, shop: Shop, *, item: str, sinc
         f, r = look["replayed"][0]
         reason = (f"The still of {r['delivery']['goods']} {_when(f.at)} repeats an earlier still. "
                   "A still counts once.")
+    elif look["staged"] and look["staged"][0][0].kind == "feed":
+        f, r = look["staged"][0]
+        reason = (f"The demo video feed shows {r['delivery']['goods']} arriving {_when(f.at)}. "
+                  "Feed stills count only in a demo shop.")
     elif look["staged"]:
         f, r = look["staged"][0]
         reason = (f"A staged still shows {r['delivery']['goods']} arriving {_when(f.at)}. "
@@ -513,7 +564,7 @@ def _look(session: Session, shop: Shop, item: str, window, extra: set[str], take
         if any(f.id in taken for f, _ in visit):
             out["claimed"].append(visit[0])
             continue
-        if visit[0][0].kind == "staged":
+        if visit[0][0].kind in STAGED:
             if demo:
                 out["visit"] = visit
                 return out
@@ -531,11 +582,11 @@ def _look(session: Session, shop: Shop, item: str, window, extra: set[str], take
 
 def visits(hits: list[tuple[CameraFrame, dict]]) -> list[list[tuple[CameraFrame, dict]]]:
     """Hits grouped into deliveries: a hit less than VISIT after the one before joins its visit.
-    A staged still is a visit of its own."""
+    A staged or feed still is a visit of its own."""
     out: list[list] = []
     for f, r in hits:
         prev = out[-1][-1][0] if out else None
-        if (prev is not None and f.kind != "staged" and prev.kind != "staged"
+        if (prev is not None and f.kind not in STAGED and prev.kind not in STAGED
                 and utc(f.at) - utc(prev.at) < VISIT):
             out[-1].append((f, r))
         else:

@@ -120,6 +120,8 @@ async function resolveShop(need: "owner" | "counter"): Promise<number> {
       // A shop the server has lost, or one this browser holds no key to, starts over;
       // a server that is away keeps the shop for the next try.
       if (!(e instanceof ApiError && (e.status === 403 || e.status === 404 || e.status === 422))) throw e;
+      // A counter link whose key the owner replaced keeps its shop: the counter page says the link changed.
+      if (need === "counter" && fromLink && e.status === 403) return id;
     }
   }
   if (!creating) {

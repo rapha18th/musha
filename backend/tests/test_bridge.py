@@ -856,7 +856,7 @@ def test_farais_answer_to_a_cash_gap_reaches_chipo(app, client, model):
     r = client.post(PHONE, json={"text": "Ndakatora $23 kubva mutill ndikatenga paraffin nemakenduru."}).json()
     assert r["messages"][-1]["text_en"] == "Thank you. Chipo has your answer."
     owner = client.get("/api/shops/1/owner/messages").json()[-1]
-    day = gap["data"]["question"].split(" the till")[0].removeprefix("On ")
+    day = gap["data"]["question"].split("the till on ")[1].split(".")[0]
     assert owner["text"] == f"Farai, about the till on {day}: {english}"
     data = next(a for a in client.get("/api/shops/1/alerts").json() if a["id"] == gap["id"])["data"]
     assert (data["answer_en"], data["answer_message_id"]) == (english, r["messages"][0]["id"])

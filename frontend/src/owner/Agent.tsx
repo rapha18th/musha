@@ -41,6 +41,7 @@ export function Agent({ shop, sandbox, onChange }: { shop: Shop; sandbox: boolea
   const dirtyRef = useRef(false);
   const save = useAction();
   const flip = useAction();
+  const asks = useAction();
 
   const load = usePoll(async () => {
     const x = await ownerApi.mandate(shop.id);
@@ -108,6 +109,21 @@ export function Agent({ shop, sandbox, onChange }: { shop: Shop; sandbox: boolea
           % of usual prices.
         </p>
 
+        <label className="o-switch">
+          <input type="checkbox" checked={m.restock} disabled={asks.busy}
+            onChange={(e) => {
+              const on = e.target.checked;
+              asks.run(() => put({ restock: on }));
+            }} />
+          <span className="o-switch-track" aria-hidden="true"><span /></span>
+          <span className="o-switch-label">Musha asks for stock when it runs low</span>
+        </label>
+        <p className="o-fine">
+          {!m.restock ? "Low stock comes to you as an alert."
+            : m.active ? "Musha asks for the usual pack at the usual price. Inside your terms the agent approves it. Outside them, it waits for you."
+              : "Musha starts asking once the agent is on."}
+        </p>
+
         {dirty && (
           <div className="o-mandate-save">
             <button className="o-btn o-primary" disabled={!valid || save.busy}
@@ -126,7 +142,7 @@ export function Agent({ shop, sandbox, onChange }: { shop: Shop; sandbox: boolea
           </div>
         )}
         {note && <p className="o-note">{note}</p>}
-        <ErrorLine error={save.error || flip.error} />
+        <ErrorLine error={save.error || flip.error || asks.error} />
 
         <WeekUse used={m.week.agent_cents} cap={m.weekly_cap_cents} />
       </section>
@@ -148,7 +164,10 @@ export function Agent({ shop, sandbox, onChange }: { shop: Shop; sandbox: boolea
                   {d.decision === "approved" ? "Approved inside" : d.decision === "waiting" ? "Waiting on PayPal" : "Asked you"}
                 </span>
                 <div className="o-decision-text">
-                  <p><b>{d.item ? d.item[0].toUpperCase() + d.item.slice(1) : "Request"}</b>{d.amount_cents ? `, ${usd(d.amount_cents)}` : ""} <span className="o-muted">· {when(d.at)}</span></p>
+                  <p>
+                    <b>{d.item ? d.item[0].toUpperCase() + d.item.slice(1) : "Request"}</b>{d.amount_cents ? `, ${usd(d.amount_cents)}` : ""}{" "}
+                    <span className="o-muted">· {d.origin === "musha" ? "Musha asked for it · " : ""}{when(d.at)}</span>
+                  </p>
                   {d.line && <p className="o-muted">{d.line}</p>}
                 </div>
               </li>

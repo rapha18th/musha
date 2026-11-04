@@ -80,8 +80,9 @@ def test_the_quantity_reason_and_question_read_by_the_rule():
 def test_a_shelf_count_question_reads_by_the_rule():
     oil = SimpleNamespace(name="cooking oil", unit="2 L bottles")
     asked = insights.stock_question(date(2026, 10, 31), oil, 3, 1)
-    assert asked == ("On Saturday 31 October the shelf count for cooking oil was 1 × 2 L bottle. "
-                     "The books expected 3. What happened to the other 2 × 2 L bottles?")
+    assert asked == ("Thank you for counting the cooking oil on Saturday 31 October. The shelf held "
+                     "1 × 2 L bottle, and the books expected 3 × 2 L bottles. Where did the other "
+                     "2 × 2 L bottles go?")
     assert insights.stock_question(date(2026, 10, 31), oil, 3, 4).endswith(
         "Where did the extra 1 × 2 L bottle come from?")
 

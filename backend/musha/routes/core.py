@@ -7,8 +7,10 @@ Also the guards every route in the app shares:
   calls carry it; another device joins with a key it was given. A shop made without keys, such as
   the server's own first shop, stays open, for local runs.
 - Amounts. Money arrives as a decimal string, checked here, and stays inside US$100,000.
-- Rates. Each shop has a budget of calls for the routes that wake the model or PayPal, and each
-  client a budget of new shops, so one visitor never fills the database or spends the model.
+- Rates. Each shop has a budget of calls for the routes that wake the model or PayPal, each
+  client a budget of new shops, and the server a budget of new shops an hour
+  (MUSHA_SHOPS_PER_HOUR), so one visitor never fills the database or spends the model. A client is
+  the address a trusted proxy wrote (`client_of`), so a header the caller writes leaves its budget as it is.
 - Bodies. `BodyLimit` refuses a body past its size before anything reads it, and
   `validation_errors` answers a bad body without echoing it back.
 """
@@ -16,19 +18,21 @@ import asyncio
 import hmac
 import json
 import logging
+import os
 import re
 import secrets
 import time
-from typing import Annotated
+from typing import Annotated, Callable
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, Request, Response
 from fastapi.exceptions import RequestValidationError
+from fastapi.requests import HTTPConnection
 from fastapi.responses import JSONResponse
 from pydantic import AfterValidator, BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .. import flows, ledger, webhooks
+from .. import flows, insights, ledger, webhooks
 from ..config import Settings
 from ..deps import db, guarded, model, paypal, request_or_404, settings, shop_or_404
 from ..models import Message, Shop, SpendRequest
@@ -123,6 +127,16 @@ def issue_keys(shop: Shop) -> dict[str, str]:
     return keys
 
 
+def rotate_counter_key(shop: Shop) -> str:
+    """A new counter key for a shop with keys; the caller commits. Links, phones and bridges that
+    carry the old one open nothing from then on. The owner's and the manager's keys stay as they are.
+    A shop made without keys stays open, and the answer is empty."""
+    if not keys_of(shop)["owner"]:
+        return ""
+    shop.counter_key = secrets.token_urlsafe(24)
+    return shop.counter_key
+
+
 def cookie_name(shop_id: int) -> str:
     return f"musha_shop_{shop_id}"
 
@@ -180,20 +194,50 @@ def remember(response: Response, request: Request, shop_id: int, key: str):
 
 # Rates
 
-def client_of(request: Request) -> str:
-    """The visitor's address. Behind Render's proxy it is the first X-Forwarded-For entry."""
-    forwarded = request.headers.get("x-forwarded-for", "")
-    if forwarded:
-        return forwarded.split(",")[0].strip()[:64]
+PROXY_HOPS = 1  # Cloud Run's front end, the one proxy in front of the app
+
+
+def proxy_hops() -> int:
+    """MUSHA_PROXY_HOPS: the trusted proxies in front of Musha that append to X-Forwarded-For.
+    1 on Cloud Run's run.app address. 2 behind a Google load balancer, which appends the caller and
+    then its own address. 0 with nothing in front: the connection's peer is the caller."""
+    try:
+        return max(0, int(os.getenv("MUSHA_PROXY_HOPS", str(PROXY_HOPS))))
+    except ValueError:
+        return PROXY_HOPS
+
+
+def client_of(request: HTTPConnection) -> str:
+    """The visitor's address, for the per-client budgets. Each proxy appends the address it saw to
+    X-Forwarded-For, so a caller's own entries come first and the trusted ones last. The caller is
+    the entry the outermost trusted proxy wrote: the right-most on Cloud Run. An entry a caller
+    sends for itself sits to the left of it and changes nothing."""
+    hops = proxy_hops()
+    entries = [e.strip() for line in request.headers.getlist("x-forwarded-for") for e in line.split(",")]
+    entries = [e for e in entries if e]
+    if hops and entries:
+        return entries[-min(hops, len(entries))][:64]
     return request.client.host if request.client else "?"
 
 
-def limit(name: str, capacity: int, per_seconds: float, *, by: str = "shop"):
-    """A dependency: a token bucket of `capacity` calls refilled over `per_seconds`, kept per app.
-    `by` is "shop" (the shop or request in the path), "client" (the caller's address) or "all"."""
-    rate = capacity / per_seconds
+SHOPS_PER_HOUR = 200  # new demo shops across every visitor; Cloud Run sets 30, where /data lives in memory
 
-    def dependency(request: Request):
+
+def shops_per_hour() -> int:
+    """MUSHA_SHOPS_PER_HOUR: the demo shops the server makes in an hour, for every visitor together."""
+    try:
+        return max(1, int(os.getenv("MUSHA_SHOPS_PER_HOUR", str(SHOPS_PER_HOUR))))
+    except ValueError:
+        return SHOPS_PER_HOUR
+
+
+def limit(name: str, capacity: int | Callable[[], int], per_seconds: float, *, by: str = "shop"):
+    """A dependency: a token bucket of `capacity` calls refilled over `per_seconds`, kept per app.
+    `capacity` is a number, or a function read on each call, for a setting from the environment.
+    `by` is "shop" (the shop or request in the path), "client" (the caller's address) or "all"."""
+    def dependency(request: HTTPConnection):
+        cap = capacity() if callable(capacity) else capacity
+        rate = cap / per_seconds
         state = request.app.state
         buckets = getattr(state, "musha_buckets", None)
         if buckets is None:
@@ -206,8 +250,8 @@ def limit(name: str, capacity: int, per_seconds: float, *, by: str = "shop"):
             p = request.path_params
             who = f"shop:{p['shop_id']}" if "shop_id" in p else f"request:{p.get('request_id', '?')}"
         key, at = (name, who), time.monotonic()
-        tokens, then = buckets.get(key, (float(capacity), at))
-        tokens = min(float(capacity), tokens + (at - then) * rate)
+        tokens, then = buckets.get(key, (float(cap), at))
+        tokens = min(float(cap), tokens + (at - then) * rate)
         if tokens < 1:
             wait = max(1, int((1 - tokens) / rate + 0.999))
             buckets[key] = (tokens, at)
@@ -290,19 +334,22 @@ async def validation_errors(request: Request, exc: RequestValidationError) -> JS
 
 @router.get("/health")
 def health(session: Session = Depends(db)):
-    """Render's health check: the app answers and its database answers."""
+    """The health check deploy/deploy.ps1 waits on after a deploy: the app answers and its database answers."""
     session.scalar(select(Shop.id).limit(1))
     return {"ok": True}
 
 
 @router.get("/config")
 def config(s: Settings = Depends(settings), m=Depends(model)):
+    """What the web app needs before it draws: PayPal's client ID, the mode, the model, and the AG Grid
+    licence the Money view sets at runtime, so the key stays out of the built bundle."""
     return {"paypal_client_id": s.paypal_client_id, "paypal_mode": s.paypal_mode,
-            "currency": s.currency, "ai": {"enabled": m.enabled, "model": m.model}}
+            "currency": s.currency, "ai": {"enabled": m.enabled, "model": m.model},
+            "ag_grid_key": s.ag_grid_key}
 
 
 @router.post("/demo/shops", status_code=201, dependencies=[
-    Depends(limit("demo_shop", 6, 3600, by="client")), Depends(limit("demo_shops", 200, 3600, by="all"))])
+    Depends(limit("demo_shop", 6, 3600, by="client")), Depends(limit("demo_shops", shops_per_hour, 3600, by="all"))])
 def new_demo_shop(request: Request, response: Response, session: Session = Depends(db)):
     """Every visitor gets a shop of their own, seeded with the same family and history. The answer
     carries the shop's keys: the counter phone's goes in the counter link, the manager's in the
@@ -327,6 +374,16 @@ def join(shop_id: ShopId, body: Join, request: Request, response: Response, sess
     if level_of(request, shop) < ROLES.index(role):  # a browser holding a wider key keeps it
         remember(response, request, shop.id, body.key.strip())
     return {"role": role, "shop": shop_view(session, shop)}
+
+
+@router.post("/shops/{shop_id}/counter-key", dependencies=[Depends(limit("counter_key", 10, 60))])
+def new_counter_key(shop: Shop = Depends(shop_for("owner")), session: Session = Depends(db)):
+    """The owner retires the counter link: the shop gets a new counter key, and the old one opens nothing."""
+    key = rotate_counter_key(shop)
+    if not key:
+        raise HTTPException(409, "This shop is open to every caller. A visitor's own shop has keys to change.")
+    session.commit()
+    return {"counter": key}
 
 
 @router.get("/shops/{shop_id}")
@@ -477,7 +534,10 @@ async def paypal_webhook(request: Request, session: Session = Depends(db), pp=De
 
 @router.post("/jobs/holds")
 async def hold_jobs(session: Session = Depends(db), pp=Depends(paypal), s: Settings = Depends(settings),
-                    x_jobs_key: str = Header(default="")):
+                    m=Depends(model), x_jobs_key: str = Header(default="")):
+    """The holds, the payouts and the idle shops (flows.run_due), then Musha's own asks for the stock
+    running low in the shops someone used in the last day (insights.restock_due)."""
     if not s.jobs_key or not hmac.compare_digest(x_jobs_key.encode(), s.jobs_key.encode()):
         raise HTTPException(403, "Jobs key required.")
-    return {"done": await guarded(flows.run_due(session, pp))}
+    done = await guarded(flows.run_due(session, pp))
+    return {"done": done + await insights.restock_due(session, pp, m)}

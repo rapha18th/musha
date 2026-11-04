@@ -2,21 +2,25 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState, type KeyboardEven
 import type { Config, Entry, Shop, SpendRequest } from "./api";
 import { ownerApi, type Alert, type OwnerRequest, type Week as WeekData } from "./owner/api";
 import { Today } from "./owner/Today";
+import { CallShop } from "./owner/Call";
 import { Spinner } from "./owner/parts";
 import { canApprove, openItems, usePoll, useStored, when } from "./owner/lib";
 import "./owner/owner.css";
 
-// Week and Books carry AG Grid, and Agent the mandate; each loads the first time its tab opens.
+// Week and Books carry AG Grid, Money AG Grid and AG Charts Enterprise, and Agent the mandate; each loads the
+// first time its tab opens.
 const loadWeek = () => import("./owner/Week");
 const loadBooks = () => import("./owner/Books");
+const loadMoney = () => import("./owner/Money");
 const loadAgent = () => import("./owner/Agent");
 const Week = lazy(() => loadWeek().then((m) => ({ default: m.Week })));
 const Books = lazy(() => loadBooks().then((m) => ({ default: m.Books })));
+const Money = lazy(() => loadMoney().then((m) => ({ default: m.Money })));
 const Agent = lazy(() => loadAgent().then((m) => ({ default: m.Agent })));
 
-const TABS = ["today", "week", "books", "agent"] as const;
+const TABS = ["today", "week", "books", "money", "agent"] as const;
 type Tab = (typeof TABS)[number];
-const TAB_LABEL: Record<Tab, string> = { today: "Today", week: "Week", books: "Books", agent: "Agent" };
+const TAB_LABEL: Record<Tab, string> = { today: "Today", week: "Week", books: "Books", money: "Money", agent: "Agent" };
 
 type Props = {
   shop: Shop;
@@ -26,7 +30,7 @@ type Props = {
   config: Config;
 };
 
-/** Chipo's console: one shop, four views, one focal point in each. */
+/** Chipo's console: one shop, five views, one focal point in each. */
 export function Owner({ shop, requests, entries, refresh, config }: Props) {
   const [tab, setTab] = useStored<Tab>("musha.ownerTab", "today", TABS);
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -109,6 +113,7 @@ export function Owner({ shop, requests, entries, refresh, config }: Props) {
             {shop.camera_seen_at ? ` · counter camera seen ${when(shop.camera_seen_at)}` : ""}
           </p>
         </div>
+        <CallShop shop={shop} />
       </header>
 
       <nav className="o-tabs" role="tablist" aria-label="Console">
@@ -134,6 +139,7 @@ export function Owner({ shop, requests, entries, refresh, config }: Props) {
               reloadAlerts={reloadAlerts} reloadWeek={reloadWeek} />
           )}
           {tab === "books" && <Books shop={shop} entries={entries} requests={reqs} />}
+          {tab === "money" && <Money shop={shop} entries={entries} week={week} config={config} />}
           {tab === "agent" && <Agent shop={shop} sandbox={sandbox} onChange={refreshAll} />}
         </Suspense>
       </div>

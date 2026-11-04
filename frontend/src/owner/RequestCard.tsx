@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { usd, type Proof, type Shop } from "../api";
 import { ownerApi, type Assessment, type CheckRow, type OwnerRequest } from "./api";
 import { Lightbox, Thumbs, evidenceOf } from "./Evidence";
-import { Approve, Decide, KindChip, MoneyBar, ScoreRing, Spinner, StatusPill } from "./parts";
-import { canApprove, day, shownStatus, titleOf, when } from "./lib";
+import { Approve, Decide, ErrorLine, KindChip, MoneyBar, ScoreRing, Spinner, StatusPill } from "./parts";
+import { canApprove, day, shownStatus, titleOf, useAction, when } from "./lib";
 import { WATCHING, contradicts, highScoreLine, sentBefore, typedHold, typedLine, watching } from "./signals";
 
 const LANGUAGE: Record<string, string> = { sn: "Shona", nd: "Ndebele", zu: "isiZulu", en: "English" };
-const CLOSED = ["captured", "part_captured", "voided"];
+const CLOSED = ["captured", "part_captured", "voided", "declined"];
 const ASSESS = ["requested", "approving", "agent_pending", "reviewing"];
 
 /** Musha's one line for the approval card, from the shop's own past buys. */
@@ -64,7 +64,7 @@ export function RequestCard({ req, shop, sandbox, refresh, highlight }: Props) {
   }, [closed]);
   const inferred = req.inferred ?? [];
   const manager = shop.manager.name;
-  const asker = req.origin === "alert" ? "From a low-stock alert"
+  const asker = req.origin === "alert" ? "From a low-stock alert" : req.origin === "musha" ? "Asked by Musha"
     : req.origin === "owner" || req.origin === "wages" ? `Asked by ${shop.owner.name}` : `Asked by ${manager}`;
   const hold = req.hold;
   const lastDecision = req.proofs[req.proofs.length - 1]?.decision;
@@ -96,7 +96,7 @@ export function RequestCard({ req, shop, sandbox, refresh, highlight }: Props) {
         </div>
       </header>
 
-      {req.origin !== "wages" && <Words req={req} manager={manager} />}
+      {req.origin !== "wages" && <Words req={req} manager={req.origin === "musha" ? "Musha" : manager} />}
 
       {req.proving && <p className="o-fine o-proving"><Spinner /> Musha is reading the receipt.</p>}
 
@@ -107,6 +107,7 @@ export function RequestCard({ req, shop, sandbox, refresh, highlight }: Props) {
       )}
 
       {canApprove(req) && <Approve req={req} sandbox={sandbox} refresh={refresh} />}
+      <Decline req={req} refresh={refresh} />
 
       {req.approved_by === "agent" && req.approved_at && (
         <p className="o-agent-line">Approved by Musha inside your limit.</p>
@@ -130,6 +131,23 @@ export function RequestCard({ req, shop, sandbox, refresh, highlight }: Props) {
         )
       )}
     </article>
+  );
+}
+
+/** Musha's own request, while it waits for the owner: she says no, and Musha asks for the item again once new stock
+ *  of it arrives and runs low. */
+export function Decline({ req, refresh }: { req: OwnerRequest; refresh: () => Promise<void> }) {
+  const { busy, error, run } = useAction();
+  if (req.origin !== "musha" || !canApprove(req)) return null;
+  return (
+    <div className="o-row o-decline">
+      <button className="o-btn o-quiet" disabled={busy} onClick={() => run(async () => {
+        await ownerApi.decline(req.id);
+        await refresh();
+      })}>{busy ? <Spinner /> : null}Decline</button>
+      <span className="o-muted o-small-text">Musha asks again once new stock arrives and runs low.</span>
+      <ErrorLine error={error} />
+    </div>
   );
 }
 

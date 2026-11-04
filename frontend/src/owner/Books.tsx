@@ -1,10 +1,12 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import type { ColDef, ICellRendererParams } from "ag-grid-community";
 import { usd, type Entry, type Shop } from "../api";
+import { recordApi, useRecord, type LineBy } from "../record";
 import { ownerApi, type OwnerRequest, type Reconcile } from "./api";
 import { Lightbox, evidenceOf } from "./Evidence";
 import { ErrorLine, Spinner, Tile } from "./parts";
+import { RecordTile } from "./Record";
 import { cap, clock, day, useAction, useCompact, useDocTheme, when } from "./lib";
 import { gridTheme } from "./grid";
 
@@ -29,7 +31,31 @@ const SOURCE: Record<string, string> = {
   api: "Musha", webhook: "PayPal webhook", job: "Nightly job", seed: "Opening books", manager: "Day close",
 };
 
-type Row = Entry & { line: string; posted: string; files: number };
+type Row = Entry & { line: string; posted: string; by: string; files: number };
+
+/** The name behind each line: the manager, the owner, the owner's agent, or Musha for a hold it asked for itself. */
+function byName(shop: Shop, who: string | undefined): string {
+  if (who === "manager") return shop.manager.name;
+  if (who === "owner") return shop.owner.name;
+  if (who === "agent") return "Musha's agent";
+  if (who === "musha") return "Musha";
+  return "";
+}
+
+/** Who each line belongs to, read again when a line reaches the books. */
+function useLineBy(shopId: number, signal: string): LineBy {
+  const [by, setBy] = useState<LineBy>({});
+  useEffect(() => {
+    let live = true;
+    recordApi.by(shopId).then((b) => {
+      if (live) setBy(b);
+    }, () => undefined);
+    return () => {
+      live = false;
+    };
+  }, [shopId, signal]);
+  return by;
+}
 
 /** "2026-10-31 13:45" in the viewer's time, which spreadsheets read as a date. */
 function stamp(iso: string): string {
@@ -40,21 +66,31 @@ function stamp(iso: string): string {
 
 export function Books({ shop, entries, requests }: { shop: Shop; entries: Entry[]; requests: OwnerRequest[] }) {
   const theme = useDocTheme();
-  // The wide column set needs 780 px for its minimum widths; below that the two-line set fits.
+  // The wide column set needs 768 px for its minimum widths, so it opens at 780; below that the two-line set fits.
+  // The quantity reads in each line's detail, so its column stays for the CSV alone.
   const [box, narrow] = useCompact<HTMLDivElement>(780);
   const grid = useRef<AgGridReact<Row>>(null);
   const [quick, setQuick] = useState("");
   const [kind, setKind] = useState("all");
   const [proof, setProof] = useState<{ req: OwnerRequest; index: number } | null>(null);
   const b = shop.books;
+  const signal = `${entries.length}:${entries.length ? entries[entries.length - 1].id : 0}`;
+  const lineBy = useLineBy(shop.id, signal);
+  const record = useRecord(shop.id, signal);
+  // The releases the last match of PayPal to the books found on PayPal's own list, by request.
+  const [matched, setMatched] = useState<Set<number>>();
+  const onMatch = useCallback((r: Reconcile) => {
+    setMatched(new Set(r.matched.filter((m) => m.kind === "captured" && m.request_id).map((m) => m.request_id as number)));
+  }, []);
 
   const byId = useMemo(() => new Map(requests.map((r) => [r.id, r])), [requests]);
   const rows = useMemo<Row[]>(() => [...entries].reverse().map((e) => ({
     ...e,
     line: LINE[e.kind] ?? cap(e.kind.replace(/_/g, " ")),
     posted: SOURCE[e.source] ?? cap(e.source),
+    by: byName(shop, lineBy[String(e.id)]),
     files: e.request_id ? (byId.get(e.request_id)?.attachments.length ?? 0) : 0,
-  })), [entries, byId]);
+  })), [entries, byId, lineBy, shop]);
   const kinds = useMemo(() => Array.from(new Set(entries.map((e) => e.kind))), [entries]);
   const shown = useMemo(() => (kind === "all" ? rows : rows.filter((r) => r.kind === kind)), [rows, kind]);
 
@@ -65,7 +101,7 @@ export function Books({ shop, entries, requests }: { shop: Shop; entries: Entry[
 
   const cols = useMemo<ColDef<Row>[]>(() => [
     {
-      field: "at", headerName: "When", minWidth: narrow ? 80 : 116, maxWidth: narrow ? 80 : undefined, flex: narrow ? undefined : 0.9, sort: "desc",
+      field: "at", headerName: "When", minWidth: narrow ? 80 : 104, maxWidth: narrow ? 80 : undefined, flex: narrow ? undefined : 0.8, sort: "desc",
       valueFormatter: (p) => `${day(p.value)}, ${clock(p.value)}`,
       cellRenderer: narrow ? (p: ICellRendererParams<Row>) => (
         <span className="o-two"><span>{day(p.value)}</span><small>{clock(p.value)}</small></span>
@@ -73,12 +109,12 @@ export function Books({ shop, entries, requests }: { shop: Shop; entries: Entry[
       getQuickFilterText: (p) => day(p.value),
     },
     {
-      field: "line", headerName: "Line", minWidth: narrow ? 120 : 180, flex: narrow ? 2 : 1.4,
+      field: "line", headerName: "Line", minWidth: narrow ? 120 : 188, flex: narrow ? 2 : 1.4,
       cellRenderer: (p: ICellRendererParams<Row>) => (
         narrow ? (
           <span className={`o-line o-two o-tone-${TONE[p.data?.kind ?? ""] ?? "calm"}`}>
             <span><i aria-hidden="true" />{p.value}</span>
-            <small>{p.data?.memo}</small>
+            <small>{p.data?.by ? <><b className="o-by">{p.data.by}</b> · </> : null}{p.data?.memo}</small>
           </span>
         ) : (
           <span className={`o-line o-tone-${TONE[p.data?.kind ?? ""] ?? "calm"}`} title={p.value}>
@@ -86,17 +122,21 @@ export function Books({ shop, entries, requests }: { shop: Shop; entries: Entry[
           </span>
         )
       ),
-      getQuickFilterText: (p) => `${p.value} ${p.data?.memo ?? ""}`,
+      getQuickFilterText: (p) => `${p.value} ${p.data?.memo ?? ""} ${p.data?.by ?? ""}`,
     },
-    { field: "memo", headerName: "Detail", minWidth: 150, flex: 1.6, tooltipField: "memo", hide: narrow },
-    { field: "quantity", headerName: "Qty", type: "rightAligned", minWidth: 52, flex: 0.3, hide: narrow, valueFormatter: (p) => (p.value ? String(p.value) : "") },
+    { field: "memo", headerName: "Detail", minWidth: 120, flex: 1.6, tooltipField: "memo", hide: narrow },
+    { field: "quantity", headerName: "Qty", type: "rightAligned", minWidth: 48, flex: 0.3, hide: true, valueFormatter: (p) => (p.value ? String(p.value) : "") },
     {
       field: "amount_cents", headerName: narrow ? shop.currency.replace("USD", "US$") : "Amount", type: "rightAligned",
-      minWidth: narrow ? 76 : 100, maxWidth: narrow ? 76 : undefined, flex: narrow ? undefined : 0.8,
+      minWidth: narrow ? 76 : 96, maxWidth: narrow ? 76 : undefined, flex: narrow ? undefined : 0.8,
       valueFormatter: (p) => (p.value ? (narrow ? usd(p.value).replace(/^US\$/, "") : usd(p.value)) : ""), cellClass: ["ag-right-aligned-cell", "o-num"],
       getQuickFilterText: (p) => (p.value / 100).toFixed(2),
     },
-    { field: "posted", headerName: "Posted by", minWidth: 118, flex: 0.8, hide: narrow },
+    {
+      field: "by", headerName: "By", minWidth: 68, flex: 0.5, hide: narrow,
+      cellRenderer: (p: ICellRendererParams<Row>) => (p.value ? <b className="o-by">{p.value}</b> : null),
+    },
+    { field: "posted", headerName: "Posted by", minWidth: 132, flex: 0.9, hide: narrow },
     {
       field: "files", headerName: "", width: narrow ? 48 : 60, maxWidth: narrow ? 48 : 60, minWidth: narrow ? 48 : 60, sortable: false, resizable: false,
       cellRenderer: (p: ICellRendererParams<Row>) => (p.value ? (
@@ -111,7 +151,7 @@ export function Books({ shop, entries, requests }: { shop: Shop; entries: Entry[
   const exportCsv = () => {
     grid.current?.api.exportDataAsCsv({
       fileName: `${shop.name.replace(/[^\w ]+/g, "").trim()} books.csv`,
-      columnKeys: ["at", "line", "memo", "quantity", "amount_cents", "posted"],
+      columnKeys: ["at", "line", "memo", "quantity", "amount_cents", "by", "posted"],
       processCellCallback: (p) => {
         const id = p.column.getColId();
         if (id === "amount_cents") return ((p.value ?? 0) / 100).toFixed(2);
@@ -131,6 +171,8 @@ export function Books({ shop, entries, requests }: { shop: Shop; entries: Entry[
         <Tile label="Returned to you" value={usd(b.returned_cents)} />
         <Tile label="Wages" value={usd(b.wages_cents)} />
       </div>
+
+      <RecordTile shop={shop} record={record} matched={matched} />
 
       <section className="o-section">
         <div className="o-section-head">
@@ -154,7 +196,7 @@ export function Books({ shop, entries, requests }: { shop: Shop; entries: Entry[
         </div>
       </section>
 
-      <ReconcilePanel shop={shop} />
+      <ReconcilePanel shop={shop} onMatch={onMatch} />
 
       {proof && (
         <Lightbox items={evidenceOf(proof.req)} index={proof.index}
@@ -170,15 +212,19 @@ const WHAT: Record<string, string> = {
   reauthorized: "Hold renewed", reversal: "Reversal", refund: "Refund",
 };
 
-function ReconcilePanel({ shop }: { shop: Shop }) {
+function ReconcilePanel({ shop, onMatch }: { shop: Shop; onMatch: (r: Reconcile) => void }) {
   const [result, setResult] = useState<Reconcile>();
   const [writing, setWriting] = useState(false);
   const { busy, error, run } = useAction();
+  const land = (r: Reconcile) => {
+    setResult(r);
+    onMatch(r);
+  };
   // The exact match lands at once; the agent's summary follows, and the rule's summary stands until it does.
   const go = () => run(async () => {
-    setResult(await ownerApi.reconcile(shop.id, false));
+    land(await ownerApi.reconcile(shop.id, false));
     setWriting(true);
-    ownerApi.reconcile(shop.id).then(setResult, () => undefined).finally(() => setWriting(false));
+    ownerApi.reconcile(shop.id).then(land, () => undefined).finally(() => setWriting(false));
   });
   const r = result;
   const problems = r ? r.missing_in_books.length + r.missing_in_paypal.length + r.mismatched.length : 0;
@@ -233,7 +279,11 @@ function ReconcilePanel({ shop }: { shop: Shop }) {
                 <ul className="o-recon-list">
                   {r.matched.map((m) => (
                     <li key={`ok${m.ref}${m.paypal_id}`}>
-                      <span>{WHAT[m.kind] ?? cap(m.kind)}{m.item ? `, ${m.item}` : ""} · {when(m.at)}</span><b>{usd(m.amount_cents)}</b>
+                      <span>
+                        {WHAT[m.kind] ?? cap(m.kind)}{m.item ? `, ${m.item}` : ""} · {when(m.at)}
+                        {m.paypal_id && <code className="o-recon-id" title="PayPal transaction ID">{m.paypal_id}</code>}
+                      </span>
+                      <b>{usd(m.amount_cents)}</b>
                     </li>
                   ))}
                 </ul>

@@ -147,6 +147,10 @@ class PayPal:
             } for it in items],
         })
 
+    async def get_payout(self, payout_batch_id: str) -> dict:
+        """A batch's latest status, with its items: what the hold job books when no webhook arrives."""
+        return await self._call("GET", f"/v1/payments/payouts/{payout_batch_id}")
+
     # Vault v3: the owner saves PayPal once, and the agent holds money inside the mandate
 
     async def create_setup_token(self, *, return_url: str, cancel_url: str, description: str,

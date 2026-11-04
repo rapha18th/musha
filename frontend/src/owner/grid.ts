@@ -1,4 +1,4 @@
-// AG Grid for the Week and Books tabs only, so the landing and Today load without it.
+// AG Grid for the Week, Books and Money tabs only, so the landing and Today load without it.
 import {
   CellStyleModule, ClientSideRowModelModule, CsvExportModule, ModuleRegistry, PaginationModule, QuickFilterModule,
   TooltipModule, themeQuartz,
@@ -37,6 +37,11 @@ const tokens = {
   inputBorder: { color: "var(--line)" },
   inputFocusBorder: { color: "var(--clay)" },
   inputTextColor: "var(--ink)",
+  // The Money view's Enterprise parts: group rows, the status bar and the filter popups
+  rowGroupIndentSize: 18,
+  statusBarLabelColor: "var(--muted)",
+  statusBarValueColor: "var(--ink)",
+  menuBorder: { color: "var(--line)" },
 } as const;
 
 /** Mode params match the wrapper's data-ag-theme-mode; the wrapper also carries the ag-theme-mode class. */

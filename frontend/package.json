@@ -10,8 +10,12 @@
   },
   "dependencies": {
     "@paypal/react-paypal-js": "^10.6.0",
-    "ag-grid-community": "^36.2.0",
-    "ag-grid-react": "^36.2.0",
+    "ag-charts-community": "14.2.0",
+    "ag-charts-enterprise": "14.2.0",
+    "ag-charts-react": "14.2.0",
+    "ag-grid-community": "36.2.0",
+    "ag-grid-enterprise": "36.2.0",
+    "ag-grid-react": "36.2.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },

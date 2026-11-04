@@ -1,0 +1,90 @@
+/* The shop call: the button in the console's head, the incoming ring, and the call itself. Tokens come from
+   styles.css; every class here starts with c-. */
+
+.o-head:has(.c-entry) { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px 24px; flex-wrap: wrap; }
+.c-entry { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; margin-top: 4px; }
+.c-callbtn svg { width: 18px; height: 18px; }
+.c-entry-line { margin: 0; max-width: 30ch; text-align: right; }
+
+/* The sheet over the console */
+.c-scrim { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 24px; background: rgba(20, 16, 12, .62); backdrop-filter: blur(6px); animation: c-fade .2s ease both; }
+/* Wide screens set the console and the manager's phone side by side (.stage in styles.css: 1240 px wide,
+   a 380 px phone column, a 32 px gap). The call covers the console, and the phone stays in view and in reach. */
+@media (min-width: 961px) {
+  .c-scrim { right: calc((100vw - min(100vw, 1240px)) / 2 + 412px); }
+}
+.c-sheet { position: relative; width: min(560px, 100%); max-height: calc(100dvh - 48px); overflow-y: auto; background: var(--paper); color: var(--ink); border-radius: 26px; padding: 24px 28px 26px; box-shadow: 0 24px 80px rgba(0, 0, 0, .35); animation: c-rise .28s ease both; }
+.c-sheet :focus-visible { outline: 2px solid var(--clay); outline-offset: 3px; }
+.c-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.c-eyebrow { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.c-timer { font-size: 14px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+.c-name { font-family: var(--display); font-weight: 600; font-size: 30px; line-height: 1.15; letter-spacing: -0.5px; margin: 12px 0 0; }
+.c-sub { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+
+.c-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+.c-dot-connecting, .c-dot-ring { background: var(--clay); animation: c-blink 1s ease-in-out infinite; }
+.c-dot-live { background: var(--leaf); box-shadow: 0 0 0 0 color-mix(in srgb, var(--leaf) 50%, transparent); animation: c-beacon 2s ease-out infinite; }
+.c-dot-failed { background: var(--danger); }
+
+/* What Musha shows, or its voice */
+.c-stage { display: grid; place-items: center; margin: 16px 0 14px; min-height: 140px; }
+.c-shown { margin: 0; width: 100%; animation: c-rise .3s ease both; }
+.c-shown img { display: block; width: 100%; max-height: min(34vh, 340px); aspect-ratio: 4 / 3; object-fit: contain; border-radius: 16px; background: var(--sand); }
+.c-shown figcaption { margin-top: 8px; font-size: 13px; color: var(--ink); }
+.c-voice { --level: 0; display: grid; place-items: center; width: 128px; height: 128px; border-radius: 50%; background: var(--clay-soft); color: var(--clay-ink); font-family: var(--display); font-weight: 600; font-size: 52px; box-shadow: 0 0 0 calc(var(--level) * 18px) color-mix(in srgb, var(--clay) 18%, transparent), 0 0 0 calc(var(--level) * 34px) color-mix(in srgb, var(--clay) 8%, transparent); transition: box-shadow .12s linear; }
+
+/* Captions */
+.c-captions { display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; min-height: 104px; }
+.c-line { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: baseline; margin: 0; font-size: 16px; line-height: 1.45; animation: c-rise .2s ease both; }
+.c-who { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.c-hint { display: block; }
+.c-from-owner { color: var(--muted); }
+.c-from-shop { color: var(--ink); }
+.c-from-shop .c-who { color: var(--clay-ink); }
+.c-hint { color: var(--muted); font-size: 14px; }
+.c-doing { display: flex; align-items: center; gap: 8px; min-height: 20px; margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+
+/* Buttons */
+.c-actions { display: flex; justify-content: center; gap: 44px; margin-top: 20px; }
+.c-act { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.c-round { display: grid; place-items: center; width: 64px; height: 64px; border: 0; border-radius: 50%; transition: transform .15s, filter .15s, background .15s; }
+.c-round:hover:not(:disabled) { filter: brightness(1.06); }
+.c-round:active:not(:disabled) { transform: scale(.96); }
+.c-round:disabled { opacity: .45; cursor: default; }
+.c-answer { background: var(--leaf); color: var(--paper); }
+.c-end, .c-later { background: var(--danger); color: var(--paper); }
+.c-mute { background: var(--sand); color: var(--ink); }
+.c-mute.c-pressed { background: var(--ink); color: var(--paper); }
+
+/* The ring */
+.c-incoming { text-align: center; }
+.c-incoming .c-eyebrow { justify-content: center; }
+.c-in-pic { margin: 18px auto 0; max-width: 320px; }
+.c-in-pic img { display: block; width: 100%; max-height: 200px; object-fit: contain; border-radius: 14px; background: var(--sand); }
+.c-reason { font-family: var(--display); font-size: 20px; line-height: 1.4; margin: 16px auto 0; max-width: 34ch; text-wrap: balance; }
+.c-incoming .c-answer { animation: c-nudge 1.2s ease-in-out infinite; }
+
+@keyframes c-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes c-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes c-blink { 50% { opacity: .35; } }
+@keyframes c-beacon { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--leaf) 45%, transparent); } 100% { box-shadow: 0 0 0 8px transparent; } }
+@keyframes c-nudge { 0%, 100% { transform: none; } 20% { transform: rotate(-9deg); } 40% { transform: rotate(9deg); } 60% { transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .c-scrim, .c-scrim *, .c-dot { animation: none !important; transition: none !important; }
+}
+
+/* Phone width: the call takes the screen */
+@media (max-width: 560px) {
+  .o-head:has(.c-entry) { flex-direction: column; align-items: stretch; }
+  .c-entry { align-items: stretch; }
+  .c-callbtn { width: 100%; }
+  .c-entry-line { text-align: left; max-width: none; }
+  .c-scrim { padding: 0; align-items: end; }
+  .c-sheet { width: 100%; max-height: 100dvh; border-radius: 22px 22px 0 0; padding: 20px 18px 28px; }
+  .c-call { min-height: 100dvh; border-radius: 0; display: flex; flex-direction: column; }
+  .c-call .c-captions { flex: 1; }
+  .c-name { font-size: 26px; }
+  .c-shown img { max-height: 36vh; }
+  .c-actions { gap: 36px; }
+}

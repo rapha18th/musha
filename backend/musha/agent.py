@@ -530,14 +530,15 @@ async def payer_email(pp, m: Mandate) -> str | None:
 
 
 def decisions(session: Session, shop_id: int, limit: int = 8) -> list[dict]:
-    """The agent's latest calls: what it approved, what waits on PayPal, and what it asked the owner about."""
+    """The agent's latest calls: what it approved, what waits on PayPal, and what it asked the owner about.
+    `origin` says who asked for each request: musha for stock Musha asked for itself."""
     rows = []
     approved = session.scalars(select(SpendRequest).where(
         SpendRequest.shop_id == shop_id, SpendRequest.approved_by == "agent")
         .order_by(SpendRequest.id.desc()).limit(limit))
     for req in approved:
         rows.append({"request_id": req.id, "item": req.item, "amount_cents": req.amount_cents,
-                     "decision": "waiting" if req.status == PENDING else "approved",
+                     "decision": "waiting" if req.status == PENDING else "approved", "origin": req.origin,
                      "status": req.status, "at": req.approved_at, "line": _owner_line(session, req.id)})
     asked = session.scalars(select(Alert).where(Alert.shop_id == shop_id, Alert.kind == "mandate")
                             .order_by(Alert.id.desc()).limit(limit))
@@ -545,6 +546,7 @@ def decisions(session: Session, shop_id: int, limit: int = 8) -> list[dict]:
         req = alert.request_id and session.get(SpendRequest, alert.request_id)
         rows.append({"request_id": alert.request_id, "item": req.item if req else "",
                      "amount_cents": req.amount_cents if req else 0, "decision": "asked",
+                     "origin": req.origin if req else "",
                      "status": req.status if req else "", "at": alert.created_at, "line": alert.body})
     rows.sort(key=lambda r: flows.utc(r["at"]) if r["at"] else flows.now(), reverse=True)
     return rows[:limit]

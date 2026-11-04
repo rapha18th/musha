@@ -25,6 +25,7 @@ class MandateIn(BaseModel):
     kinds: list[str] | None = Field(default=None, max_length=8)
     known_payees_only: bool | None = None
     price_tolerance_pct: int | None = Field(default=None, ge=0, le=100)
+    restock: bool | None = None  # Musha asks for stock when it runs low (insights.restock)
 
 
 class SavedPayPal(BaseModel):
@@ -45,6 +46,7 @@ async def mandate_view(session: Session, pp, shop: Shop) -> dict:
         "kinds": agent.kinds_of(m),
         "known_payees_only": m.known_payees_only,
         "price_tolerance_pct": m.price_tolerance_pct,
+        "restock": m.restock,
         "week": {"since": iso(agent.week_start()), "agent_cents": spent,
                  "left_cents": max(m.weekly_cap_cents - spent, 0)},
         "decisions": [{**d, "at": iso(d["at"])} for d in agent.decisions(session, shop.id)],
@@ -88,6 +90,8 @@ async def put_mandate(body: MandateIn, shop: Shop = Depends(shop_for("owner")), 
         m.known_payees_only = body.known_payees_only
     if body.price_tolerance_pct is not None:
         m.price_tolerance_pct = body.price_tolerance_pct
+    if body.restock is not None:  # Musha asks inside the same terms, so the switch widens nothing
+        m.restock = body.restock
     m.updated_at = flows.now()
     old = ""
     if agent.widens(before, agent.terms(m)):

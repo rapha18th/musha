@@ -6,7 +6,10 @@ import { CounterCam } from "./phone/CounterCam";
 import { AskSheet, CloseSheet, ProofSheet } from "./phone/Sheets";
 import { Thread, type Local, type Pending } from "./phone/Thread";
 import { asks, clock, PROVABLE, todayUtc, typesNumbers } from "./phone/util";
+import { Back, Call, Dots, Mark, Video } from "./phone/icons";
+import { WALLPAPER } from "./phone/wallpaper";
 import "./phone/phone.css";
+import "./phone/whatsapp.css";
 
 type SheetOpen = { type: "ask" } | { type: "proof"; requestId: number; file?: File } | { type: "close" } | null;
 
@@ -40,7 +43,8 @@ function lineOf(p: Pending, out: Answer): Message | undefined {
     p.kind === "voice" ? !!m.attachment_id : !m.attachment_id && m.text.trim() === p.text.trim()));
 }
 
-/** Farai's phone: a chat with Musha in his own language, and the counter camera. */
+/** Farai's phone: a WhatsApp-style chat with Musha in her own language, and the counter camera.
+ *  Simulated here; the WhatsApp Business Platform is the next wire for the live chat. */
 export function Phone({ shop, requests, messages, loading = false, refresh }: {
   shop: Shop;
   requests: SpendRequest[];
@@ -79,14 +83,22 @@ export function Phone({ shop, requests, messages, loading = false, refresh }: {
       }
       const r = el.getBoundingClientRect();
       if (!r.width) return;
-      const h = `${Math.max(480, Math.round(window.innerHeight - (r.top + window.scrollY) - 12))}px`;
+      const below = el.nextElementSibling instanceof HTMLElement ? el.nextElementSibling.offsetHeight + 8 : 0;
+      const h = `${Math.max(480, Math.round(window.innerHeight - (r.top + window.scrollY) - 12 - below))}px`;
       if (el.style.getPropertyValue("--ph-h") !== h) el.style.setProperty("--ph-h", h);
     };
     fit();
-    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(fit);
+    // The new height lands on the next frame, so the observer never sees its own change in the same loop.
+    let frameId = 0;
+    const later = () => {
+      cancelAnimationFrame(frameId);
+      frameId = requestAnimationFrame(fit);
+    };
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(later);
     ro?.observe(el);
     window.addEventListener("resize", fit);
     return () => {
+      cancelAnimationFrame(frameId);
       ro?.disconnect();
       window.removeEventListener("resize", fit);
     };
@@ -273,7 +285,7 @@ export function Phone({ shop, requests, messages, loading = false, refresh }: {
     const live = pending.filter((p) => p.state !== "failed");
     // An answer to the request on its way: the banner waits with it.
     const sending = (rid: number) => live.some((p) => p.requestId === rid);
-    // Anything else the manager sent after the question means he moved on.
+    // Anything else the manager sent after the question means she moved on.
     const movedOn = (rid: number, after: (p: Pending) => boolean) => live.some((p) => p.requestId !== rid && after(p));
     const of = (m: Message): Question =>
       ({ id: m.id, key: m.id, requestId: m.request_id!, text: m.text || m.text_en, sending: sending(m.request_id!) });
@@ -390,109 +402,124 @@ export function Phone({ shop, requests, messages, loading = false, refresh }: {
   const lastDay = week?.cash[week.cash.length - 1];
   const closedToday = !!lastDay && lastDay.day === todayUtc() && lastDay.closed;
   const close = useCallback(() => setSheet(null), []);
+  // The camera in the bar opens the proof sheet for the newest request waiting for proof.
+  const camera = () => {
+    const r = targets[0];
+    if (r) setSheet({ type: "proof", requestId: r.id });
+    else setNote("Proof goes with an approved request. Ask for money first.");
+  };
 
   return (
-    <div className="ph" data-tab={tab} ref={frame}>
-      <div className="ph-status" aria-hidden="true">
-        <span>{clock(now)}</span>
-        <span className="ph-island" />
-        <span className="ph-signal"><i /><i /><i /><i /></span>
-      </div>
-      <header className="ph-head">
-        <span className="ph-avatar" aria-hidden="true">M</span>
-        <div className="ph-who">
-          <strong>Musha</strong>
-          <span className={typing ? "ph-typing-label" : undefined}>{typing ? "typing" : shop.name}</span>
+    <>
+      <div className="ph" data-tab={tab} ref={frame} style={WALLPAPER}>
+        <div className="ph-status" aria-hidden="true">
+          <span>{clock(now)}</span>
+          <span className="ph-island" />
+          <span className="ph-signal"><i /><i /><i /><i /></span>
         </div>
-        <nav className="ph-tabs" aria-label="Phone">
-          <button type="button" aria-pressed={tab === "chat"} onClick={() => setTab("chat")}>Chat</button>
-          <button type="button" aria-pressed={tab === "counter"} onClick={() => setTab("counter")}>Counter</button>
-        </nav>
-      </header>
+        <header className="ph-head">
+          <div className="ph-bar">
+            <span className="ph-back" aria-hidden="true"><Back /></span>
+            <span className="ph-avatar" aria-hidden="true"><Mark size={22} /></span>
+            <div className="ph-who">
+              <strong>Musha</strong>
+              <span className={typing ? "ph-typing-label" : undefined}>{typing ? "typing…" : "online"}</span>
+            </div>
+            <span className="ph-head-icons" aria-hidden="true"><Video /><Call /><Dots /></span>
+          </div>
+          <nav className="ph-tabs" aria-label="Phone">
+            <button type="button" aria-pressed={tab === "chat"} onClick={() => setTab("chat")}>Chat</button>
+            <button type="button" aria-pressed={tab === "counter"} onClick={() => setTab("counter")}>Counter</button>
+          </nav>
+        </header>
 
-      {tab === "counter" ? (
-        <div className="ph-body ph-counter">
-          <CounterCam shopId={shop.id} embedded />
-        </div>
-      ) : (
-        <div className="ph-body">
-          <Thread
-            shop={shop}
-            messages={all}
-            pending={shown}
-            settled={settled}
-            local={local}
-            requests={reqs}
-            typing={typing}
-            replyTo={question?.id ?? null}
-            onReply={(m) => {
-              setReplyTo(m.id);
-              setDismissed((d) => {
-                const n = new Set(d);
-                n.delete(m.id);
-                return n;
-              });
-            }}
-            onRetry={retry}
-            onDrop={drop}
-          />
-          {note && <p className="ph-note" role="status">{note}</p>}
-          <div className="ph-chips" role="toolbar" aria-label="Quick actions">
-            <button type="button" className="ph-chip ph-chip-main" onClick={() => setSheet({ type: "ask" })}>Ask for money</button>
-            {targets.map((r) => (
-              <button key={r.id} type="button" className="ph-chip ph-chip-proof" onClick={() => setSheet({ type: "proof", requestId: r.id })}>
-                Send proof for {r.item}
-              </button>
-            ))}
-            {!closedToday && (
-              <button type="button" className="ph-chip" onClick={() => setSheet({ type: "close" })}>Close the day</button>
+        {tab === "counter" ? (
+          <div className="ph-body ph-counter">
+            <CounterCam shopId={shop.id} embedded />
+          </div>
+        ) : (
+          <div className="ph-body ph-chat">
+            <Thread
+              shop={shop}
+              messages={all}
+              pending={shown}
+              settled={settled}
+              local={local}
+              requests={reqs}
+              typing={typing}
+              replyTo={question?.id ?? null}
+              onReply={(m) => {
+                setReplyTo(m.id);
+                setDismissed((d) => {
+                  const n = new Set(d);
+                  n.delete(m.id);
+                  return n;
+                });
+              }}
+              onProof={(r) => setSheet({ type: "proof", requestId: r.id })}
+              onRetry={retry}
+              onDrop={drop}
+            />
+            {note && <p className="ph-note" role="status">{note}</p>}
+            <div className="ph-chips" role="toolbar" aria-label="Quick actions">
+              <button type="button" className="ph-chip ph-chip-main" onClick={() => setSheet({ type: "ask" })}>Ask for money</button>
+              {targets.map((r) => (
+                <button key={r.id} type="button" className="ph-chip ph-chip-proof" onClick={() => setSheet({ type: "proof", requestId: r.id })}>
+                  Send proof for {r.item}
+                </button>
+              ))}
+              {!closedToday && (
+                <button type="button" className="ph-chip" onClick={() => setSheet({ type: "close" })}>Close the day</button>
+              )}
+            </div>
+            <Composer
+              onText={sendText}
+              onVoice={sendVoice}
+              onCamera={camera}
+              say={setNote}
+              reply={question ? { text: question.text, sending: question.sending } : null}
+              clearReply={() => {
+                if (question) setDismissed((d) => new Set(d).add(question.key));
+                setReplyTo(null);
+              }}
+              attach={{
+                targets,
+                ai,
+                onFile: (kind, req, file) => sendFile(req, kind, file),
+                // With the model off, Musha checks the numbers the manager types from the receipt.
+                onTyped: (req, file) => setSheet({ type: "proof", requestId: req.id, file }),
+                onSample: (variant, req) => sendSample(req, variant),
+                onGoods: (req) => sendGoods(req),
+              }}
+            />
+            {sheet?.type === "ask" && (
+              <AskSheet shop={shop} requests={reqs} close={close} done={async (made) => {
+                setSheet(null);
+                absorb({ request: made });
+                await refresh();
+              }} />
+            )}
+            {sheet?.type === "proof" && proofFor && (
+              <ProofSheet
+                req={proofFor}
+                ai={ai}
+                start={sheet.file}
+                close={close}
+                onFile={(kind, file, printed) => sendFile(proofFor, kind, file, printed)}
+                onSample={(variant) => sendSample(proofFor, variant)}
+                onGoods={() => sendGoods(proofFor)}
+              />
+            )}
+            {sheet?.type === "close" && (
+              <CloseSheet shop={shop} close={close} done={async () => {
+                loadWeek();
+                await refresh();
+              }} />
             )}
           </div>
-          <Composer
-            onText={sendText}
-            onVoice={sendVoice}
-            say={setNote}
-            reply={question ? { text: question.text, sending: question.sending } : null}
-            clearReply={() => {
-              if (question) setDismissed((d) => new Set(d).add(question.key));
-              setReplyTo(null);
-            }}
-            attach={{
-              targets,
-              ai,
-              onFile: (kind, req, file) => sendFile(req, kind, file),
-              // With the model off, Musha checks the numbers the manager types from the receipt.
-              onTyped: (req, file) => setSheet({ type: "proof", requestId: req.id, file }),
-              onSample: (variant, req) => sendSample(req, variant),
-              onGoods: (req) => sendGoods(req),
-            }}
-          />
-          {sheet?.type === "ask" && (
-            <AskSheet shop={shop} requests={reqs} close={close} done={async (made) => {
-              setSheet(null);
-              absorb({ request: made });
-              await refresh();
-            }} />
-          )}
-          {sheet?.type === "proof" && proofFor && (
-            <ProofSheet
-              req={proofFor}
-              ai={ai}
-              start={sheet.file}
-              close={close}
-              onFile={(kind, file, printed) => sendFile(proofFor, kind, file, printed)}
-              onSample={(variant) => sendSample(proofFor, variant)}
-              onGoods={() => sendGoods(proofFor)}
-            />
-          )}
-          {sheet?.type === "close" && (
-            <CloseSheet shop={shop} close={close} done={async () => {
-              loadWeek();
-              await refresh();
-            }} />
-          )}
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+      <p className="ph-under">Musha's chat, simulated here.</p>
+    </>
   );
 }

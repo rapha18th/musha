@@ -1,0 +1,124 @@
+/* The Money view. Tokens come from styles.css; every class starts with o-mv- so it stays apart from the rest of the console. */
+
+.o-mv { min-width: 0; }
+.o-mv h2 { font-size: 20px; }
+.o-mv .o-eyebrow { color: var(--clay-ink); }
+
+/* Ask Musha about the money */
+.o-mv-ask { background: var(--paper); border: 1px solid var(--line); border-radius: 22px; padding: 14px; box-shadow: var(--shadow); }
+.o-mv-ask-form { display: flex; align-items: center; gap: 10px; }
+.o-mv-ask-form .o-musha-mark { flex: none; }
+.o-mv-ask-form input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--cream); color: var(--ink); border-radius: 999px; padding: 11px 16px; font-size: 15px; }
+.o-mv-ask-form input:focus { outline: none; border-color: var(--clay); background: var(--paper); }
+.o-mv-chips { padding: 12px 0 0 44px; }
+.o-mv-asking { display: flex; align-items: center; gap: 8px; padding-left: 44px; }
+.o-mv-answer { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; align-items: center; margin-top: 14px; padding: 16px 18px; border-radius: 16px; background: var(--cream); animation: o-rise .3s ease both; }
+.o-mv-answer:not(:has(.o-mv-answer-chart)) { grid-template-columns: minmax(0, 1fr); }
+.o-mv-answer-line { font-family: var(--display); font-size: 19px; line-height: 1.35; margin: 6px 0 0; text-wrap: pretty; }
+.o-mv-answer .o-fine { margin-top: 8px; }
+.o-mv-answer .o-textbtn { margin-top: 10px; }
+.o-mv-answer-chart { min-width: 0; background: var(--paper); border-radius: 14px; padding: 6px 4px 2px; }
+
+/* The board: the river beside the hold clock */
+.o-mv-board { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: 14px; margin-top: 16px; align-items: stretch; }
+.o-mv-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 18px 14px; min-width: 0; }
+.o-mv-card h2 { margin-top: 4px; }
+.o-mv-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px 18px; flex-wrap: wrap; margin-bottom: 8px; }
+.o-mv-figures { display: flex; gap: 18px; margin: 0; }
+.o-mv-figures div { display: flex; flex-direction: column; gap: 2px; }
+.o-mv-figures dt { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.o-mv-figures dt i { width: 10px; height: 10px; border-radius: 3px; background: var(--tone); }
+.o-mv-figures dt i.o-mv-hatch { background: repeating-linear-gradient(-45deg, var(--tone) 0 2px, var(--warn-soft) 2px 4px); }
+.o-mv-figures dd { margin: 0; font-family: var(--display); font-weight: 600; font-size: 20px; letter-spacing: -0.3px; color: var(--tone); font-variant-numeric: lining-nums tabular-nums; }
+.o-mv-river .o-fine { margin-top: 4px; }
+.o-mv-empty { padding: 40px 0; text-align: center; }
+
+/* The hold clock */
+.o-mv-clock { display: flex; flex-direction: column; }
+.o-mv-dials { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 4px; }
+.o-mv-dial { min-width: 0; text-align: center; }
+.o-mv-dial-what { margin: 2px 0 0; font-size: 13.5px; }
+.o-mv-dial .o-fine { margin-top: 2px; }
+.o-mv-id { display: inline-block; margin-top: 6px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11.5px; color: var(--muted); background: var(--sand); border-radius: 6px; padding: 2px 8px; }
+.o-mv-calm { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 10px 0; }
+.o-mv-calm-figure { font-family: var(--display); font-weight: 600; font-size: 52px; line-height: 1; letter-spacing: -1.2px; color: var(--leaf); margin: 8px 0 10px; }
+.o-mv-calm .o-muted { margin: 0; font-size: 14px; }
+.o-mv-key { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 12px 0 0; padding: 10px 0 0; border-top: 1px dashed var(--line); font-size: 12px; color: var(--muted); }
+.o-mv-key li { display: inline-flex; align-items: center; gap: 6px; }
+.o-mv-key i { width: 14px; height: 6px; border-radius: 3px; }
+.o-mv-key-honor { background: var(--leaf-soft); box-shadow: inset 0 0 0 1px var(--leaf); }
+.o-mv-key-life { background: var(--sand); box-shadow: inset 0 0 0 1px var(--line); }
+.o-mv-key-end { background: var(--danger-soft); box-shadow: inset 0 0 0 1px var(--danger); }
+
+/* The grid's bar and the grid */
+.o-mv-gridbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 12px; }
+.o-mv-gridbar .o-search { flex: 1 1 180px; }
+.o-mv-seg { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--sand); border: 1px solid var(--line); }
+.o-mv-seg button { border: 0; background: transparent; color: var(--muted); font-size: 13px; font-weight: 600; padding: 7px 13px; border-radius: 999px; white-space: nowrap; }
+.o-mv-seg button:hover { color: var(--ink); }
+.o-mv-seg button[aria-pressed="true"] { background: var(--paper); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, .08); }
+.o-mv-xl { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+.o-mv-grid .ag-row-group { font-weight: 600; background: var(--cream); }
+.o-mv-grid .ag-row-group .money { color: var(--ink); }
+.o-mv-grid .o-mv-in { color: var(--leaf); }
+.o-mv-grid .o-mv-back { color: var(--clay-ink); }
+.o-mv-grid .ag-row-level-1:not(.ag-row-group), .o-mv-grid .ag-row-level-0:not(.ag-row-group) { cursor: pointer; }
+.o-mv-group { display: inline-flex; align-items: baseline; gap: 10px; min-width: 0; }
+.o-mv-group b { font-family: var(--display); font-size: 15px; font-weight: 600; }
+.o-mv-group small { font-size: 12px; font-weight: 500; color: var(--muted); }
+.o-mv-req > span { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.o-mv-req small { display: flex; align-items: center; gap: 4px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.o-mv-req .o-dot { width: 7px; height: 7px; }
+.o-mv-score { display: inline-flex; align-items: center; gap: 6px; }
+.o-mv-score-track { flex: none; width: 28px; height: 6px; border-radius: 3px; background: var(--sand); overflow: hidden; }
+.o-mv-score-track i { display: block; height: 100%; border-radius: 3px; background: var(--tone); }
+.o-mv-score b { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--tone); }
+.o-mv-totals { display: flex; flex-wrap: wrap; gap: 4px 18px; padding: 10px 2px; font-size: 13px; color: var(--muted); }
+.o-mv-totals b { color: var(--tone, var(--ink)); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* A row opened: its PayPal record beside its proof */
+.o-mv-journey { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 18px; padding: 16px 18px 18px 40px; background: var(--cream); border-top: 1px solid var(--line); white-space: normal; line-height: 1.4; }
+.o-mv-journey h4 { margin: 0 0 10px; font-size: 11.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.o-mv-trail ol { list-style: none; margin: 0; padding: 0; position: relative; }
+.o-mv-trail ol::before { content: ""; position: absolute; left: 4px; top: 14px; bottom: 14px; width: 1px; background: var(--line); }
+.o-mv-trail li { position: relative; display: grid; grid-template-columns: 9px minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 7px 0; }
+.o-mv-trail li > i { width: 9px; height: 9px; border-radius: 50%; background: var(--tone); box-shadow: 0 0 0 3px var(--cream); z-index: 1; }
+.o-mv-step { display: flex; flex-direction: column; min-width: 0; }
+.o-mv-step b { font-size: 13.5px; font-weight: 600; }
+.o-mv-step small { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 3px; font-size: 12px; color: var(--muted); }
+.o-mv-trail code { font-size: 11px; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 1px 7px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; user-select: all; }
+.o-mv-trail li > b { font-size: 13.5px; color: var(--tone); }
+.o-mv-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; margin: 14px 0 0; padding-top: 12px; border-top: 1px dashed var(--line); }
+.o-mv-facts dt { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.o-mv-facts dd { margin: 2px 0 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.o-mv-facts code { font-size: 12px; }
+.o-mv-proof { min-width: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px 10px; }
+.o-mv-proof-head { display: flex; justify-content: space-between; align-items: baseline; }
+.o-mv-proof-head h4 { margin: 0; }
+.o-mv-proof-score { font-size: 13px; color: var(--muted); }
+.o-mv-proof-score b { font-family: var(--display); font-size: 24px; color: var(--tone); margin-right: 2px; }
+.o-mv-gate { font-size: 12.5px; margin: 4px 0 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.o-mv-proof .o-fine { margin-top: 4px; font-size: 12.5px; }
+.o-mv-proof-wait { align-self: start; }
+.o-mv-proof-wait p { margin: 6px 0 0; font-size: 14px; }
+
+/* Cash gap */
+.o-mv-gapline { margin: 10px 0 0; font-size: 14px; }
+.o-mv-gapline .o-quote { font-size: 15px; margin: 0; }
+
+@media (max-width: 720px) {
+  .o-mv-board { grid-template-columns: minmax(0, 1fr); }
+  .o-mv-answer { grid-template-columns: minmax(0, 1fr); padding: 14px; }
+  .o-mv-answer-line { font-size: 17px; }
+  .o-mv-chips { padding-left: 0; }
+  .o-mv-asking { padding-left: 0; }
+  .o-mv-ask { padding: 12px; border-radius: 18px; }
+  .o-mv-ask-form .o-musha-mark { display: none; }
+  .o-mv-grid.o-grid-narrow .ag-filter-icon { display: none; }
+  .o-mv-figures { gap: 14px; }
+  .o-mv-figures dd { font-size: 17px; }
+  .o-mv-journey { grid-template-columns: minmax(0, 1fr); padding: 14px 12px 16px; }
+  .o-mv-gridbar .o-mv-seg { width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .o-mv-seg button { flex: 1; padding: 7px 10px; }
+}

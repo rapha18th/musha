@@ -16,6 +16,7 @@ export const STATUS: Record<string, { label: string; tone: "clay" | "warn" | "le
   captured: { label: "Released", tone: "leaf" },
   part_captured: { label: "Released, change returned", tone: "leaf" },
   voided: { label: "Returned to you", tone: "calm" },
+  declined: { label: "Declined", tone: "calm" },
   flagged: { label: "Held for you", tone: "danger" },
 };
 
@@ -31,8 +32,8 @@ export const KIND_LABEL: Record<string, string> = { stock: "Stock", expense: "Ex
 
 export const canApprove = (r: OwnerRequest) => r.status === "requested" || r.status === "approving";
 
-/** Statuses where a request is over: its money released, split or returned. */
-export const SETTLED = ["captured", "part_captured", "voided"];
+/** Statuses where a request is over: its money released, split or returned, or Musha's own ask declined. */
+export const SETTLED = ["captured", "part_captured", "voided", "declined"];
 
 /** Items with a request still in motion. A low-stock prompt for one of these waits: the request answers it. */
 export function openItems(requests: { item: string; status: string }[]): Set<string> {

@@ -48,6 +48,9 @@ def sandbox():
             201, json={"id": "AUTH-2", "status": "CREATED"})
         mock.post("/v1/payments/payouts").respond(201, json={"batch_header": {
             "payout_batch_id": "PB-1", "batch_status": "PENDING"}})
+        # the hold job's look at a payout no webhook settled: still on its way
+        mock.get(url__regex=r".*/v1/payments/payouts/[^/]+$").respond(200, json={
+            "batch_header": {"payout_batch_id": "PB-1", "batch_status": "PENDING"}, "items": []})
         mock.post("/v1/notifications/verify-webhook-signature").respond(
             200, json={"verification_status": "SUCCESS"})
         yield mock

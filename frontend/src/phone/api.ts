@@ -99,7 +99,7 @@ export type Frame = {
   id: number | null;
   kept?: boolean;
   at: string;
-  kind: "sample" | "look_in" | "staged";
+  kind: "sample" | "look_in" | "staged" | "feed";
   content_type: string;
   change: number;
   read: boolean;

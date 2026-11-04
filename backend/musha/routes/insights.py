@@ -1,6 +1,9 @@
-"""The owner's seat: alerts, products, the week's expected cash and stock, the day close, and asking Musha.
-The manager's phone reads alerts, products and the week and closes the day, with the manager's key;
-acting on an alert, the owner's thread and asking Musha take the owner's."""
+"""The owner's seat: alerts, products, the week's expected cash and stock, the manager's record, the day
+close, and asking Musha. The manager's phone reads alerts, products, the week and the record and closes
+the day, with the manager's key;
+acting on an alert, declining Musha's own request, the owner's thread and asking Musha take the owner's.
+Reading the alerts and closing the day also let Musha ask for the stock running low (insights.restock)."""
+import logging
 from datetime import date
 from typing import Annotated
 
@@ -12,11 +15,13 @@ from sqlalchemy.orm import Session
 
 from .. import flows, insights, ledger
 from ..deps import db, guarded, model, paypal, shop_or_404
-from ..models import Alert, DayClose, JsonText, Message, Shop
+from ..models import Alert, DayClose, JsonText, Message, Shop, SpendRequest
 from ..money import to_cents
 from ..views import iso, message_view, request_view
 from ..words import qty
-from .core import MAX_ID, allow, limit, shop_for
+from .core import MAX_ID, allow, limit, request_for, shop_for
+
+log = logging.getLogger("musha.routes")
 
 router = APIRouter(prefix="/api")
 
@@ -59,9 +64,21 @@ def owners_alert(request: Request, alert_id: AlertId, session: Session = Depends
     return alert
 
 
+async def restock(session: Session, pp, m, shop: Shop) -> None:
+    """Musha asks for the stock running low, after the alerts are raised. A failure leaves the read or the
+    close as it is, and the next read asks again."""
+    try:
+        await insights.restock(session, pp, m, shop)
+    except Exception:
+        session.rollback()
+        log.exception("Musha's own request for shop %s", shop.id)
+
+
 @router.get("/shops/{shop_id}/alerts")
-def alerts(shop: Shop = Depends(shop_for("manager")), session: Session = Depends(db)):
+async def alerts(shop: Shop = Depends(shop_for("manager")), session: Session = Depends(db), pp=Depends(paypal),
+                 m=Depends(model)):
     insights.refresh_alerts(session, shop)
+    await restock(session, pp, m, shop)
     return [insights.alert_view(a) for a in insights.listed_alerts(session, shop)]
 
 
@@ -114,6 +131,16 @@ async def act(body: Act, alert: Alert = Depends(owners_alert), session: Session 
     return {"alert": insights.alert_view(alert), "message": None, "request": request_view(req)}
 
 
+@router.post("/requests/{request_id}/decline", dependencies=[Depends(limit("decline", 20, 60))])
+def decline(req: SpendRequest = Depends(request_for("owner")), session: Session = Depends(db)):
+    """The owner says no to a request Musha asked for itself, while it waits for her."""
+    try:
+        insights.decline(session, req)
+    except flows.FlowError as e:
+        raise HTTPException(409, str(e))
+    return request_view(req)
+
+
 @router.get("/shops/{shop_id}/products")
 def products(shop: Shop = Depends(shop_for("manager")), session: Session = Depends(db)):
     rows = {insights.key(r["item"]): r for r in insights.low_stock(session, shop)}
@@ -128,12 +155,27 @@ def products(shop: Shop = Depends(shop_for("manager")), session: Session = Depen
 def week(shop: Shop = Depends(shop_for("manager")), session: Session = Depends(db)):
     books = insights.Books(session, shop)
     rows = insights.expected(session, shop, books=books)
-    return {**rows, "facts": insights.week_facts(session, shop, books=books, week=rows)}
+    facts = insights.week_facts(session, shop, books=books, week=rows)
+    return {**insights.with_answers(session, shop, rows), "facts": facts}
+
+
+@router.get("/shops/{shop_id}/record")
+def manager_record(shop: Shop = Depends(shop_for("manager")), session: Session = Depends(db)):
+    """The manager's record: every buy PayPal released, since the first, with its receipt."""
+    return insights.record(session, shop)
+
+
+@router.get("/shops/{shop_id}/ledger/by")
+def ledger_by(shop: Shop = Depends(shop_for("manager")), session: Session = Depends(db)):
+    """Who each line in the books belongs to, by ledger id: manager, owner or agent."""
+    return {str(k): v for k, v in insights.line_by(session, shop).items()}
 
 
 @router.post("/shops/{shop_id}/close-day", status_code=201, dependencies=[Depends(limit("close_day", 10, 60))])
-def close_day(body: CloseDay, shop: Shop = Depends(shop_for("manager")), session: Session = Depends(db)):
-    """The manager's end of day: sales by item, the cash count, banking, till spending and a shelf count."""
+async def close_day(body: CloseDay, shop: Shop = Depends(shop_for("manager")), session: Session = Depends(db),
+                    pp=Depends(paypal), m=Depends(model)):
+    """The manager's end of day: sales by item, the cash count, banking, till spending and a shelf count.
+    Then Musha raises the owner's alerts and asks for the stock the close left running low."""
     today = insights.today()
     if session.scalar(select(DayClose).where(DayClose.shop_id == shop.id, DayClose.day == today)):
         raise HTTPException(409, "Today is closed already.")
@@ -167,6 +209,7 @@ def close_day(body: CloseDay, shop: Shop = Depends(shop_for("manager")), session
         session.rollback()
         raise HTTPException(409, "Today is closed already.")
     raised = insights.refresh_alerts(session, shop)
+    await restock(session, pp, m, shop)
     rows = insights.expected(session, shop)
     day = today.isoformat()
     return {

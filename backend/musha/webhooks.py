@@ -4,9 +4,12 @@
 `follow_up` is the async half the route runs next: after a capture this event booked,
 it closes the rest of the hold and pays the shop; after a hold for wages, it pays the
 manager; after a hold the agent asked for and then gave up on, it voids that hold.
+`check_payouts` is the hold job's half: it asks PayPal after each payout still unsettled and
+books the answer the way the payout webhooks would, so a run no webhook reaches closes them too.
 """
 import json
 import logging
+from datetime import timedelta
 from typing import NamedTuple
 
 import httpx
@@ -26,7 +29,7 @@ log = logging.getLogger("musha.webhooks")
 ITEM_PAID = {"SUCCEEDED": "success"}
 ITEM_UNPAID = {"UNCLAIMED": "unclaimed", "FAILED": "item_failed", "RETURNED": "returned",
                "BLOCKED": "blocked", "HELD": "on_hold", "CANCELED": "canceled",
-               "REFUNDED": "refunded"}
+               "REFUNDED": "refunded", "REVERSED": "reversed"}
 
 
 class Handled(NamedTuple):
@@ -242,9 +245,17 @@ def _payout_item(session: Session, kind: str, resource: dict) -> Handled | None:
             Payout.paypal_batch_id == resource["payout_batch_id"]))
     if not payout:
         return None
-    news = kind.rsplit(".", 1)[-1]
-    payout.status = ITEM_PAID.get(news) or ITEM_UNPAID.get(news) or news.lower()
-    if news in ITEM_UNPAID:
+    _book_item(session, payout, kind.rsplit(".", 1)[-1])
+    return Handled("payout", payout.request_id)
+
+
+def _book_item(session: Session, payout: Payout, news: str) -> bool:
+    """A payout item's news, from its webhook or from the hold job's look at the batch. The owner
+    hears once when the money missed the receiver. Returns whether the status changed."""
+    status = ITEM_PAID.get(news) or ITEM_UNPAID.get(news) or news.lower()
+    changed = status != payout.status
+    payout.status = status
+    if news in ITEM_UNPAID and changed:
         shop = session.get(Shop, payout.shop_id)
         name = shop.manager.name if payout.receiver == shop.manager.email else payout.receiver
         req = payout.request_id and session.get(SpendRequest, payout.request_id)
@@ -253,7 +264,44 @@ def _payout_item(session: Session, kind: str, resource: dict) -> Handled | None:
                   f"PayPal reports the {flows.money(payout.amount_cents)} payout to {name} for {what} "
                   f"as {payout.status.replace('item_', '').replace('_', ' ')}.",
                   thread="owner", request_id=payout.request_id)
-    return Handled("payout", payout.request_id)
+    return changed
+
+
+# Payouts without a webhook: the hold job asks PayPal
+
+# An item's transaction_status in GET /v1/payments/payouts/{id}, as the webhook's own word.
+ITEM_NEWS = {"SUCCESS": "SUCCEEDED", "ONHOLD": "HELD"}
+# Payout rows PayPal may still change: a batch at work, an item waiting on its receiver.
+UNSETTLED = ("pending", "processing", "unclaimed", "on_hold")
+SETTLE_AFTER = flows.PAYOUT_RETRY  # a newer payout has its webhook on the way
+WATCH = timedelta(days=31)  # PayPal returns an unclaimed payout to the sender after 30 days
+
+
+async def check_payouts(session: Session, pp, at) -> list[dict]:
+    """Ask PayPal for each payout still unsettled and book what it reports, the way the payout
+    webhooks would. A local run, which PayPal's webhooks never reach, closes its payouts this way."""
+    done = []
+    rows = session.scalars(select(Payout).where(Payout.status.in_(UNSETTLED), Payout.paypal_batch_id != ""))
+    for payout in [p for p in rows if at - WATCH <= flows.utc(p.created_at) <= at - SETTLE_AFTER]:
+        try:
+            batch = await pp.get_payout(payout.paypal_batch_id)
+        except (PayPalError, httpx.HTTPError) as e:
+            done.append({"payout": payout.id, "action": "payout_status", "error": str(e) or type(e).__name__})
+            continue
+        before = payout.status
+        items = [i for i in batch.get("items") or [] if isinstance(i, dict)]
+        item = next((i for i in items if (i.get("payout_item") or {}).get("sender_item_id") == f"{payout.batch_id}-1"),
+                    items[0] if items else None)
+        news = (item or {}).get("transaction_status", "")
+        status = (batch.get("batch_header") or {}).get("batch_status", "")
+        if news and news != "PENDING":
+            _book_item(session, payout, ITEM_NEWS.get(news, news))
+        elif status and (item is None or status in ("DENIED", "CANCELED")) and payout.status not in ITEM_UNPAID.values():
+            payout.status = status.lower()  # the batch's word, as PAYMENT.PAYOUTSBATCH.* books it
+        session.commit()
+        if payout.status != before:
+            done.append({"request": payout.request_id, "action": "payout_status", "status": payout.status})
+    return done
 
 
 def _vault_deleted(session: Session, kind: str, resource: dict) -> Handled | None:

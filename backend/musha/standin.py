@@ -220,13 +220,22 @@ class StandInPayPal:
                             currency: str) -> dict:
         def make():
             pid = self._id("PAYOUT")
-            self.payouts[pid] = {"batch_header": {"payout_batch_id": pid, "batch_status": "SUCCESS",
-                                                  "sender_batch_header": {"sender_batch_id": batch_id}}}
+            header = {"payout_batch_id": pid, "batch_status": "SUCCESS",
+                      "sender_batch_header": {"sender_batch_id": batch_id}}
+            self.payouts[pid] = {"batch_header": header, "items": []}
             for it in items:
-                self._log(PAYOUT, f"-{to_value(it['cents'])}", currency, self._id("PAYOUTITEM"),
-                          reference=pid)
-            return self.payouts[pid]
+                item_id = self._id("PAYOUTITEM")
+                self._log(PAYOUT, f"-{to_value(it['cents'])}", currency, item_id, reference=pid)
+                self.payouts[pid]["items"].append({
+                    "payout_item_id": item_id, "transaction_status": "SUCCESS", "payout_batch_id": pid,
+                    "payout_item": {"sender_item_id": it["item_id"], "receiver": it["email"]}})
+            return {"batch_header": header}
         return self._once(batch_id, make)
+
+    async def get_payout(self, payout_batch_id: str) -> dict:
+        if payout_batch_id not in self.payouts:
+            raise PayPalError(404, {"name": "INVALID_RESOURCE_ID"})
+        return self.payouts[payout_batch_id]
 
     # Vault v3
 

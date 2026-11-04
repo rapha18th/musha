@@ -87,6 +87,7 @@ export function Week({ shop, week, alerts, entries, refresh, reloadAlerts }: Pro
         if (!row?.question) return null;
         const key = `cash_gap:${shop.id}:${row.day}`;
         const at = asker.askedAt(key);
+        if (row.answer) return <span className="o-cell-note">{manager} answered</span>;
         if (at) return <span className="o-cell-note">Asked {clock(at)}</span>;
         return (
           <button className="o-btn o-outline o-small" disabled={asker.busy === key} onClick={() => asker.ask(key, row.question!)}>
@@ -125,14 +126,15 @@ export function Week({ shop, week, alerts, entries, refresh, reloadAlerts }: Pro
           <AgGridReact<CashRow> theme={gridTheme} rowData={week.cash} columnDefs={cols} domLayout="autoHeight"
             getRowId={(p) => p.data.day} suppressCellFocus />
         </div>
-        {tight && questions.map((row) => {
+        {/* An answered gap shows its answer under the grid at every width; an open one, when its Ask button moves here. */}
+        {questions.filter((row) => tight || row.answer).map((row) => {
           const key = `cash_gap:${shop.id}:${row.day}`;
           const at = asker.askedAt(key);
           return (
             <div key={row.day} className="o-mx-detail o-gap-q">
               <p><b>{row.day_name}.</b> Expected {usd(row.expected_close_cents)}, counted {row.counted_cents == null ? "later" : usd(row.counted_cents)}.</p>
               <p className="o-quote">{row.question}</p>
-              {at ? <p className="o-fine">You asked {manager} {when(at)}.</p> : (
+              {row.answer ? <GapAnswer manager={manager} row={row} /> : at ? <p className="o-fine">You asked {manager} {when(at)}.</p> : (
                 <div className="o-row">
                   <button className="o-btn o-outline o-small" disabled={asker.busy === key} onClick={() => asker.ask(key, row.question!)}>
                     {asker.busy === key ? <Spinner /> : null}Ask {manager}
@@ -167,6 +169,8 @@ function StockMatrix({ rows, shop, asker }: { rows: StockRow[]; shop: Shop; aske
   const [picked, setPicked] = useState<StockRow | null>(() => rows.find((r) => r.question) ?? null);
   const key = picked ? `stock_gap:${shop.id}:${picked.item}:${picked.day}` : "";
   const at = picked ? asker.askedAt(key) : undefined;
+  const fresh = picked ? cell(picked.item, picked.day) : undefined; // the row as the week reads it now
+  const answered = fresh?.answer ? fresh : undefined;
   return (
     <div className="o-matrix-wrap">
       <div className="o-matrix" style={{ gridTemplateColumns: `minmax(64px, 1.4fr) repeat(${days.length}, minmax(28px, 1fr))` }} role="table">
@@ -197,7 +201,8 @@ function StockMatrix({ rows, shop, asker }: { rows: StockRow[]; shop: Shop; aske
             Expected {picked.expected}, counted {picked.counted ?? "later"}.
           </p>
           {picked.question && (
-            at ? <p className="o-fine">You asked {shop.manager.name} {when(at)}.</p> : (
+            answered ? <><p className="o-quote">{picked.question}</p><GapAnswer manager={shop.manager.name} row={answered} /></>
+            : at ? <p className="o-fine">You asked {shop.manager.name} {when(at)}.</p> : (
               <div className="o-row">
                 <p className="o-quote">{picked.question}</p>
                 <button className="o-btn o-outline o-small" disabled={asker.busy === key} onClick={() => asker.ask(key, picked.question!)}>
@@ -210,6 +215,12 @@ function StockMatrix({ rows, shop, asker }: { rows: StockRow[]; shop: Shop; aske
       )}
     </div>
   );
+}
+
+/** The manager's answer on a gap, in English, with when it came. */
+function GapAnswer({ manager, row }: { manager: string; row: { answer?: string | null; answered_at?: string | null } }) {
+  const at = row.answered_at ? ` ${when(row.answered_at)}` : "";
+  return <p className="o-fine o-gap-answer"><b className="o-ink">{manager} answered{at}:</b> {row.answer}</p>;
 }
 
 const COVER = 7;

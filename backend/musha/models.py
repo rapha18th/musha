@@ -62,6 +62,12 @@ class Shop(Base):
     # The manager's agreement to the counter camera, given on the counter page; the first one stands
     camera_consent_at: Mapped[datetime | None] = mapped_column(default=None)
     camera_consent_by: Mapped[str] = mapped_column(String(80), default="")
+    # Connect your shop (camera.py and feed.py): what last sent a still (phone | bridge | feed), and the
+    # looping video feed: when it was connected (None while off), its next still, and when it stopped itself
+    camera_source: Mapped[str] = mapped_column(String(12), default="")
+    camera_feed_at: Mapped[datetime | None] = mapped_column(default=None)
+    camera_feed_step: Mapped[int] = mapped_column(default=0)
+    camera_feed_stopped_at: Mapped[datetime | None] = mapped_column(default=None)
     owner: Mapped[Person] = relationship(foreign_keys=[owner_id])
     manager: Mapped[Person] = relationship(foreign_keys=[manager_id])
 
@@ -85,6 +91,7 @@ class SpendRequest(Base):
     The owner's agent goes requested -> agent_pending -> held when PayPal answers late.
     `reviewing` waits on PayPal's review of the payment, `capturing` on a pending capture.
     A hold the proof engine keeps back becomes `flagged` until the owner decides.
+    A request Musha asked for itself becomes `declined` when the owner says no while it waits for her.
     """
     __tablename__ = "spend_requests"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -95,10 +102,12 @@ class SpendRequest(Base):
     unit: Mapped[str] = mapped_column(String(24), default="units")
     amount_cents: Mapped[int]
     payee: Mapped[str] = mapped_column(String(120), default="")  # supplier, landlord, mechanic
-    words: Mapped[str] = mapped_column(Text, default="")  # the manager's own words
+    words: Mapped[str] = mapped_column(Text, default="")  # the manager's own words, or Musha's reason for its own
     words_en: Mapped[str] = mapped_column(Text, default="")  # the same, in the owner's language
     language: Mapped[str] = mapped_column(String(8), default="en")
-    origin: Mapped[str] = mapped_column(String(12), default="manager")  # manager | alert | owner
+    # manager | alert (the owner funded a low-stock alert) | owner | wages | musha (Musha asked for stock
+    # running low itself, insights.restock)
+    origin: Mapped[str] = mapped_column(String(12), default="manager")
     status: Mapped[str] = mapped_column(String(20), default="requested")
     approved_by: Mapped[str] = mapped_column(String(12), default="")  # owner | agent
     order_id: Mapped[str] = mapped_column(String(40), default="")
@@ -238,6 +247,8 @@ class Mandate(Base):
     kinds: Mapped[str] = mapped_column(String(64), default="stock")  # comma separated
     known_payees_only: Mapped[bool] = mapped_column(default=True)
     price_tolerance_pct: Mapped[int] = mapped_column(default=10)
+    # Musha asks for stock itself when it runs low, while the agent is on (insights.restock)
+    restock: Mapped[bool] = mapped_column(default=True)
     vault_id: Mapped[str] = mapped_column(String(64), default="")  # PayPal payment token
     vault_customer_id: Mapped[str] = mapped_column(String(64), default="")
     vault_setup_token: Mapped[str] = mapped_column(String(64), default="")
@@ -250,7 +261,7 @@ class CameraFrame(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     shop_id: Mapped[int] = mapped_column(ForeignKey("shops.id"), index=True)
     at: Mapped[datetime] = mapped_column(default=now, index=True)
-    kind: Mapped[str] = mapped_column(String(12), default="sample")  # sample | look_in | staged
+    kind: Mapped[str] = mapped_column(String(12), default="sample")  # sample | look_in | staged | feed
     content_type: Mapped[str] = mapped_column(String(32), default="image/jpeg")
     change: Mapped[float] = mapped_column(default=0.0)  # pixel gate: share of the picture that moved
     reading: Mapped[str] = mapped_column(Text, default="")
@@ -313,3 +324,22 @@ class Payout(Base):
     request_id: Mapped[int | None] = mapped_column(ForeignKey("spend_requests.id"), default=None)
     status: Mapped[str] = mapped_column(String(20), default="pending")
     created_at: Mapped[datetime] = mapped_column(default=now)
+
+
+class Ring(Base):
+    """The shop calls the owner: one ring per alert or camera moment (call.py keeps the rules).
+    `key` names what rang, such as the alert's own key or "camera:<frame id>", so it rings once.
+    The shop id carries no foreign key, as with Heard: a ring outlives nothing it needs."""
+    __tablename__ = "rings"
+    __table_args__ = (UniqueConstraint("shop_id", "key"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    shop_id: Mapped[int] = mapped_column(index=True)
+    key: Mapped[str] = mapped_column(String(140))
+    kind: Mapped[str] = mapped_column(String(16))  # proof | cash_gap | camera
+    reason: Mapped[str] = mapped_column(String(240))  # the one line on the incoming-call screen
+    alert_id: Mapped[int | None] = mapped_column(default=None)
+    frame_id: Mapped[int | None] = mapped_column(default=None)
+    picture: Mapped[str] = mapped_column(String(120), default="")  # the picture's url in the app
+    state: Mapped[str] = mapped_column(String(12), default="ringing")  # ringing | answered | later | missed
+    at: Mapped[datetime] = mapped_column(default=now)
+    answered_at: Mapped[datetime | None] = mapped_column(default=None)

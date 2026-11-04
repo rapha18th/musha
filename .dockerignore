@@ -1,0 +1,32 @@
+# The image takes backend/, frontend/ and deploy/'s two runtime files. Everything else stays out.
+.git
+.gitignore
+.claude
+.env
+.env.*
+.python-version
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.venv
+**/node_modules
+
+backend/*.db
+backend/*.db-*
+backend/eval
+backend/tests
+backend/requirements-dev.txt
+
+frontend/dist
+
+# The IP camera bridge runs beside the camera, on its own machine.
+counter-bridge
+
+deploy/*
+!deploy/entrypoint.sh
+!deploy/litestream.yml
+
+Dockerfile
+.dockerignore
+README.md
+LICENSE

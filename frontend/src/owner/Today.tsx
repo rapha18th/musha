@@ -7,7 +7,9 @@ import {
 import { AskMusha } from "./AskMusha";
 import { Lightbox, Thumbs, evidenceOf } from "./Evidence";
 import { LookIn } from "./LookIn";
-import { RequestCard, useAssessment } from "./RequestCard";
+import { RecordTile } from "./Record";
+import { settledSignal, useRecord } from "../record";
+import { Decline, RequestCard, useAssessment } from "./RequestCard";
 import type { CheckRow } from "./api";
 import { Approve, Decide, ErrorLine, MoneyBar, ScoreRing, Spinner, StatusPill, type Outcome } from "./parts";
 import { canApprove, cap, clock, day, longDay, openItems, qty, SETTLED, shownStatus, titleOf, useAction, when } from "./lib";
@@ -90,6 +92,7 @@ export function Today({ shop, requests, alerts, facts, sandbox, refresh }: Props
     .sort((a, b) => ACTIVE_ORDER.indexOf(a.status) - ACTIVE_ORDER.indexOf(b.status) || b.id - a.id);
   const done = requests.filter((r) => !ACTIVE_ORDER.includes(r.status));
   const both = refresh;
+  const record = useRecord(shop.id, settledSignal(requests));
 
   const goTo = (id: number) => {
     setFlash(id);
@@ -135,6 +138,8 @@ export function Today({ shop, requests, alerts, facts, sandbox, refresh }: Props
       )}
 
       <LookIn shop={shop} onStatus={setCamera} />
+
+      <RecordTile shop={shop} record={record} />
 
       <section className="o-section">
         <div className="o-section-head">
@@ -272,7 +277,8 @@ function ApproveFocal({ req, alert, shop, sandbox, refresh, onDone }: {
   const a = useAssessment(req);
   const inferred = req.inferred ?? [];
   const wages = req.origin === "wages";
-  const who = req.origin === "alert" ? "From a low-stock alert" : `${shop.manager.name} asks`;
+  const who = req.origin === "alert" ? "From a low-stock alert" : req.origin === "musha" ? "Musha asks"
+    : `${shop.manager.name} asks`;
   return (
     <section className="o-focal o-tone-clay" aria-live="polite">
       <p className="o-eyebrow">Waiting for you</p>
@@ -289,9 +295,11 @@ function ApproveFocal({ req, alert, shop, sandbox, refresh, onDone }: {
               : `${cap(req.kind)}, asked ${when(req.created_at)}`}
         </span>
       </div>
+      {req.origin === "musha" && req.words && <p className="o-focal-body">{req.words}</p>}
       {a?.recommendation && <p className="o-musha"><span className="o-musha-mark" aria-hidden="true">M</span>{a.recommendation}</p>}
       {alert?.body && <p className="o-focal-body"><b className="o-ink">Why the agent asks you.</b> {alert.body}</p>}
       <Approve req={req} sandbox={sandbox} refresh={refresh} big onDone={onDone} />
+      <Decline req={req} refresh={refresh} />
     </section>
   );
 }

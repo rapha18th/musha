@@ -12,10 +12,11 @@ from fastapi.staticfiles import StaticFiles
 from . import flows
 from .ai import Gemini, make_model
 from .config import Settings, get_settings
-from .db import make_engine, make_sessionmaker, prepare
+from .db import DurableWrites, make_engine, make_sessionmaker, prepare
 from .deps import access
 from .paypal import PayPal
-from .routes import agent, camera, core, evidence, insights, phone
+from .routes import agent, camera, core, evidence, insights, money, phone
+from .routes import call as shop_call
 
 FRONTEND_DIST = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 log = logging.getLogger("musha")
@@ -40,9 +41,13 @@ def create_app(settings: Settings | None = None, paypal=None, model=None) -> Fas
     async def lifespan(app: FastAPI):
         tasks = []
         if settings.jobs_every_minutes > 0:
-            tasks.append(asyncio.create_task(_keep_holds(sessions, pp, settings.jobs_every_minutes * 60)))
+            tasks.append(asyncio.create_task(_keep_holds(sessions, pp, app.state.model,
+                                                         settings.jobs_every_minutes * 60)))
         if isinstance(app.state.model, Gemini):
             tasks.append(asyncio.create_task(_warm(app.state.model)))
+        from . import feed  # the demo video feed: a still at the counter phone's pace while a page watches
+
+        tasks.append(asyncio.create_task(feed.run(sessions, app.state.model)))
         yield
         for task in tasks:
             task.cancel()
@@ -55,10 +60,13 @@ def create_app(settings: Settings | None = None, paypal=None, model=None) -> Fas
     app.state.model = model or make_model(settings)
     app.add_middleware(GZipMiddleware, minimum_size=1024)
     app.add_middleware(core.BodyLimit)  # a body past its size stops before anything reads it
+    app.add_middleware(DurableWrites, database_url=settings.database_url)  # under Litestream, a write replies once the bucket holds it
     app.add_exception_handler(RequestValidationError, core.validation_errors)  # errors without the input
 
-    for area in (core, evidence, camera, insights, phone, agent):  # every id in a path answers to its shop's key
+    for area in (core, evidence, camera, insights, money, phone, agent):  # every id in a path answers to its shop's key
         app.include_router(area.router, dependencies=[Depends(access)])
+    app.include_router(shop_call.router, dependencies=[Depends(access)])
+    app.include_router(shop_call.live_router)  # the call's socket checks the owner's key itself
 
     if FRONTEND_DIST.exists():
         app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="web")
@@ -70,13 +78,17 @@ async def _warm(model: Gemini):
     await model.text("localize", ["Reply with the word ready."])
 
 
-async def _keep_holds(sessions, pp, every_seconds: int):
-    """Reauthorize holds past the honor period and close them before they expire."""
+async def _keep_holds(sessions, pp, model, every_seconds: int):
+    """Reauthorize holds past the honor period and close them before they expire, then let Musha ask
+    for the stock running low in the shops someone used lately: the same turn POST /api/jobs/holds runs."""
+    from . import insights  # the module; the name above is its routes
+
     while True:
         await asyncio.sleep(every_seconds)
         try:
             with sessions() as session:
                 done = await flows.run_due(session, pp)
+                done += await insights.restock_due(session, pp, model)
             if done:
                 log.info("hold job: %s", done)
         except Exception:

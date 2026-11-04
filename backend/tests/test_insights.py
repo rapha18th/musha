@@ -37,8 +37,9 @@ def test_seeded_week_holds_one_cash_leak_on_a_thursday(client):
     thursday = gaps[0]
     assert date.fromisoformat(thursday["day"]).weekday() == 3
     assert thursday["gap_cents"] == -2300
-    assert thursday["question"].startswith(f"On {thursday['day_name']} the till counted")
-    assert "US$23.00 is missing" in thursday["question"]
+    assert thursday["question"].startswith(f"Thank you for counting the till on {thursday['day_name']}.")
+    assert thursday["question"].endswith("What did the other US$23.00 go on?")
+    assert thursday["question"].count("?") == 1
     for before, row in zip(w["cash"], w["cash"][1:]):
         assert row["opening_cents"] == before["counted_cents"]
     for row in w["cash"]:
@@ -53,7 +54,7 @@ def test_seeded_week_holds_one_stock_leak_of_two_trays(client):
     gaps = [r for r in w["stock"] if r["gap"]]
     assert [(r["item"], r["gap"], r["unit"]) for r in gaps] == [("eggs", -2, "trays")]
     assert date.fromisoformat(gaps[0]["day"]).weekday() == 5
-    assert "What happened to the other 2 trays?" in gaps[0]["question"]
+    assert gaps[0]["question"].endswith("Where did the other 2 trays go?")
     for row in w["stock"]:
         assert row["expected"] == row["opening"] + row["stock_in"] - row["sold"]
     assert {r["item"] for r in w["stock"]} == {name for name, *_ in PRODUCTS}
@@ -83,7 +84,7 @@ def test_alerts_are_raised_once(client):
     assert low["data"]["amount_cents"] == 18000 and low["data"]["quantity"] == 40
     gap = next(a for a in first if a["kind"] == "cash_gap")
     assert gap["title"].startswith("Cash US$23.00 short on Thursday")
-    assert gap["data"]["question"].endswith("What happened to it?")
+    assert gap["data"]["question"].endswith("What did the other US$23.00 go on?")
     again = alerts(client)
     assert [a["id"] for a in again] == [a["id"] for a in first]
 

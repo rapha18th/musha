@@ -141,7 +141,7 @@ function estimate(p: Product, quantity: number): string {
 }
 
 /** Requests still in motion: an item among these needs no second ask. */
-const SETTLED = ["captured", "part_captured", "voided"];
+const SETTLED = ["captured", "part_captured", "voided", "declined"];
 
 export function AskSheet({ shop, requests, close, done }: {
   shop: Shop;
@@ -262,7 +262,7 @@ export function AskSheet({ shop, requests, close, done }: {
           <Segmented label="Kind" value={f.kind} options={KINDS} onChange={kind} />
           {before ? (
             <p className="ph-why ph-why-warn">
-              You asked for {describe(before)} already, {usd(before.amount_cents)}. {statusOf(before.status, shop.owner.name).label}.
+              {before.origin === "manager" ? "You" : before.origin === "musha" ? "Musha" : shop.owner.name} asked for {describe(before)} already, {usd(before.amount_cents)}. {statusOf(before.status, shop.owner.name).label}.
             </p>
           ) : suggested && hint && (
             <p className="ph-why">

@@ -149,7 +149,7 @@ def authorizes(sandbox, value: str, auth_id: str = AUTH_ID, status: str = "CREAT
 
 
 def wages_paid(client, sandbox, amount: str = "60.00", note: str = "Week 42") -> str:
-    """The owner taps Pay Farai, approves with PayPal, and Musha pays him. Returns the payout's batch id."""
+    """The owner taps Pay Farai, approves with PayPal, and Musha pays Farai. Returns the payout's batch id."""
     r = client.post("/api/shops/1/wages", json={"amount": amount, "note": note})
     assert r.status_code == 200, r.text
     rid = r.json()["request_id"]

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { createPortal } from "react-dom";
-import { Close, Pause, Play } from "./icons";
+import { Close, MicFill, Pause, Play } from "./icons";
 import { seconds } from "./util";
 
 export type MediaKind = "image" | "audio" | "pdf" | "other";
@@ -117,7 +117,10 @@ function shape(src: string): Promise<{ peaks: number[]; duration: number }> {
 
 const FLAT = Array.from({ length: BARS }, (_, i) => 0.25 + 0.2 * Math.abs(Math.sin(i * 1.7)));
 
-export function VoiceNote({ src, knownMs }: { src: string; knownMs?: number }) {
+/** Who recorded a note, drawn beside it: their initial, and a mic that turns blue once Musha heard it. */
+export type Voice = { initial: string; heard: boolean };
+
+export function VoiceNote({ src, knownMs, voice }: { src: string; knownMs?: number; voice?: Voice }) {
   const audio = useRef<HTMLAudioElement>(null);
   const [peaks, setPeaks] = useState<number[]>(FLAT);
   const [duration, setDuration] = useState((knownMs || 0) / 1000);
@@ -156,16 +159,25 @@ export function VoiceNote({ src, knownMs }: { src: string; knownMs?: number }) {
     setAt(a.currentTime);
   };
 
-  const done = duration ? at / duration : 0;
+  const done = duration ? Math.min(1, at / duration) : 0;
   return (
-    <div className="ph-voice">
+    <div className={`ph-voice${voice ? " ph-voice-own" : ""}`}>
+      {voice && (
+        <span className="ph-voice-face" aria-hidden="true">
+          {voice.initial}
+          <i className={voice.heard ? "heard" : undefined}><MicFill size={12} /></i>
+        </span>
+      )}
       <button type="button" className="ph-voice-play" onClick={toggle} aria-label={playing ? "Pause voice note" : "Play voice note"}>
-        {playing ? <Pause /> : <Play />}
+        {playing ? <Pause size={20} /> : <Play size={20} />}
       </button>
-      <div className="ph-voice-bars" onClick={seek} role="presentation">
-        {peaks.map((h, i) => (
-          <span key={i} style={{ height: `${Math.round(h * 100)}%` }} className={i / peaks.length < done ? "on" : ""} />
-        ))}
+      <div className="ph-voice-track">
+        <div className="ph-voice-bars" onClick={seek} role="presentation">
+          {peaks.map((h, i) => (
+            <span key={i} style={{ height: `${Math.round(h * 100)}%` }} className={i / peaks.length < done ? "on" : ""} />
+          ))}
+        </div>
+        <span className="ph-voice-knob" style={{ left: `${(done * 100).toFixed(1)}%` }} aria-hidden="true" />
       </div>
       <span className="ph-voice-time">{seconds((playing || at ? at : duration) * 1000)}</span>
       <audio
@@ -185,10 +197,17 @@ export function VoiceNote({ src, knownMs }: { src: string; knownMs?: number }) {
 }
 
 /** Any attachment on a line: a photo, a voice note, or a link to the file. */
-export function MediaOf({ url, known, knownMs, alt }: { url: string; known?: MediaKind; knownMs?: number; alt: string }) {
+export function MediaOf({ url, known, knownMs, alt, voice }: {
+  url: string;
+  known?: MediaKind;
+  knownMs?: number;
+  alt: string;
+  /** Farai's own note: her initial beside the player. */
+  voice?: Voice;
+}) {
   const m = useMedia(url, known);
   if (!m) return <div className="ph-media-wait" aria-label="Loading" />;
   if (m.kind === "image") return <Photo src={m.src} alt={alt} />;
-  if (m.kind === "audio") return <VoiceNote src={m.src} knownMs={knownMs} />;
+  if (m.kind === "audio") return <VoiceNote src={m.src} knownMs={knownMs} voice={voice} />;
   return <a className="ph-file" href={m.src} target="_blank" rel="noreferrer">Open the file</a>;
 }

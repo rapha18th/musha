@@ -1,0 +1,48 @@
+/* The manager's record on Chipo's console. Tokens come from styles.css. */
+
+.o-record {
+  position: relative; margin-top: 28px; padding: 18px 22px 16px 26px; overflow: hidden;
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); --tone: var(--leaf);
+}
+.o-record::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--leaf); }
+.o-books .o-record { margin-top: 12px; }
+.o-record-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.o-record-seal { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--leaf-soft); }
+.o-record-seal svg { width: 18px; height: 18px; fill: none; stroke: var(--leaf); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.o-record-main { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 28px; margin-top: 8px; }
+.o-record-count { display: flex; align-items: center; gap: 14px; margin: 0; min-width: 0; }
+.o-record-n {
+  font-family: var(--display); font-weight: 600; font-size: 50px; line-height: 1; letter-spacing: -1.2px;
+  font-variant-numeric: lining-nums tabular-nums; color: var(--ink);
+}
+.o-record-what { display: flex; flex-direction: column; gap: 3px; font-size: 14px; color: var(--muted); }
+.o-record-what b { color: var(--ink); font-size: 15px; font-weight: 600; }
+.o-record-total { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; margin: 0; }
+.o-record-value {
+  font-family: var(--display); font-weight: 600; font-size: 27px; line-height: 1.1; letter-spacing: -0.4px;
+  font-variant-numeric: lining-nums tabular-nums; color: var(--leaf);
+}
+.o-record-label { font-size: 12.5px; color: var(--muted); }
+.o-record-facts {
+  display: flex; flex-wrap: wrap; gap: 6px 18px; list-style: none; margin: 14px 0 0; padding: 12px 0 0;
+  border-top: 1px solid var(--line); font-size: 13px; color: var(--ink);
+}
+.o-record-facts li { display: inline-flex; align-items: center; gap: 6px; }
+.o-record-facts svg { flex: none; width: 14px; height: 14px; fill: none; stroke: var(--leaf); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.o-record-empty { margin: 10px 0 0; font-size: 14px; color: var(--muted); }
+
+/* The By column in the books: the name behind each line */
+.o-by { font-weight: 600; color: var(--ink); }
+
+@media (max-width: 520px) {
+  .o-record { padding: 16px 16px 14px 20px; }
+  .o-record-n { font-size: 42px; }
+  .o-record-total { align-items: flex-start; }
+}
+
+/* PayPal's own transaction ID on each matched line of PayPal and the books */
+.o-recon-id {
+  display: inline-block; margin-left: 8px; padding: 1px 6px; border-radius: 4px; vertical-align: 1px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12px; letter-spacing: .02em;
+  color: var(--muted); background: var(--leaf-soft); overflow-wrap: anywhere;
+}

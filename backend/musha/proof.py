@@ -572,9 +572,10 @@ def _unit_price(req: SpendRequest, r: Reading) -> int:
 def duplicate_check(session: Session, req: SpendRequest, receipt: Attachment, r: Reading | None) -> Check:
     """Was this receipt sent before? Only earlier receipts count: a later copy is the duplicate, never the original."""
     c = Check("duplicate")
-    others = session.scalars(select(Attachment).options(defer(Attachment.data)).where(
+    others = list(session.scalars(select(Attachment).options(defer(Attachment.data)).where(
         Attachment.shop_id == receipt.shop_id, Attachment.kind == "receipt", Attachment.id < receipt.id)
-        .order_by(Attachment.id.desc()))
+        .order_by(Attachment.id.desc())))
+    others.sort(key=lambda o: o.sha256 != receipt.sha256)  # the very same file names its request first
     number = r.receipt_no if r and len(_norm_no(r.receipt_no)) >= 3 else ""
     for o in others:
         if o.request_id == req.id:
@@ -854,7 +855,7 @@ def template_question(req: SpendRequest, check: Check, reading: Reading | None) 
         failed = check.data.get("failed", [])
         if "payee" in failed:
             return (f"The receipt is from {reading.payee}, and the request named {req.payee}. "
-                    f"Why did you buy from {reading.payee}?")
+                    f"What took you to {reading.payee} for the {req.item}?")
         if "currency" in failed:
             cur = currency_code(req.shop.currency)
             return f"The receipt is in {reading.currency}. What did the {req.item} cost in {cur}?"
@@ -1144,77 +1145,151 @@ async def _conclude(session: Session, pp, model, req: SpendRequest, receipt: Att
 
 # The demo shop's history
 
+HISTORY_STEP = 3  # receipts a supplier's till prints between two of the shop's buys on one morning
+HISTORY_WEEK = 211  # receipts a supplier's till prints in a week
+
+
 def seed_history(session: Session, shop) -> None:
-    """Last week's purchase from the usual supplier of the shop's biggest regular buy, proven and
-    released, with its receipt kept. A reused copy of that receipt is then caught as a duplicate."""
+    """Farai's buys behind the books' deliveries, each proven and released, with its receipt on file.
+
+    Every delivery the trading history books from a supplier becomes a request Farai asked for, a hold
+    Chipo approved, a release on Farai's receipt, and the delivery itself. The newest buy of the shop's
+    biggest regular item keeps last week's phone photo of its receipt, so a reused copy of it is caught
+    as a duplicate. The other receipts are kept as document scans, and the newest buy of each item keeps
+    a photo of the goods. Receipt numbers run back from where each supplier's till stood last week, so
+    this week's samples print later numbers. With no delivery in the books, the one buy books a
+    delivery of its own."""
     from . import receipts
+    from .models import Product
 
     picked = receipts.regular_buy(session, shop)
     if picked is None:
         return
-    product, point = picked
-    # The trading history may already carry last week's delivery: this purchase is that delivery.
-    day = utc(point.bought_at)
-    delivered = session.scalar(select(LedgerEntry).where(
-        LedgerEntry.shop_id == shop.id, LedgerEntry.kind == ledger.STOCK_IN, LedgerEntry.item == product.name,
-        LedgerEntry.quantity > 0, LedgerEntry.at >= day - timedelta(days=1),
-        LedgerEntry.at <= day + timedelta(days=1)).order_by(LedgerEntry.at.desc()))
-    if delivered is not None and delivered.amount_cents % delivered.quantity == 0:
-        quantity, unit = delivered.quantity, delivered.amount_cents // delivered.quantity
-    else:
-        delivered = None
-        quantity, unit = product.pack * receipts.PACKS, point.unit_cents
-    spec = receipts.history_spec(shop, product, point, quantity, unit)
-    total = spec.total
+    hero, hero_point = picked
+    goods = {p.name: p for p in session.scalars(select(Product).where(Product.shop_id == shop.id))}
+    points = {name: list(session.scalars(select(PricePoint).where(
+        PricePoint.shop_id == shop.id, PricePoint.item == name).order_by(PricePoint.bought_at.desc())))
+        for name in goods}
+    # The trading seed books each delivery as seed-stock-<product>-<day>; the opening stock stays apart.
+    deliveries = session.scalars(select(LedgerEntry).where(
+        LedgerEntry.shop_id == shop.id, LedgerEntry.kind == ledger.STOCK_IN, LedgerEntry.source == "seed",
+        LedgerEntry.request_id.is_(None), LedgerEntry.ref.like("seed-stock-%"), LedgerEntry.quantity > 0)
+        .order_by(LedgerEntry.at, LedgerEntry.id))
+    buys, hero_delivery = [], None
+    for e in deliveries:
+        product = goods.get(e.item)
+        day = utc(e.at).date()
+        point = next((p for p in points.get(e.item, []) if utc(p.bought_at).date() <= day), None)
+        if product is None or point is None or e.amount_cents != e.quantity * point.unit_cents:
+            continue
+        if point.id == hero_point.id:
+            hero_delivery = e
+        else:
+            buys.append((product, point, e))
+    buys.append((hero, hero_point, hero_delivery))  # the hero comes last, so its receipt is the newest
+
+    newest = {product.name: i for i, (product, _, _) in enumerate(buys)}  # each item's newest buy
+    for i, ((product, point, delivered), spec) in enumerate(zip(buys, _history_receipts(shop, buys))):
+        hero_buy = i == len(buys) - 1
+        data = receipts.render_receipt(spec, seed=f"history:{shop.id}") if hero_buy else receipts.scan_receipt(spec)
+        photo = receipts.earlier_goods_photo(product.name) if newest[product.name] == i else None
+        _seed_buy(session, shop, product, point, spec, data, photo, delivered, elapsed_ms=4200 - 150 * (i % 4))
+    session.flush()
+
+
+def _history_receipts(shop, buys: list) -> list:
+    """The receipt behind each history buy. The hero, last in the list, prints the number where its
+    supplier's till stood last week. A supplier's earlier slips run back from there: a few numbers
+    apart on one morning, each printed six minutes before the next, and a week's printing apart
+    across weeks."""
+    from dataclasses import replace
+
+    from . import receipts
+
+    def when(i):
+        return utc(buys[i][1].bought_at).date()
+
+    hero = len(buys) - 1
+    order = sorted(range(len(buys)), key=lambda i: (when(i), i == hero, i), reverse=True)  # newest first
+    back: dict[str, int] = {}
+    morning: dict[str, tuple] = {}  # supplier: (day, the day's newest slip, slips since it)
+    out: list = [None] * len(buys)
+    for i in order:
+        product, point, delivered = buys[i]
+        supplier, day = point.supplier, when(i)
+        if supplier not in back:
+            back[supplier] = 0
+        elif morning[supplier][0] == day:
+            back[supplier] += HISTORY_STEP
+        else:
+            back[supplier] += HISTORY_WEEK
+        quantity = delivered.quantity if delivered is not None else product.pack * receipts.PACKS
+        unit = delivered.amount_cents // delivered.quantity if delivered is not None else point.unit_cents
+        spec = receipts.history_spec(shop, product, point, quantity, unit, back=back[supplier])
+        if supplier in morning and morning[supplier][0] == day:
+            _, first, n = morning[supplier]
+            spec = replace(spec, at=first.at - timedelta(minutes=6 * (n + 1)))
+            morning[supplier] = (day, first, n + 1)
+        else:
+            morning[supplier] = (day, spec, 0)
+        out[i] = spec
+    return out
+
+
+def _seed_buy(session: Session, shop, product, point, spec, data: bytes, goods: bytes | None,
+              delivered: LedgerEntry | None, *, elapsed_ms: int) -> SpendRequest:
+    """One proven buy from the shop's history: the request, the hold, the receipt, the proof that
+    released it, and its lines in the books."""
+    from .receipts import reading_of
+
+    quantity, unit, total = spec.lines[0].quantity, spec.lines[0].unit_cents, spec.total
     printed = spec.at.replace(tzinfo=SHOP_TZ).astimezone(timezone.utc)  # stored times are UTC
     approved = printed - timedelta(hours=1, minutes=40)
     uploaded = printed + timedelta(minutes=12)
     req = SpendRequest(shop_id=shop.id, kind="stock", item=product.name, quantity=quantity, unit=product.unit,
                        amount_cents=total, payee=point.supplier, origin="manager", status="captured",
-                       approved_by="owner", created_at=approved - timedelta(hours=14), approved_at=approved,
-                       order_id=f"seed-order-{shop.id}")
+                       approved_by="owner", created_at=approved - timedelta(hours=14), approved_at=approved)
     session.add(req)
     session.flush()
+    req.order_id = f"seed-order-{shop.id}-{req.id}"
     auth = f"seed-auth-{shop.id}-{req.id}"
     hold = Hold(request_id=req.id, authorization_id=auth, first_authorization_id=auth, amount_cents=total,
                 captured_cents=total, status="captured", authorized_at=approved,
                 expires_at=approved + flows.HOLD_LIFE)
     session.add(hold)
-    data = receipts.render_receipt(spec, seed=f"history:{shop.id}")
     receipt = evidence.store_attachment(session, shop, kind="receipt", data=data, content_type="image/jpeg",
                                         request_id=req.id)
     receipt.uploaded_at = uploaded
-    receipt.reading = JsonText.dump({**receipts.reading_of(spec), "source": "seed"})
-    goods = receipts.earlier_goods_photo(product.name)  # last week's own photo, apart from the demo's
+    receipt.reading = JsonText.dump({**reading_of(spec), "source": "seed"})
     if goods:
         photo = evidence.store_attachment(session, shop, kind="goods", data=goods, content_type="image/jpeg",
                                           request_id=req.id)
         photo.uploaded_at = uploaded + timedelta(minutes=1)
+    day = _when(spec.at.date())
     checks = [Check("read", passed=True, reason=_read_line(_reading(JsonText.load(receipt.reading)))),
               Check("match", 25, reason=f"{point.supplier}, {describe(req)}, {money(total)} within the "
                                         f"{money(total)} held."),
               Check("price", 15, reason=f"{money(unit)} a {unit_word(product.unit)}, in line with recent buys."),
               Check("duplicate", 20, reason="A new receipt: its photo and number are unique in this shop."),
-              Check("freshness", 10, reason=f"Dated {_when(spec.at.date())}, on the day of approval."),
+              Check("freshness", 10, reason=f"Dated {day}, on the day of approval."),
               Check("photo", 10 if goods else 0, reason=f"The photo shows the {product.name}." if goods
                     else f"Waiting for a photo of the {product.name}."),
               Check("camera", applies=False, reason="The counter camera was off for this window.")]
+    when = uploaded + timedelta(seconds=4)
     session.add(Proof(request_id=req.id, receipt_id=receipt.id, round=1, score=score_of(checks),
                       decision="release", spent_cents=total, checks=JsonText.dump([c.view() for c in checks]),
-                      summary=f"Score {score_of(checks)}. {point.supplier}, {money(total)}, dated "
-                              f"{_when(spec.at.date())}. Released {money(total)}.",
-                      elapsed_ms=4200, created_at=uploaded + timedelta(seconds=4)))
-    when = uploaded + timedelta(seconds=4)
+                      summary=f"Score {score_of(checks)}. {point.supplier}, {money(total)}, dated {day}. "
+                              f"Released {money(total)}.",
+                      elapsed_ms=elapsed_ms, created_at=when))
     ledger.post(session, shop_id=shop.id, kind=ledger.FUNDS_HELD, ref=f"seed-held:{auth}", amount_cents=total,
                 item=product.name, request_id=req.id, memo=f"Held for {describe(req)}", source="seed", at=approved)
     ledger.post(session, shop_id=shop.id, kind=ledger.FUNDS_CAPTURED, ref=f"seed-capture:{auth}",
                 amount_cents=total, item=product.name, request_id=req.id,
                 memo=f"Released to the shop for {product.name}", source="seed", at=when)
     if delivered is not None:
-        delivered.request_id = delivered.request_id or req.id
+        delivered.request_id = req.id
     else:
         ledger.post(session, shop_id=shop.id, kind=ledger.STOCK_IN, ref=f"seed-stock:{req.id}",
                     amount_cents=total, item=product.name, quantity=quantity, request_id=req.id,
                     memo=f"{qty(quantity, product.unit)} from {point.supplier}", source="seed", at=when)
-    session.flush()
-
+    return req

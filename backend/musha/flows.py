@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 
 from . import ledger
 from .models import (Alert, Attachment, CameraFrame, DayClose, Heard, Hold, LedgerEntry, Mandate, Message,
-                     Payout, Person, PricePoint, Product, Proof, Shop, SpendRequest)
+                     Payout, Person, PricePoint, Product, Proof, Ring, Shop, SpendRequest)
 from .money import to_cents, to_value
 from .paypal import PayPal, PayPalError, first_authorization, request_key
 from .words import qty
@@ -33,6 +33,7 @@ VOID_MARGIN = timedelta(hours=12)
 KINDS = ("stock", "expense", "asset")
 PAYOUT_RETRY = timedelta(minutes=10)
 WAGES = "wages"  # SpendRequest.origin of wages the owner pays the manager
+MUSHA = "musha"  # SpendRequest.origin of stock Musha asked for itself (insights.restock)
 WAGE_LIMIT = 50_000  # US$500 a payment
 PAYOUT_PURPOSES = ("release", WAGES)
 LIVE_ORDERS = ("CREATED", "SAVED", "APPROVED", "PAYER_ACTION_REQUIRED")
@@ -127,8 +128,9 @@ def create_request(session: Session, shop: Shop, *, item: str, amount_cents: int
                        language=language, origin=origin)
     session.add(req)
     session.flush()
-    say(session, shop.id, f"Sent to {shop.owner.name}: {describe(req)}, {money(amount_cents)}. "
-        f"I will tell you when it is approved.", request_id=req.id)
+    if origin != MUSHA:  # Musha's own request reaches the manager once PayPal holds the money (open_hold)
+        say(session, shop.id, f"Sent to {shop.owner.name}: {describe(req)}, {money(amount_cents)}. "
+            f"I will tell you when it is approved.", request_id=req.id)
     session.commit()
     return req
 
@@ -236,7 +238,8 @@ def place_hold(session: Session, req: SpendRequest, auth: dict, *, approved_by: 
     req.approved_at = authorized_at
     if status == "PENDING":
         req.status = "reviewing"
-        say(session, req.shop_id, f"PayPal is reviewing {money(hold.amount_cents)} for {req.item}. "
+        asked = f"Musha asked for {req.item}. " if req.origin == MUSHA else ""
+        say(session, req.shop_id, f"{asked}PayPal is reviewing {money(hold.amount_cents)} for {req.item}. "
             "Wait for my next message before you pay.", request_id=req.id)
     else:
         open_hold(session, req, hold)
@@ -254,8 +257,14 @@ def open_hold(session: Session, req: SpendRequest, hold: Hold):
     if is_wages(req):
         return
     owner = req.shop.owner.name
-    who = owner if req.approved_by == "owner" else f"Musha, inside {owner}'s limit,"
     proof = "the receipt and a photo" if req.kind != "expense" else "the receipt"
+    if req.origin == MUSHA:  # nobody in the shop asked: say what to buy, and from whom
+        approved = f", and {owner} approved it" if req.approved_by == "owner" else f" inside {owner}'s limit"
+        source = f" from {req.payee}" if req.payee else ""
+        say(session, req.shop_id, f"Musha asked for {req.item}{approved}. PayPal holds {money(hold.amount_cents)}. "
+            f"Buy {qty(req.quantity, req.unit)}{source}, then send {proof}.", request_id=req.id)
+        return
+    who = owner if req.approved_by == "owner" else f"Musha, inside {owner}'s limit,"
     say(session, req.shop_id, f"{who} approved {money(hold.amount_cents)} for {req.item}. "
         f"Pay, then send {proof}.", request_id=req.id)
 
@@ -511,7 +520,8 @@ def due_action(hold: Hold, at: datetime) -> str | None:
 
 async def run_due(session: Session, pp: PayPal, at: datetime | None = None) -> list[dict]:
     """One turn of the hold job. Each hold stands alone: PayPal refusing or the network failing on
-    one leaves the rest to run, and so do the payout retries and the agent's open holds."""
+    one leaves the rest to run, and so do the payout retries, the payout status checks and the
+    agent's open holds."""
     at = at or now()
     done = []
     ids = list(session.scalars(select(Hold.id).where(Hold.status.in_(("held", "pending"))).order_by(Hold.id)))
@@ -549,8 +559,9 @@ async def run_due(session: Session, pp: PayPal, at: datetime | None = None) -> l
         done.append({"hold": hold_id, "action": action})
         if action == "review" and hold.status == "held" and is_wages(req):
             await pay_wages(session, pp, req)
-    from . import agent  # agent imports flows
-    for name, step in (("release", send_releases), ("agent_hold", agent.resolve_pending)):
+    from . import agent, webhooks  # both import flows
+    for name, step in (("release", send_releases), ("payout_status", webhooks.check_payouts),
+                       ("agent_hold", agent.resolve_pending)):
         try:
             done += await step(session, pp, at)
         except (PayPalError, httpx.HTTPError, FlowError, SQLAlchemyError) as e:
@@ -670,7 +681,7 @@ def _delete_shop(session: Session, shop_id: int):
     for model in (Message, Alert, LedgerEntry, Payout, Attachment):
         drop(model, model.shop_id == shop_id)
     drop(SpendRequest, SpendRequest.shop_id == shop_id)
-    for model in (Product, PricePoint, DayClose, Mandate, CameraFrame, Heard):
+    for model in (Product, PricePoint, DayClose, Mandate, CameraFrame, Heard, Ring):
         drop(model, model.shop_id == shop_id)
     session.expunge(shop)
     drop(Shop, Shop.id == shop_id)

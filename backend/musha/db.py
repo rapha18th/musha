@@ -1,6 +1,11 @@
+import asyncio
 import logging
+import os
+import time
 
+import httpx
 from sqlalchemy import create_engine, event, inspect, literal, text
+from sqlalchemy.engine import make_url
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 log = logging.getLogger("musha")
@@ -11,7 +16,7 @@ class Base(DeclarativeBase):
 
 
 def make_engine(url: str):
-    if url.startswith("postgres://"):  # Render hands out the short scheme
+    if url.startswith("postgres://"):  # the short scheme some hosts hand out
         url = "postgresql+psycopg://" + url[len("postgres://"):]
     elif url.startswith("postgresql://"):
         url = "postgresql+psycopg://" + url[len("postgresql://"):]
@@ -85,3 +90,83 @@ def prepare(engine) -> list[str]:
     if left:
         raise SchemaBehind("The database lacks " + ", ".join(left[:8]) + ". Run python -m musha.seed to rebuild it.")
     return missing
+
+
+# Durable writes: under Litestream, a write answers once the bucket holds it
+
+WRITES = frozenset({"POST", "PUT", "PATCH", "DELETE"})
+SYNC_SECONDS = 3.0  # the longest a reply waits on the bucket; Litestream's own sync carries the write after that
+WARN_EVERY = 60.0  # seconds between warnings while Litestream stays out of reach
+
+
+class LitestreamSync:
+    """Asks Litestream to ship the database's changes now, and waits until Cloud Storage holds them.
+    It speaks to the control socket deploy/litestream.yml opens (POST /sync with wait), the same
+    call as `litestream sync -wait`. Each wait lasts SYNC_SECONDS at most. A socket that is slow,
+    absent or refuses gives False, and the caller replies all the same."""
+
+    def __init__(self, socket: str, path: str, *, seconds: float = SYNC_SECONDS,
+                 transport: httpx.AsyncBaseTransport | None = None):
+        self.socket, self.path, self.seconds = socket, path, seconds
+        self.transport = transport
+        self.client: httpx.AsyncClient | None = None
+        self._warned = 0.0
+
+    async def __call__(self) -> bool:
+        if self.client is None:
+            self.client = httpx.AsyncClient(transport=self.transport or httpx.AsyncHTTPTransport(uds=self.socket),
+                                            base_url="http://litestream", timeout=self.seconds + 1)
+        try:
+            r = await asyncio.wait_for(self.client.post("/sync", json={
+                "path": self.path, "wait": True, "timeout": max(1, int(self.seconds))}), self.seconds)
+            r.raise_for_status()
+            status = r.json().get("status", "")
+            if status in ("synced", "no_change"):
+                return True
+            self._warn(f"Litestream answered {status or 'without a status'}")
+        except Exception as e:
+            self._warn(repr(e) if not isinstance(e, asyncio.TimeoutError) else f"over {self.seconds:g} s")
+        return False
+
+    def _warn(self, why: str) -> None:
+        at = time.monotonic()
+        if at - self._warned >= WARN_EVERY:
+            self._warned = at
+            log.warning("a write replied before the bucket held it (%s); Litestream's 1 s sync carries it", why)
+
+
+def litestream_sync(database_url: str) -> LitestreamSync | None:
+    """The sync for this process: on when LITESTREAM_REPLICA_URL is set and the database is SQLite,
+    as deploy/entrypoint.sh runs it on Cloud Run. MUSHA_DURABLE_WRITES=0 turns it off."""
+    if not os.getenv("LITESTREAM_REPLICA_URL") or not database_url.startswith("sqlite"):
+        return None
+    if os.getenv("MUSHA_DURABLE_WRITES", "1").strip() == "0":
+        return None
+    path = os.getenv("MUSHA_DB_PATH") or make_url(database_url).database or ""
+    socket = os.getenv("LITESTREAM_SOCKET") or "/var/run/litestream.sock"
+    return LitestreamSync(socket, path) if path else None
+
+
+class DurableWrites:
+    """ASGI middleware: a request that can write (POST, PUT, PATCH, DELETE) gets its reply once
+    Litestream has shipped the change to the bucket, so a reply the visitor saw outlives the
+    instance. Litestream also syncs every second on its own, which carries the writes made outside
+    a request: the feed's stills, a call's tools, translations a poll finishes later. Without a
+    replica the middleware passes every request straight through."""
+
+    def __init__(self, app, *, database_url: str = "", sync=None):
+        self.app = app
+        self.sync = sync if sync is not None else litestream_sync(database_url)
+        if self.sync is not None:
+            log.info("writes reply once Litestream has synced them")
+
+    async def __call__(self, scope, receive, send):
+        if self.sync is None or scope["type"] != "http" or scope.get("method") not in WRITES:
+            return await self.app(scope, receive, send)
+
+        async def synced(message):
+            if message["type"] == "http.response.start":
+                await self.sync()  # the route has committed; its reply waits for the bucket
+            await send(message)
+
+        await self.app(scope, receive, synced)

@@ -1,0 +1,368 @@
+/* Farai's phone as a WhatsApp-style chat with Musha, simulated in this app.
+   Every colour, glyph and the doodle wallpaper are drawn here for Musha; no WhatsApp asset is used.
+   The WhatsApp Business Platform is the next wire for the live chat. */
+
+.ph {
+  /* WhatsApp's light palette, tuned so every line of text passes WCAG AA */
+  --wa-font: "Segoe UI", "Helvetica Neue", Helvetica, Roboto, Arial, system-ui, sans-serif;
+  --wa-bezel: #111b21;
+  --wa-head: #008069;
+  --wa-head-ink: #ffffff;
+  --wa-head-sub: #ffffff;
+  --wa-tab: #ffffff;
+  --wa-tab-on: #ffffff;
+  --wa-bg: #efeae2;
+  --wa-wall: var(--wa-wall-light);
+  --wa-in: #ffffff;
+  --wa-out: #d9fdd3;
+  --wa-ink: #111b21;
+  --wa-sub: #54656f;
+  --wa-sub-out: #54656f;
+  --wa-icon: #54656f;
+  --wa-tick: #667781;
+  --wa-read: #0b8bd0;
+  --wa-green: #00a884;
+  --wa-green-ink: #ffffff;
+  --wa-link: #017561;
+  --wa-link-out: #017561;
+  --wa-day: #ffffff;
+  --wa-day-ink: #54656f;
+  --wa-card: #f0f2f5;
+  --wa-field: #ffffff;
+  --wa-field-line: #8696a0;
+  --wa-placeholder: #667781;
+  --wa-quote: #f0f2f5;
+  --wa-quote-bar: #06cf9c;
+  --wa-hair: rgba(11, 20, 26, .12);
+  --wa-shadow: 0 1px .5px rgba(11, 20, 26, .13);
+  --wa-name: #c2185b;
+  --wa-face: #dfe5e7;
+  --wa-face-ink: #54656f;
+  --wa-chip: #ffffff;
+  --wa-avatar: #b4532a;
+  --wa-avatar-ink: #fffdf9;
+  --wa-wait: #0a6ea6;
+  --wa-warn: #8a6400;
+  --wa-leaf: #017561;
+  --wa-danger: #b3261e;
+  --ph-scrim: rgba(11, 20, 26, .4);
+
+  /* The app's own tokens in WhatsApp's colours, for the sheets and the counter inside the phone */
+  --paper: #ffffff;
+  --cream: #f0f2f5;
+  --sand: #e9edef;
+  --line: #d1d7db;
+  --ink: #111b21;
+  --muted: #54656f;
+  --clay: #008069;
+  --clay-ink: #017561;
+  --clay-soft: #d9fdd3;
+  --thread: #efeae2;
+  --bubble-out: #d9fdd3;
+  --display: var(--wa-font);
+  --body: var(--wa-font);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: clamp(540px, calc(100vh - 196px), 800px);
+  background: var(--wa-bg);
+  color: var(--ink);
+  font-family: var(--wa-font);
+  border: 10px solid var(--wa-bezel);
+  border-radius: 46px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(11, 20, 26, .08), 0 18px 40px rgba(11, 20, 26, .12);
+  isolation: isolate;
+}
+
+/* WhatsApp's dark palette */
+:root[data-theme="dark"] .ph {
+  --wa-bezel: #26323a;
+  --wa-head: #202c33;
+  --wa-head-ink: #e9edef;
+  --wa-head-sub: #99a6ae;
+  --wa-tab: #99a6ae;
+  --wa-tab-on: #00a884;
+  --wa-bg: #0b141a;
+  --wa-wall: var(--wa-wall-dark);
+  --wa-in: #202c33;
+  --wa-out: #005c4b;
+  --wa-ink: #e9edef;
+  --wa-sub: #99a6ae;
+  --wa-sub-out: #bfd6d1;
+  --wa-icon: #99a6ae;
+  --wa-tick: #bfd6d1;
+  --wa-read: #53bdeb;
+  --wa-green: #00a884;
+  --wa-green-ink: #111b21;
+  --wa-link: #21c063;
+  --wa-link-out: #7fe0c4;
+  --wa-day: #182229;
+  --wa-day-ink: #99a6ae;
+  --wa-card: #111b21;
+  --wa-field: #2a3942;
+  --wa-field-line: #8696a0;
+  --wa-placeholder: #99a6ae;
+  --wa-quote: #1d282f;
+  --wa-hair: rgba(233, 237, 239, .14);
+  --wa-shadow: 0 1px .5px rgba(0, 0, 0, .3);
+  --wa-name: #f075a6;
+  --wa-face: #3b4a54;
+  --wa-face-ink: #e9edef;
+  --wa-chip: #202c33;
+  --wa-wait: #53bdeb;
+  --wa-warn: #f0c35a;
+  --wa-leaf: #21c063;
+  --wa-danger: #f15c6d;
+  --ph-scrim: rgba(0, 0, 0, .55);
+
+  --paper: #202c33;
+  --cream: #2a3942;
+  --sand: #111b21;
+  --line: #3b4a54;
+  --ink: #e9edef;
+  --muted: #99a6ae;
+  --clay: #00a884;
+  --clay-ink: #21c063;
+  --clay-soft: #103529;
+  --thread: #0b141a;
+  --bubble-out: #005c4b;
+  box-shadow: 0 0 0 1px #3a322a, 0 18px 40px rgba(0, 0, 0, .35);
+}
+
+.ph :focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+
+/* Status bar and the chat's header */
+.ph-status { display: flex; align-items: center; justify-content: space-between; height: 30px; padding: 0 24px 0 28px; background: var(--wa-head); color: var(--wa-head-ink); font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.ph-island { width: 84px; height: 22px; border-radius: 999px; background: var(--wa-bezel); }
+.ph-signal { display: flex; align-items: flex-end; gap: 2px; height: 10px; }
+.ph-signal i { width: 3px; border-radius: 1px; background: currentColor; }
+.ph-signal i:nth-child(1) { height: 4px; } .ph-signal i:nth-child(2) { height: 6px; }
+.ph-signal i:nth-child(3) { height: 8px; } .ph-signal i:nth-child(4) { height: 10px; }
+
+.ph-head { flex-shrink: 0; background: var(--wa-head); color: var(--wa-head-ink); box-shadow: 0 1px 3px rgba(11, 20, 26, .16); z-index: 1; }
+.ph-head :focus-visible { outline-color: var(--wa-head-ink); outline-offset: -3px; }
+:root[data-theme="dark"] .ph-head :focus-visible { outline-color: var(--wa-tab-on); }
+.ph-bar { display: flex; align-items: center; gap: 4px; min-height: 56px; padding: 6px 4px 4px 4px; }
+.ph-back { display: grid; place-items: center; width: 30px; height: 40px; flex-shrink: 0; }
+.ph-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--wa-avatar); color: var(--wa-avatar-ink); display: grid; place-items: center; flex-shrink: 0; }
+.ph-who { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; padding-left: 8px; }
+.ph-who strong { font-size: 16.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ph-who span { font-size: 13px; color: var(--wa-head-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ph-head-icons { display: flex; align-items: center; flex-shrink: 0; }
+.ph-head-icons svg { box-sizing: content-box; padding: 8px; }
+.ph-tabs { display: flex; }
+.ph-tabs button { flex: 1; border: 0; border-bottom: 3px solid transparent; background: none; color: var(--wa-tab); padding: 9px 0 8px; font-size: 13.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+.ph-tabs button[aria-pressed="true"] { color: var(--wa-tab-on); border-bottom-color: var(--wa-tab-on); }
+
+.ph-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.ph-chat { background-color: var(--wa-bg); background-image: var(--wa-wall); background-size: 300px 300px; }
+.ph-counter { overflow-y: auto; overscroll-behavior: contain; background: var(--wa-bg); }
+
+/* The thread */
+.ph-thread { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 6px 16px 8px 18px; scrollbar-width: thin; }
+.ph-thread-in { display: flex; flex-direction: column; gap: 2px; }
+.ph-day { display: flex; justify-content: center; margin: 10px 0 8px; }
+.ph-day span { font-size: 12.5px; font-weight: 500; color: var(--wa-day-ink); background: var(--wa-day); padding: 5px 12px; border-radius: 8px; box-shadow: var(--wa-shadow); }
+
+.ph-b {
+  --b: var(--wa-in);
+  --meta-w: 40px;
+  position: relative;
+  max-width: 85%;
+  padding: 6px 7px 8px 9px;
+  border-radius: 7.5px;
+  background: var(--b);
+  color: var(--wa-ink);
+  font-size: 14.2px;
+  line-height: 19px;
+  align-self: flex-start;
+  box-shadow: var(--wa-shadow);
+  animation: ph-rise 220ms cubic-bezier(.2, .8, .2, 1) both;
+}
+.ph-out { --b: var(--wa-out); --meta-w: 62px; align-self: flex-end; }
+.ph-first { margin-top: 8px; }
+.ph-in.ph-first { border-top-left-radius: 0; }
+.ph-out.ph-first { border-top-right-radius: 0; }
+/* The tail on the first line of a run */
+.ph-first::before { content: ""; position: absolute; top: 0; width: 8px; height: 13px; background: var(--b); }
+.ph-in.ph-first::before { left: -8px; clip-path: path("M0 0h8v13C7 9.5 4.6 5.2 1.3 1.9.5 1.2 0 .7 0 0Z"); }
+.ph-out.ph-first::before { right: -8px; clip-path: path("M8 0H0v13C1 9.5 3.4 5.2 6.7 1.9 7.5 1.2 8 .7 8 0Z"); }
+
+.ph-name { display: block; font-size: 13px; font-weight: 600; line-height: 18px; color: var(--wa-name); }
+.ph-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ph-caption { margin: 5px 5px 0; overflow-wrap: anywhere; }
+/* Room on the last line for the time, the way WhatsApp tucks it in */
+.ph-text::after, .ph-caption::after { content: ""; display: inline-block; width: var(--meta-w); height: 1px; }
+/* A line with its own row below the words (a toggle or a card) keeps the time there */
+.ph-b:has(.ph-lang, > .ph-req) .ph-text::after { display: none; }
+
+.ph-foot { position: relative; display: flex; align-items: center; gap: 10px; }
+.ph-foot:has(.ph-lang) { margin-top: 3px; padding-right: var(--meta-w); }
+.ph-b:has(> .ph-req) .ph-foot { min-height: 14px; }
+.ph-meta { position: absolute; right: 0; bottom: -5px; display: inline-flex; align-items: center; gap: 3px; font-size: 11px; line-height: 15px; color: var(--wa-sub); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ph-out .ph-meta { color: var(--wa-sub-out); }
+.ph-lang { border: 0; background: none; padding: 2px 0; color: var(--wa-link); font-size: 12.5px; font-weight: 600; line-height: 16px; cursor: pointer; }
+.ph-out .ph-lang { color: var(--wa-link-out); }
+.ph-lang:hover { text-decoration: underline; text-underline-offset: 2px; }
+.ph-ticks { display: inline-flex; color: var(--wa-tick); }
+.ph-ticks-read { color: var(--wa-read); }
+.ph-ticks-failed { color: var(--wa-danger); }
+.ph-replying { box-shadow: 0 0 0 2px var(--clay), var(--wa-shadow); }
+
+/* Musha's question takes a reply; a held request takes proof: buttons under the line */
+.ph-actions { display: flex; flex-direction: column; margin: 10px -7px -8px -9px; border-top: 1px solid var(--wa-hair); }
+.ph-action { display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; border: 0; background: none; color: var(--wa-link); font-size: 14px; font-weight: 600; cursor: pointer; }
+.ph-action + .ph-action { border-top: 1px solid var(--wa-hair); }
+.ph-action:last-child { border-radius: 0 0 7.5px 7.5px; }
+.ph-action:hover { background: color-mix(in srgb, var(--wa-link) 9%, transparent); }
+.ph-action:focus-visible { outline-offset: -3px; }
+
+/* A request's status, as a compact card inside Musha's line */
+.ph-req { --tone: var(--muted); display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; column-gap: 10px; row-gap: 1px; align-items: center; min-width: min(230px, 100%); margin: 7px 0 4px; padding: 8px 10px 8px 8px; border-radius: 6px; background: var(--wa-card); }
+.ph-req-icon { grid-row: 1 / span 2; width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; color: var(--tone); background: color-mix(in srgb, var(--tone) 13%, transparent); }
+.ph-req-what { font-size: 13.5px; font-weight: 500; line-height: 18px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ph-req-amount { font-size: 14.5px; font-weight: 700; line-height: 18px; font-variant-numeric: tabular-nums; }
+.ph-req-status { grid-column: 2 / -1; font-size: 12.5px; font-weight: 600; line-height: 17px; color: var(--tone); }
+.ph-req-status::before { content: ""; display: inline-block; width: 7px; height: 7px; margin: 0 6px 1px 0; border-radius: 50%; background: currentColor; }
+.ph-req-status em { font-style: normal; font-weight: 500; color: var(--muted); }
+.ph-req-note { grid-column: 1 / -1; margin-top: 5px; font-size: 12.5px; line-height: 17px; color: var(--muted); }
+.ph-tone-clay { --tone: var(--wa-wait); }
+.ph-tone-warn { --tone: var(--wa-warn); }
+.ph-tone-leaf { --tone: var(--wa-leaf); }
+.ph-tone-danger { --tone: var(--wa-danger); }
+.ph-tone-muted { --tone: var(--muted); }
+
+/* Photos of receipts and goods, with their captions */
+.ph-b:has(.ph-photo), .ph-b:has(.ph-media-wait) { width: 252px; padding: 3px 3px 8px; }
+.ph-b:has(.ph-photo) .ph-foot, .ph-b:has(.ph-media-wait) .ph-foot { margin: 0 4px; }
+.ph-photo { display: block; width: 100%; border: 0; padding: 0; background: var(--cream); border-radius: 6px; overflow: hidden; cursor: zoom-in; }
+.ph-photo img { display: block; width: 100%; height: 250px; object-fit: cover; }
+.ph-media-wait { width: 100%; height: 250px; border-radius: 6px; background: linear-gradient(100deg, var(--cream) 30%, var(--sand) 50%, var(--cream) 70%); background-size: 300% 100%; animation: ph-shimmer 1.4s linear infinite; }
+.ph-file { display: inline-block; padding: 6px 4px; color: var(--wa-link); font-weight: 600; }
+
+/* Voice notes: Farai's initial with its mic, play, the waveform, the length */
+.ph-b-voice { padding: 6px 8px 8px 6px; }
+.ph-voice { display: grid; grid-template-columns: auto auto minmax(0, 1fr); grid-template-rows: 34px 14px; column-gap: 8px; align-items: center; width: 252px; max-width: 100%; }
+.ph-voice-face { grid-row: 1 / span 2; position: relative; width: 46px; height: 46px; border-radius: 50%; background: var(--wa-face); color: var(--wa-face-ink); display: grid; place-items: center; font-size: 18px; font-weight: 600; }
+.ph-voice-face i { position: absolute; left: -3px; bottom: -1px; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; color: var(--wa-green); background: var(--b, var(--wa-in)); }
+.ph-voice-face i.heard { color: var(--wa-read); }
+.ph-voice-play { grid-row: 1; width: 34px; height: 34px; border: 0; border-radius: 50%; background: none; color: var(--wa-icon); display: grid; place-items: center; padding: 0; }
+.ph-voice-play:hover { background: color-mix(in srgb, var(--wa-icon) 12%, transparent); }
+.ph-voice-track { grid-row: 1; position: relative; height: 28px; margin-right: 4px; }
+.ph-voice-bars { position: absolute; inset: 0; display: flex; align-items: center; gap: 2px; cursor: pointer; }
+.ph-voice-bars span { flex: 1; min-height: 3px; border-radius: 2px; background: color-mix(in srgb, var(--wa-icon) 45%, transparent); transition: background 120ms; }
+.ph-voice-bars span.on { background: var(--wa-link); }
+.ph-out .ph-voice-bars span.on { background: var(--wa-link-out); }
+.ph-voice-knob { position: absolute; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--wa-green); pointer-events: none; }
+.ph-voice-time { grid-column: 3; grid-row: 2; font-size: 11px; line-height: 14px; color: var(--wa-sub); font-variant-numeric: tabular-nums; }
+.ph-out .ph-voice-time { color: var(--wa-sub-out); }
+.ph-voice:not(.ph-voice-own) { grid-template-columns: auto minmax(0, 1fr); }
+.ph-voice:not(.ph-voice-own) .ph-voice-time { grid-column: 2; }
+.ph-b-voice .ph-meta { bottom: -3px; }
+
+.ph-pending .ph-ticks { color: var(--wa-tick); }
+.ph-b.ph-settled { animation: none; }
+.ph-failed { box-shadow: 0 0 0 1px var(--wa-danger), var(--wa-shadow); }
+.ph-failed-row { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 14px; padding-top: 10px; }
+.ph-failed-why { flex-basis: 100%; margin: 0; font-size: 12.5px; color: var(--wa-danger); line-height: 1.35; }
+.ph-retry { display: inline-flex; align-items: center; gap: 5px; border: 0; background: none; padding: 2px 0; color: var(--wa-danger); font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.ph-retry.ph-drop { color: var(--wa-sub-out); font-weight: 500; }
+
+.ph-typing { display: flex; gap: 4px; align-items: center; padding: 12px 14px; width: 62px; }
+.ph-typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--wa-sub); opacity: .5; animation: ph-dot 1.2s infinite ease-in-out; }
+.ph-typing span:nth-child(2) { animation-delay: .15s; }
+.ph-typing span:nth-child(3) { animation-delay: .3s; }
+
+.ph-note { margin: 0 12px 6px; padding: 9px 14px; border-radius: 8px; background: var(--ink); color: var(--paper); font-size: 13.5px; line-height: 1.4; box-shadow: 0 4px 14px rgba(11, 20, 26, .2); animation: ph-rise 200ms ease-out both; }
+
+/* Quick actions above the bar */
+.ph-chips { display: flex; gap: 6px; padding: 6px 28px 2px 8px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+.ph-chips::-webkit-scrollbar { display: none; }
+.ph-chip { white-space: nowrap; border: 0; background: var(--wa-chip); color: var(--wa-ink); border-radius: 999px; padding: 7px 14px; font-size: 13.5px; font-weight: 500; flex-shrink: 0; box-shadow: var(--wa-shadow); }
+.ph-chip:hover { background: color-mix(in srgb, var(--wa-chip) 92%, var(--wa-link)); }
+.ph-chip-main { color: var(--wa-link); font-weight: 600; }
+.ph-chip-proof { background: var(--clay-soft); color: var(--clay-ink); font-weight: 600; }
+.ph-chip-proof:hover { background: color-mix(in srgb, var(--clay-soft) 88%, var(--clay-ink)); }
+
+/* The bar: emoji, the message, attach, camera, and the mic that turns into send */
+.ph-compose-wrap { position: relative; padding: 6px 6px 8px; flex-shrink: 0; }
+.ph-compose { display: flex; gap: 6px; align-items: flex-end; }
+.ph-pill { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--wa-field); border-radius: 24px; box-shadow: var(--wa-shadow); transition: box-shadow 140ms; }
+.ph-pill:has(input:focus-visible) { box-shadow: 0 0 0 2px var(--clay), var(--wa-shadow); }
+.ph-pill:has(.ph-replyto) { border-radius: 20px 20px 24px 24px; }
+.ph-replyto { display: flex; align-items: flex-start; gap: 8px; margin: 5px 5px 0; padding: 7px 6px 7px 10px; border-radius: 15px 15px 8px 8px; background: var(--wa-quote); position: relative; overflow: hidden; padding-left: 14px; animation: ph-rise 180ms ease-out both; }
+.ph-replyto::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--wa-quote-bar); }
+.ph-replyto div { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 13px; line-height: 1.35; }
+.ph-replyto strong { color: var(--wa-link); font-weight: 600; }
+.ph-replyto span { color: var(--wa-sub); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ph-replyto button { border: 0; background: none; color: var(--wa-icon); padding: 4px; border-radius: 50%; display: grid; place-items: center; }
+.ph-replyto.sending::before { background: var(--line); }
+.ph-replyto.sending strong { color: var(--wa-sub); }
+.ph-replyto .ph-replyto-wait { color: var(--wa-icon); padding: 4px 4px 0; display: grid; place-items: center; animation: ph-pulse 1.6s infinite ease-in-out; }
+.ph-field { display: flex; align-items: center; min-height: 48px; padding: 0 2px 0 4px; }
+.ph-emoji, .ph-clip, .ph-cam { width: 40px; height: 40px; border: 0; border-radius: 50%; background: none; color: var(--wa-icon); display: grid; place-items: center; flex-shrink: 0; padding: 0; }
+.ph-clip:hover, .ph-cam:hover, .ph-clip[aria-expanded="true"] { color: var(--wa-link); }
+.ph .ph-field input:focus-visible { outline: none; }
+.ph-field input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 12px 2px; font: inherit; font-size: 16px; color: var(--wa-ink); outline: none; }
+.ph-field input::placeholder { color: var(--wa-placeholder); }
+.ph-round { width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--wa-green); color: var(--wa-green-ink); display: grid; place-items: center; flex-shrink: 0; box-shadow: 0 1px 3px rgba(11, 20, 26, .2); touch-action: none; user-select: none; -webkit-user-select: none; transition: transform 160ms ease, background 160ms ease; }
+.ph-round:disabled { opacity: .5; }
+.ph-round[type="submit"] svg { margin-left: 3px; }
+.ph-mic.live { transform: scale(1.3); }
+.ph-recording { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; font-size: 14px; color: var(--wa-ink); }
+.ph-rec-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--wa-danger); animation: ph-pulse 1s infinite ease-in-out; flex-shrink: 0; }
+.ph-rec-time { font-weight: 600; font-variant-numeric: tabular-nums; }
+.ph-rec-hint { color: var(--wa-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12.5px; }
+.ph-recording.away .ph-rec-hint { color: var(--wa-danger); font-weight: 600; }
+.ph-recording.waking .ph-rec-dot { background: var(--wa-sub); }
+
+/* The attach menu, in round coloured icons */
+.ph-scrim { position: absolute; inset: 0; z-index: 5; background: var(--ph-scrim); animation: ph-fade 200ms ease-out both; }
+.ph-scrim-clear { position: fixed; background: transparent; animation: none; }
+.ph-menu { position: absolute; left: 8px; right: 8px; bottom: calc(100% - 2px); z-index: 6; padding: 12px 10px 10px; border-radius: 16px; background: var(--paper); box-shadow: 0 2px 5px rgba(11, 20, 26, .2), 0 12px 30px rgba(11, 20, 26, .18); animation: ph-pop 180ms cubic-bezier(.2, .8, .2, 1) both; transform-origin: 70% 100%; max-height: min(540px, 64vh); overflow-y: auto; overscroll-behavior: contain; }
+.ph-menu-for { display: flex; align-items: center; gap: 8px; padding: 0 6px 10px; font-size: 12.5px; color: var(--muted); }
+.ph-menu-for strong { color: var(--ink); font-size: 13.5px; font-weight: 600; }
+.ph-menu-for select { flex: 1; min-width: 0; border: 1px solid var(--wa-field-line); background: var(--paper); color: var(--ink); border-radius: 8px; padding: 5px 6px; font: inherit; font-size: 13.5px; }
+.ph-menu-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.ph-menu-item { display: flex; flex-direction: column; align-items: center; gap: 7px; border: 0; background: none; padding: 6px 2px 4px; border-radius: 12px; text-align: center; }
+.ph-menu-item:hover { background: var(--cream); }
+.ph-menu-item strong { font-size: 12.5px; font-weight: 500; line-height: 1.25; color: var(--muted); }
+.ph-menu-icon { --hue: #7f66ff; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; color: #ffffff; background: var(--hue); }
+.ph-menu-item[aria-expanded="true"] .ph-menu-icon { box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--hue); }
+.ph-hue-doc { --hue: #7f66ff; }
+.ph-hue-photo { --hue: #d3396d; }
+.ph-hue-sample { --hue: #0a8fd8; }
+.ph-hue-goods { --hue: #1b9c55; }
+.ph-menu-hint { margin: 8px 6px 0; font-size: 12.5px; line-height: 1.4; color: var(--muted); text-align: center; }
+.ph-variants { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px 2px 2px; }
+.ph-variants button { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; border: 1px solid var(--line); background: var(--cream); border-radius: 10px; padding: 7px 10px; text-align: left; line-height: 1.25; }
+.ph-variants button:hover { border-color: var(--clay); }
+.ph-variants strong { font-size: 13.5px; font-weight: 600; }
+.ph-variants small { font-size: 12px; color: var(--muted); }
+.ph-menu-empty { margin: 0; padding: 8px 10px; font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+
+/* The flows that rise from the chat: outlined fields and a green pill, as in a WhatsApp form */
+.ph .ph-sheet { border-radius: 16px 16px 0 0; }
+.ph .ph-sheet-head h3 { font-size: 19px; letter-spacing: 0; }
+.ph .ph-l input, .ph .ph-table input { border-color: var(--wa-field-line); background: var(--paper); border-radius: 8px; }
+.ph .ph-l input:focus, .ph .ph-table input:focus { border-color: var(--clay); box-shadow: 0 0 0 1px var(--clay); }
+.ph .ph-money input { font-family: var(--wa-font); font-weight: 600; }
+.ph .ph-primary { border-radius: 999px; }
+.ph .ph-ghost { border-radius: 999px; border-color: var(--wa-field-line); color: var(--clay-ink); font-weight: 600; }
+.ph .ph-expect strong, .ph .ph-result-big { font-weight: 700; letter-spacing: -.5px; }
+
+/* The line beneath the phone */
+.ph-under { margin: 10px 8px 0; font-size: 12.5px; line-height: 1.45; color: var(--muted); text-align: center; text-wrap: balance; }
+
+@media (max-width: 960px) {
+  .ph { border-width: 0; border-radius: var(--radius); height: var(--ph-h, calc(100dvh - 190px)); min-height: 480px; box-shadow: 0 0 0 1px var(--wa-hair); }
+  :root[data-theme="dark"] .ph { box-shadow: 0 0 0 1px #3a322a; }
+  .ph-status { display: none; }
+  .ph-under { margin: 8px 4px 0; }
+}
+
+@media (max-width: 420px) {
+  .ph-variants { grid-template-columns: 1fr; }
+}

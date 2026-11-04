@@ -93,6 +93,17 @@ def _render(spec: ReceiptSpec, seed: int | str, tilt: float | None = None, light
     return _photograph(_paper(spec), random.Random(f"camera:{seed}"), tilt=tilt, light=light)
 
 
+def scan_receipt(spec: ReceiptSpec) -> bytes:
+    """A JPEG of the slip laid flat, the way a phone's document scanner keeps it: the same paper as
+    `render_receipt`, on a plain page. A twentieth of a photo's work, for receipts kept on file."""
+    paper = _paper(spec)
+    page = Image.new("RGB", (paper.width + 2 * MARGIN, paper.height + 2 * MARGIN), (238, 235, 228))
+    page.paste(paper, (MARGIN, MARGIN), paper if paper.mode == "RGBA" else None)
+    buf = io.BytesIO()
+    page.save(buf, "JPEG", quality=84, optimize=True)
+    return buf.getvalue()
+
+
 def reading_of(spec: ReceiptSpec) -> dict:
     """What a careful reader takes from this receipt, in the proof engine's reading shape."""
     return {
@@ -450,12 +461,14 @@ def _till(shop, payee: str) -> int:
     return 4000 + zlib.crc32(f"{shop.id}:{payee}".encode()) % 5000
 
 
-def history_spec(shop, product, point, quantity: int, unit_cents: int) -> ReceiptSpec:
+def history_spec(shop, product, point, quantity: int, unit_cents: int, back: int = 0) -> ReceiptSpec:
+    """A receipt from the shop's history. `back` counts receipts back from where the payee's till
+    stood last week, for its earlier slips."""
     from .flows import utc
     from .proof import SHOP_TZ
 
     day = utc(point.bought_at).astimezone(SHOP_TZ)
-    n = _till(shop, point.supplier)
+    n = _till(shop, point.supplier) - back
     at = datetime(day.year, day.month, day.day, 9, n % 50)
     return ReceiptSpec(payee=point.supplier, address=address_for(shop, point.supplier),
                        receipt_no=receipt_number(point.supplier, n), at=at,

@@ -1,12 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Shop } from "../api";
 import { ownerApi, type CameraStatus, type Evidence } from "./api";
 import { Lightbox } from "./Evidence";
 import { ErrorLine, Spinner } from "./parts";
 import { cap, clock, usePoll, when } from "./lib";
 import { counterLink } from "../shell";
+import { Connect } from "./Connect";
+import type { Source } from "./connection";
 
 const WAIT_MS = 120_000;
+const SOURCE_LABEL: Record<Source, string> = { phone: "Counter camera", bridge: "IP camera", feed: "Video feed" };
 
 /** The newest counter still, and a button that asks the counter phone for a fresh one. */
 export function LookIn({ shop, onStatus }: { shop: Shop; onStatus?: (s: CameraStatus) => void }) {
@@ -17,10 +20,11 @@ export function LookIn({ shop, onStatus }: { shop: Shop; onStatus?: (s: CameraSt
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [connecting, setConnecting] = useState(false);
   const statusRef = useRef(onStatus);
   statusRef.current = onStatus;
 
-  usePoll(async () => {
+  const poll = usePoll(async () => {
     const s = await ownerApi.camera(shop.id);
     setStatus(s);
     statusRef.current?.(s);
@@ -58,6 +62,8 @@ export function LookIn({ shop, onStatus }: { shop: Shop; onStatus?: (s: CameraSt
     }
   };
 
+  const closeConnect = useCallback(() => setConnecting(false), []);
+
   const link = counterLink(shop.id);
   const copy = async () => {
     try {
@@ -72,6 +78,9 @@ export function LookIn({ shop, onStatus }: { shop: Shop; onStatus?: (s: CameraSt
   };
 
   const f = status?.latest;
+  const source = (status as (CameraStatus & { source?: Source | null; feed?: { on: boolean } }) | undefined);
+  const label = source?.source && (source.source !== "feed" || source.feed?.on)
+    ? SOURCE_LABEL[source.source] : "Counter camera";
   const item: Evidence[] = f ? [{
     key: `f${f.id}`, kind: "camera", url: f.url, label: "Counter camera", at: f.at, reading: f.reading,
     note: f.line,
@@ -88,13 +97,16 @@ export function LookIn({ shop, onStatus }: { shop: Shop; onStatus?: (s: CameraSt
       <div className="o-lookin-text">
         <p className="o-eyebrow">
           <span className={`o-dot${status?.online ? " o-on" : ""}`} aria-hidden="true" />
-          Counter camera{status?.online ? ", watching" : status?.seen_at ? `, last seen ${when(status.seen_at)}` : ""}
+          {label}{status?.online ? ", watching" : status?.seen_at ? `, last seen ${when(status.seen_at)}` : ""}
         </p>
         <p className="o-lookin-line">{f?.line ? cap(f.line) : "Waiting for the first still."}</p>
         {f && <p className="o-muted">{cap(when(f.at))}</p>}
         <div className="o-row">
           <button className="o-btn o-outline" onClick={ask} disabled={!!waiting}>
             {waiting ? <><Spinner /> Asking the counter phone</> : "Look in"}
+          </button>
+          <button className="o-btn o-ghost" onClick={() => setConnecting(true)} aria-haspopup="dialog">
+            Connect your shop
           </button>
         </div>
         {late && (
@@ -111,6 +123,7 @@ export function LookIn({ shop, onStatus }: { shop: Shop; onStatus?: (s: CameraSt
       {open && f && (
         <Lightbox items={item} index={0} setIndex={() => undefined} onClose={() => setOpen(false)} manager={shop.manager.name} />
       )}
+      {connecting && <Connect shop={shop} onClose={closeConnect} onChange={() => void poll()} />}
     </section>
   );
 }

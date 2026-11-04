@@ -1,4 +1,4 @@
-"""The demo family: Chipo in Leicester owns a tuck shop in Mbare that her brother Farai runs.
+"""The demo family: Chipo in Leicester owns a tuck shop in Mbare that her sister Farai runs.
 
 `seed(session)` adds one shop with its family, products, price history, trading
 history, past receipts and camera stills. The web app calls it once per visitor,
@@ -7,7 +7,7 @@ so every visitor plays a shop of their own.
 Run `python -m musha.seed` to reset the local database to one fresh shop, or
 `python -m musha.seed --if-empty` to bring an older database up to the models and seed it
 only when it is empty.
-Sandbox emails come from the environment so each judge can use their own sandbox accounts.
+Sandbox emails come from the environment, so anyone who runs the app can use their own sandbox accounts.
 """
 import os
 import sys
@@ -54,6 +54,7 @@ def seed(session: Session) -> Shop:
     from . import camera, insights, proof
 
     insights.seed_trading(session, shop)
+    insights.seed_answers(session, shop)  # Farai's answer on Thursday's cash gap
     proof.seed_history(session, shop)
     camera.seed_frames(session, shop)
 

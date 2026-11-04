@@ -1,0 +1,38 @@
+# Litestream 0.5 for Musha on Cloud Run: one SQLite file, replicated to Cloud Storage.
+# deploy/entrypoint.sh restores it at start and runs the web process under
+# `litestream replicate -exec`. ${...} values come from the environment:
+#   MUSHA_DB_PATH           the SQLite file, /data/musha.db in the image
+#   LITESTREAM_REPLICA_URL  gs://<bucket>/musha on Cloud Run; file:///<dir> for a local try
+#   LITESTREAM_SOCKET       the control socket, for `litestream sync -wait`
+# Cloud Storage access uses the service's own identity (application default credentials).
+
+dbs:
+  - path: ${MUSHA_DB_PATH}
+    replica:
+      url: ${LITESTREAM_REPLICA_URL}
+      # A change reaches the bucket within a second while the instance has CPU.
+      sync-interval: 1s
+      # Unattended: on an LTX error, take a fresh snapshot and keep replicating.
+      auto-recover: true
+
+# A restored database starts behind its replica, so every instance start also writes a full
+# snapshot. Retention keeps a day of history in the bucket.
+snapshot:
+  interval: 24h
+  retention: 24h
+
+# Fewer listings of the bucket while the instance idles.
+l0-retention: 5m
+l0-retention-check-interval: 1m
+
+# Cloud Run gives a stopping instance 10 s. uvicorn takes up to 4 s of it; the final sync gets 5.
+shutdown-sync-timeout: 5s
+shutdown-sync-interval: 500ms
+
+socket:
+  enabled: true
+  path: ${LITESTREAM_SOCKET}
+
+logging:
+  level: info
+  type: text

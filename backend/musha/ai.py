@@ -30,9 +30,10 @@ Part = str | Blob
 # Light tasks run with low thinking: a person waits on each, and each reads short text. The
 # proof engine's question and its weighing of an answer run inside the manager's message. The goods
 # check runs beside the receipt read inside a 15 s cap; at low thinking it judged the right goods,
-# the wrong goods and a short count the same as at the default, in a third of the time.
+# the wrong goods and a short count the same as at the default, in a third of the time. The Money
+# view's spec came back the same at low thinking for the common questions, in about half the time.
 QUICK = {"localize", "transcribe", "read_message", "camera.read", "owner_answer",
-         "proof_question", "proof_answer", "goods_check"}
+         "proof_question", "proof_answer", "goods_check", "money_view"}
 # A call that runs past this is dropped and the caller falls back, so a request never hangs on the model.
 TIMEOUT = {"quick": 40.0, "other": 90.0}
 _LATE = object()
