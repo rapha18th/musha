@@ -46,6 +46,7 @@ def request_view(req: SpendRequest) -> dict:
         "amount_cents": req.amount_cents, "payee": req.payee, "words": req.words,
         "words_en": req.words_en, "language": req.language, "origin": req.origin,
         "status": req.status, "approved_by": req.approved_by, "order_id": req.order_id,
+        "inferred": [f for f in (req.inferred or "").split(",") if f],
         "created_at": iso(req.created_at), "approved_at": iso(req.approved_at),
         "hold": hold and {
             "authorization_id": hold.authorization_id, "amount_cents": hold.amount_cents,

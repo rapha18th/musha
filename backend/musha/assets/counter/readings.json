@@ -1,0 +1,263 @@
+{
+  "busy": {
+    "open": true,
+    "people": 4,
+    "busy": true,
+    "shelves": [
+      {
+        "item": "eggs",
+        "level": "ok"
+      },
+      {
+        "item": "bread",
+        "level": "ok"
+      },
+      {
+        "item": "cooking oil",
+        "level": "ok"
+      },
+      {
+        "item": "sugar",
+        "level": "ok"
+      }
+    ],
+    "delivery": {
+      "seen": false,
+      "goods": "",
+      "quantity_estimate": 0.0
+    },
+    "line": "Open, three customers, busy"
+  },
+  "closed": {
+    "open": false,
+    "people": 0,
+    "busy": false,
+    "shelves": [
+      {
+        "item": "eggs",
+        "level": "full"
+      },
+      {
+        "item": "bread",
+        "level": "ok"
+      },
+      {
+        "item": "cooking oil",
+        "level": "ok"
+      },
+      {
+        "item": "sugar",
+        "level": "ok"
+      }
+    ],
+    "delivery": {
+      "seen": false,
+      "goods": "",
+      "quantity_estimate": 0.0
+    },
+    "line": "Closed, quiet"
+  },
+  "delivery-bread": {
+    "open": true,
+    "people": 2,
+    "busy": false,
+    "shelves": [
+      {
+        "item": "eggs",
+        "level": "full"
+      },
+      {
+        "item": "bread",
+        "level": "ok"
+      },
+      {
+        "item": "cooking oil",
+        "level": "full"
+      },
+      {
+        "item": "sugar",
+        "level": "ok"
+      }
+    ],
+    "delivery": {
+      "seen": true,
+      "goods": "bread",
+      "quantity_estimate": 20.0
+    },
+    "line": "Open, bread delivery arriving, two people inside"
+  },
+  "delivery-cooking-oil": {
+    "open": true,
+    "people": 2,
+    "busy": false,
+    "shelves": [
+      {
+        "item": "eggs",
+        "level": "full"
+      },
+      {
+        "item": "bread",
+        "level": "ok"
+      },
+      {
+        "item": "cooking oil",
+        "level": "ok"
+      },
+      {
+        "item": "sugar",
+        "level": "low"
+      }
+    ],
+    "delivery": {
+      "seen": true,
+      "goods": "cooking oil",
+      "quantity_estimate": 2.0
+    },
+    "line": "Open, delivery of cooking oil, sugar low"
+  },
+  "delivery-eggs": {
+    "open": true,
+    "people": 2,
+    "busy": false,
+    "shelves": [
+      {
+        "item": "eggs",
+        "level": "full"
+      },
+      {
+        "item": "bread",
+        "level": "ok"
+      },
+      {
+        "item": "cooking oil",
+        "level": "ok"
+      },
+      {
+        "item": "sugar",
+        "level": "ok"
+      }
+    ],
+    "delivery": {
+      "seen": true,
+      "goods": "eggs",
+      "quantity_estimate": 7.0
+    },
+    "line": "Open, delivery of eggs"
+  },
+  "delivery-sugar": {
+    "open": true,
+    "people": 2,
+    "busy": false,
+    "shelves": [
+      {
+        "item": "eggs",
+        "level": "full"
+      },
+      {
+        "item": "bread",
+        "level": "ok"
+      },
+      {
+        "item": "cooking oil",
+        "level": "ok"
+      },
+      {
+        "item": "sugar",
+        "level": "low"
+      }
+    ],
+    "delivery": {
+      "seen": true,
+      "goods": "sugar",
+      "quantity_estimate": 10.0
+    },
+    "line": "Open, sugar delivery arriving"
+  },
+  "opening": {
+    "open": true,
+    "people": 1,
+    "busy": false,
+    "shelves": [
+      {
+        "item": "eggs",
+        "level": "full"
+      },
+      {
+        "item": "bread",
+        "level": "full"
+      },
+      {
+        "item": "cooking oil",
+        "level": "ok"
+      },
+      {
+        "item": "sugar",
+        "level": "ok"
+      }
+    ],
+    "delivery": {
+      "seen": false,
+      "goods": "",
+      "quantity_estimate": 0.0
+    },
+    "line": "Open, quiet"
+  },
+  "quiet": {
+    "open": true,
+    "people": 0,
+    "busy": false,
+    "shelves": [
+      {
+        "item": "eggs",
+        "level": "full"
+      },
+      {
+        "item": "bread",
+        "level": "full"
+      },
+      {
+        "item": "cooking oil",
+        "level": "ok"
+      },
+      {
+        "item": "sugar",
+        "level": "ok"
+      }
+    ],
+    "delivery": {
+      "seen": false,
+      "goods": "",
+      "quantity_estimate": 0.0
+    },
+    "line": "Open, quiet"
+  },
+  "shelf_low": {
+    "open": true,
+    "people": 0,
+    "busy": false,
+    "shelves": [
+      {
+        "item": "bread",
+        "level": "ok"
+      },
+      {
+        "item": "eggs",
+        "level": "low"
+      },
+      {
+        "item": "cooking oil",
+        "level": "ok"
+      },
+      {
+        "item": "sugar",
+        "level": "ok"
+      }
+    ],
+    "delivery": {
+      "seen": false,
+      "goods": "",
+      "quantity_estimate": 0.0
+    },
+    "line": "Open, quiet, eggs low"
+  }
+}

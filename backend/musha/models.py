@@ -52,6 +52,16 @@ class Shop(Base):
     # Chitoro lite: when the counter phone last checked in, and when the owner last asked to look in
     camera_seen_at: Mapped[datetime | None] = mapped_column(default=None)
     look_in_requested_at: Mapped[datetime | None] = mapped_column(default=None)
+    # a shop the seed made, for a visitor or the server's first: staged camera scenes count here alone
+    demo: Mapped[bool] = mapped_column(default=False)
+    # A visitor's shop opens with its keys, one per role (routes/core.py mints and checks them).
+    # Empty on a shop made without keys, such as the server's own first one: that shop is open.
+    owner_key: Mapped[str] = mapped_column(String(64), default="")
+    manager_key: Mapped[str] = mapped_column(String(64), default="")
+    counter_key: Mapped[str] = mapped_column(String(64), default="")
+    # The manager's agreement to the counter camera, given on the counter page; the first one stands
+    camera_consent_at: Mapped[datetime | None] = mapped_column(default=None)
+    camera_consent_by: Mapped[str] = mapped_column(String(80), default="")
     owner: Mapped[Person] = relationship(foreign_keys=[owner_id])
     manager: Mapped[Person] = relationship(foreign_keys=[manager_id])
 
@@ -71,8 +81,10 @@ class Product(Base):
 class SpendRequest(Base):
     """Any outflow the manager asks the owner to fund. Its status walks the money loop:
 
-    requested -> approving -> held -> (asking) -> captured | part_captured | voided
-    A hold the proof engine will not release becomes `flagged` until the owner decides.
+    requested -> approving -> (reviewing) -> held -> (asking) -> (capturing) -> captured | part_captured | voided
+    The owner's agent goes requested -> agent_pending -> held when PayPal answers late.
+    `reviewing` waits on PayPal's review of the payment, `capturing` on a pending capture.
+    A hold the proof engine keeps back becomes `flagged` until the owner decides.
     """
     __tablename__ = "spend_requests"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -92,6 +104,7 @@ class SpendRequest(Base):
     order_id: Mapped[str] = mapped_column(String(40), default="")
     created_at: Mapped[datetime] = mapped_column(default=now)
     approved_at: Mapped[datetime | None] = mapped_column(default=None)
+    inferred: Mapped[str] = mapped_column(String(32), default="")  # fields Musha filled in: payee,amount
     shop: Mapped[Shop] = relationship()
     hold: Mapped["Hold | None"] = relationship(back_populates="request", uselist=False)
     attachments: Mapped[list["Attachment"]] = relationship(
@@ -108,10 +121,12 @@ class Hold(Base):
     first_authorization_id: Mapped[str] = mapped_column(String(40))
     amount_cents: Mapped[int]
     captured_cents: Mapped[int] = mapped_column(default=0)
-    status: Mapped[str] = mapped_column(String(20), default="held")  # held | captured | part_captured | voided
+    status: Mapped[str] = mapped_column(String(20), default="held")  # pending | held | captured | part_captured | voided
     authorized_at: Mapped[datetime]
     expires_at: Mapped[datetime]
     reauthorized_at: Mapped[datetime | None] = mapped_column(default=None)
+    capture_id: Mapped[str] = mapped_column(String(40), default="")  # a capture PayPal reports as pending
+    capture_attempts: Mapped[int] = mapped_column(default=0)  # each attempt sends its own request id
     request: Mapped[SpendRequest] = relationship(back_populates="hold")
 
 
@@ -237,10 +252,11 @@ class CameraFrame(Base):
     at: Mapped[datetime] = mapped_column(default=now, index=True)
     kind: Mapped[str] = mapped_column(String(12), default="sample")  # sample | look_in | staged
     content_type: Mapped[str] = mapped_column(String(32), default="image/jpeg")
-    data: Mapped[bytes] = mapped_column(LargeBinary)
     change: Mapped[float] = mapped_column(default=0.0)  # pixel gate: share of the picture that moved
     reading: Mapped[str] = mapped_column(Text, default="")
     line: Mapped[str] = mapped_column(String(200), default="")  # "Open, busy, egg shelf low"
+    # last, so a scan of the columns above skips the picture's overflow pages in SQLite
+    data: Mapped[bytes] = mapped_column(LargeBinary)
 
 
 class Message(Base):
@@ -256,6 +272,24 @@ class Message(Base):
     language: Mapped[str] = mapped_column(String(8), default="en")
     request_id: Mapped[int | None] = mapped_column(ForeignKey("spend_requests.id"), default=None)
     attachment_id: Mapped[int | None] = mapped_column(ForeignKey("attachments.id"), default=None)
+    at: Mapped[datetime] = mapped_column(default=now)
+
+
+class Heard(Base):
+    """A message from the manager's phone, by the phone's own id or by its words, so a retry
+    or a second tap is heard once. `until` is the last line it produced; None while Musha reads.
+    `line_id` is the manager's own line, once kept. `request_ids` are the requests it made or
+    answered. The shop id carries no foreign key: a row older than its shop comes from an
+    earlier database, and its message reads as new."""
+    __tablename__ = "heard"
+    __table_args__ = (UniqueConstraint("shop_id", "key"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    shop_id: Mapped[int] = mapped_column(index=True)
+    key: Mapped[str] = mapped_column(String(80))  # id:<client id> | text:<sha256> | voice:<sha256>
+    since: Mapped[int] = mapped_column(default=0)  # the shop's last message id before this one
+    until: Mapped[int | None] = mapped_column(default=None)
+    line_id: Mapped[int | None] = mapped_column(default=None)
+    request_ids: Mapped[str] = mapped_column(Text, default="[]")
     at: Mapped[datetime] = mapped_column(default=now)
 
 

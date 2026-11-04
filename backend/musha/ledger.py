@@ -28,8 +28,9 @@ def post(session: Session, *, shop_id: int, kind: str, ref: str, amount_cents: i
     existing = session.scalar(select(LedgerEntry).where(LedgerEntry.ref == ref))
     if existing:
         return existing, False
+    # The columns' own lengths: Postgres refuses a longer string, and the row would be lost.
     entry = LedgerEntry(shop_id=shop_id, kind=kind, ref=ref, amount_cents=amount_cents,
-                        item=item, quantity=quantity, memo=memo, source=source,
+                        item=item[:80], quantity=quantity, memo=memo[:240], source=source,
                         request_id=request_id)
     if at is not None:
         entry.at = at

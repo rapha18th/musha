@@ -1,0 +1,334 @@
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type KeyboardEvent, type PointerEvent } from "react";
+import type { SpendRequest } from "../api";
+import { VARIANTS, type Variant } from "./api";
+import { Box, Chevron, Clip, Clock, Close, Mic, Receipt, Send } from "./icons";
+import { describe, seconds, typesNumbers } from "./util";
+
+export type Attach = {
+  targets: SpendRequest[];
+  /** The model reads receipts. Without it, or once Musha asks for the numbers, a receipt photo goes with them typed. */
+  ai: boolean;
+  onFile: (kind: "receipt" | "goods", req: SpendRequest, file: File) => void;
+  onTyped: (req: SpendRequest, file: File) => void;
+  onSample: (variant: Variant, req: SpendRequest) => void;
+  onGoods: (req: SpendRequest) => void;
+};
+
+const SHORT_MS = 450; // a press shorter than this is a tap: it cancels
+const AWAY_PX = 70; // slide this far off the mic to cancel
+
+function recordingType(): string {
+  if (typeof MediaRecorder === "undefined") return "";
+  for (const t of ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus"]) {
+    if (MediaRecorder.isTypeSupported?.(t)) return t;
+  }
+  return "";
+}
+
+export function Composer({ onText, onVoice, attach, reply, clearReply, say }: {
+  onText: (text: string) => void;
+  onVoice: (audio: Blob, ms: number) => void;
+  attach: Attach;
+  /** Musha's open question; `sending` while the answer to it is on its way. */
+  reply: { text: string; sending: boolean } | null;
+  clearReply: () => void;
+  say: (line: string) => void;
+}) {
+  const [text, setText] = useState("");
+  const [menu, setMenu] = useState(false);
+  const input = useRef<HTMLInputElement>(null);
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    const t = text.trim();
+    if (!t) return;
+    onText(t);
+    setText("");
+    input.current?.focus();
+  };
+
+  const voice = useVoice(onVoice, say);
+  const canRecord = typeof navigator !== "undefined" && !!navigator.mediaDevices && typeof MediaRecorder !== "undefined";
+
+  return (
+    <div className="ph-compose-wrap">
+      {reply && (
+        <div className={`ph-replyto${reply.sending ? " sending" : ""}`} role="status">
+          <div>
+            <strong>{reply.sending ? "Your answer is on its way" : "Reply to Musha"}</strong>
+            <span>{reply.text}</span>
+          </div>
+          {reply.sending ? (
+            <span className="ph-replyto-wait" aria-hidden="true"><Clock /></span>
+          ) : (
+            <button type="button" onClick={clearReply} aria-label="Clear the reply"><Close size={16} /></button>
+          )}
+        </div>
+      )}
+      <form className="ph-compose" onSubmit={submit}>
+        {voice.recording ? (
+          <div className={`ph-recording${voice.away ? " away" : ""}${voice.rolling ? "" : " waking"}`} role="status">
+            <span className="ph-rec-dot" />
+            <span className="ph-rec-time">{seconds(voice.elapsed)}</span>
+            <span className="ph-rec-hint">
+              {voice.away ? "Release to cancel" : voice.rolling ? "Release to send. Slide away to cancel." : "Starting the microphone"}
+            </span>
+          </div>
+        ) : (
+          <div className="ph-field">
+            <input
+              ref={input}
+              value={text}
+              placeholder="Message"
+              aria-label="Message to Musha"
+              onChange={(e) => setText(e.target.value)}
+              enterKeyHint="send"
+            />
+            <button type="button" className="ph-clip" aria-label="Attach" aria-expanded={menu} onClick={() => setMenu((v) => !v)}>
+              <Clip />
+            </button>
+          </div>
+        )}
+        {text.trim() && !voice.recording ? (
+          <button type="submit" className="ph-round" aria-label="Send"><Send /></button>
+        ) : (
+          <button
+            type="button"
+            className={`ph-round ph-mic${voice.recording ? " live" : ""}`}
+            aria-label="Hold to record a voice note"
+            disabled={!canRecord}
+            title={canRecord ? "Hold to record" : "Voice notes need a microphone"}
+            onPointerDown={voice.down}
+            onPointerMove={voice.move}
+            onPointerUp={voice.up}
+            onPointerCancel={voice.cancel}
+            onKeyDown={voice.keyDown}
+            onKeyUp={voice.keyUp}
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            <Mic />
+          </button>
+        )}
+      </form>
+      {menu && <AttachMenu attach={attach} close={() => setMenu(false)} />}
+    </div>
+  );
+}
+
+/** Press and hold to record; release to send; a quick tap or a slide away cancels. */
+function useVoice(onVoice: (audio: Blob, ms: number) => void, say: (line: string) => void) {
+  type Rec = { mr?: MediaRecorder; stream?: MediaStream; chunks: Blob[]; started: number; released: boolean; cancelled: boolean };
+  const rec = useRef<Rec | null>(null);
+  const origin = useRef<{ x: number; y: number } | null>(null);
+  const [recording, setRecording] = useState(false);
+  const [rolling, setRolling] = useState(false); // the microphone is on and the note is being kept
+  const [away, setAway] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+  const send = useRef(onVoice);
+  send.current = onVoice;
+
+  useEffect(() => {
+    if (!rolling) return;
+    const t = setInterval(() => {
+      const r = rec.current;
+      if (r) setElapsed(Date.now() - r.started);
+    }, 200);
+    return () => {
+      clearInterval(t);
+    };
+  }, [rolling]);
+
+  useEffect(() => {
+    return () => {
+      const r = rec.current;
+      if (r) {
+        r.cancelled = true;
+        r.released = true;
+        if (r.mr && r.mr.state !== "inactive") r.mr.stop();
+        r.stream?.getTracks().forEach((t) => t.stop());
+      }
+    };
+  }, []);
+
+  const begin = async () => {
+    if (rec.current) return;
+    const r: Rec = { chunks: [], started: Date.now(), released: false, cancelled: false };
+    rec.current = r;
+    setRecording(true);
+    setRolling(false);
+    setAway(false);
+    setElapsed(0);
+    let stream: MediaStream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      rec.current = null;
+      setRecording(false);
+      say("Allow the microphone to send voice notes.");
+      return;
+    }
+    if (r.released) {
+      // The press ended while the browser asked about the microphone: the next press records.
+      stream.getTracks().forEach((t) => t.stop());
+      say(Date.now() - r.started > 1500 ? "The microphone is ready. Hold the mic to record." : "Hold the mic to record. Release to send.");
+      return;
+    }
+    const type = recordingType();
+    const mr = new MediaRecorder(stream, type ? { mimeType: type } : undefined);
+    mr.ondataavailable = (e) => {
+      if (e.data.size) r.chunks.push(e.data);
+    };
+    mr.onstop = () => {
+      stream.getTracks().forEach((t) => t.stop());
+      const ms = Date.now() - r.started;
+      if (!r.cancelled && r.chunks.length) {
+        send.current(new Blob(r.chunks, { type: (mr.mimeType || type || "audio/webm").split(";")[0] }), ms);
+      }
+    };
+    r.mr = mr;
+    r.stream = stream;
+    r.started = Date.now();
+    mr.start(250);
+    setRolling(true);
+  };
+
+  const end = (cancel: boolean) => {
+    const r = rec.current;
+    if (!r) return;
+    r.released = true;
+    const held = Date.now() - r.started;
+    r.cancelled = cancel || !r.mr || held < SHORT_MS;
+    if (r.mr && r.mr.state !== "inactive") r.mr.stop();
+    rec.current = null;
+    origin.current = null;
+    setRecording(false);
+    setRolling(false);
+    setAway(false);
+    if (r.mr && held < SHORT_MS && !cancel) say("Hold the mic to record. Release to send.");
+  };
+
+  return {
+    recording,
+    rolling,
+    away,
+    elapsed,
+    down: (e: PointerEvent<HTMLButtonElement>) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      e.currentTarget.setPointerCapture?.(e.pointerId);
+      origin.current = { x: e.clientX, y: e.clientY };
+      void begin();
+    },
+    move: (e: PointerEvent<HTMLButtonElement>) => {
+      const o = origin.current;
+      if (!o) return;
+      setAway(Math.hypot(e.clientX - o.x, e.clientY - o.y) > AWAY_PX);
+    },
+    up: (e: PointerEvent<HTMLButtonElement>) => {
+      const o = origin.current;
+      const far = !!o && Math.hypot(e.clientX - o.x, e.clientY - o.y) > AWAY_PX;
+      end(far);
+    },
+    cancel: () => end(true),
+    keyDown: (e: KeyboardEvent<HTMLButtonElement>) => {
+      if ((e.key === " " || e.key === "Enter") && !e.repeat) {
+        e.preventDefault();
+        void begin();
+      }
+    },
+    keyUp: (e: KeyboardEvent<HTMLButtonElement>) => {
+      if (e.key === " " || e.key === "Enter") {
+        e.preventDefault();
+        end(false);
+      }
+    },
+  };
+}
+
+function AttachMenu({ attach, close }: { attach: Attach; close: () => void }) {
+  const { targets } = attach;
+  const [id, setId] = useState(targets[0]?.id);
+  const [samples, setSamples] = useState(false);
+  const receipt = useRef<HTMLInputElement>(null);
+  const goods = useRef<HTMLInputElement>(null);
+  const req = targets.find((r) => r.id === id) || targets[0];
+
+  useEffect(() => {
+    const on = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Escape") close();
+    };
+    window.addEventListener("keydown", on);
+    return () => {
+      window.removeEventListener("keydown", on);
+    };
+  }, [close]);
+
+  const picked = (kind: "receipt" | "goods") => (e: ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (f && req) {
+      if (kind === "receipt" && typesNumbers(req, attach.ai)) attach.onTyped(req, f);
+      else attach.onFile(kind, req, f);
+      close();
+    }
+  };
+
+  return (
+    <>
+      <div className="ph-scrim ph-scrim-clear" onClick={close} />
+      <div className="ph-menu" role="menu">
+        {req ? (
+          <>
+            <div className="ph-menu-for">
+              <span>Proof for</span>
+              {targets.length > 1 ? (
+                <select value={req.id} onChange={(e) => setId(Number(e.target.value))} aria-label="Request">
+                  {targets.map((r) => <option key={r.id} value={r.id}>{describe(r)}</option>)}
+                </select>
+              ) : (
+                <strong>{describe(req)}</strong>
+              )}
+            </div>
+            <button type="button" role="menuitem" className="ph-menu-item" onClick={() => receipt.current?.click()}>
+              <span className="ph-menu-icon"><Receipt /></span>
+              <span><strong>Receipt photo</strong><small>{typesNumbers(req, attach.ai) ? "Then type its total, number and date" : "Camera or files"}</small></span>
+            </button>
+            <button type="button" role="menuitem" className="ph-menu-item" onClick={() => goods.current?.click()}>
+              <span className="ph-menu-icon"><Box /></span>
+              <span><strong>Goods photo</strong><small>Camera or files</small></span>
+            </button>
+            <div className="ph-menu-rule">Samples</div>
+            <button type="button" role="menuitem" className="ph-menu-item" aria-expanded={samples} onClick={() => setSamples((v) => !v)}>
+              <span className="ph-menu-icon"><Receipt /></span>
+              <span><strong>Sample receipt</strong><small>Five versions to test Musha</small></span>
+              <span className={`ph-menu-more${samples ? " open" : ""}`}><Chevron /></span>
+            </button>
+            {samples && (
+              <div className="ph-variants">
+                {VARIANTS.map((v) => (
+                  <button key={v.key} type="button" role="menuitem" onClick={() => {
+                    attach.onSample(v.key, req);
+                    close();
+                  }}>
+                    <strong>{v.label}</strong><small>{v.hint}</small>
+                  </button>
+                ))}
+              </div>
+            )}
+            <button type="button" role="menuitem" className="ph-menu-item" onClick={() => {
+              attach.onGoods(req);
+              close();
+            }}>
+              <span className="ph-menu-icon"><Box /></span>
+              <span><strong>Sample goods photo</strong><small>The {req.item} on the counter</small></span>
+            </button>
+            <input ref={receipt} type="file" accept="image/*,application/pdf" hidden onChange={picked("receipt")} />
+            <input ref={goods} type="file" accept="image/*" hidden onChange={picked("goods")} />
+          </>
+        ) : (
+          <p className="ph-menu-empty">Proof goes with an approved request. Ask for money first, then send the receipt here once the money is held.</p>
+        )}
+      </div>
+    </>
+  );
+}

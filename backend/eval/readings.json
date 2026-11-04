@@ -1,0 +1,5199 @@
+{
+ "model": "gemini-3.8-flash",
+ "prompt": "b00a18c3caf6",
+ "count": 220,
+ "readings": {
+  "2cf96e72feb1757703f1d029699d6619c13c9e2b9ed777f44ccbcafa73c717b0": {
+   "photo": "2026/duplicate-02",
+   "seconds": 4.46,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:27+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041303",
+    "date": "2026-09-12",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 10,
+      "line_total": 42.5,
+      "unit_price": 4.25
+     }
+    ],
+    "total": 42.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:32"
+   }
+  },
+  "8ba59b9bf83b9bf5e1710d5e0959f798df58ea1bccf4de70c4379613ea715253": {
+   "photo": "2026/duplicate-04",
+   "seconds": 10.82,
+   "tries": 1,
+   "read_at": "2026-10-31T12:09:24+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027245",
+    "date": "2026-09-17",
+    "items": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 40,
+      "line_total": 46,
+      "unit_price": 1.15
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 1,
+      "line_total": 0.15,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 46.15,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:42"
+   }
+  },
+  "e8018ece066b2a7125c3ab0c7c5c01c34efdfab56d492be146c1e3daa5b02862": {
+   "photo": "2026/duplicate-06",
+   "seconds": 5.78,
+   "tries": 1,
+   "read_at": "2026-10-31T12:17:30+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003774",
+    "date": "2026-10-14",
+    "items": [
+     {
+      "name": "EGGS TRAY X30",
+      "quantity": 30,
+      "line_total": 141,
+      "unit_price": 4.7
+     }
+    ],
+    "total": 141,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:42"
+   }
+  },
+  "90d5e1bc18cb46360f3051334489eff545dff28ae3b59e5ed8d93fe09637ec84": {
+   "photo": "2026/duplicate-08",
+   "seconds": 6.54,
+   "tries": 1,
+   "read_at": "2026-10-31T12:18:39+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00543",
+    "date": "2026-10-19",
+    "items": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 2,
+      "line_total": 23.8,
+      "unit_price": 11.9
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 3,
+      "line_total": 0.45,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 24.25,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:34"
+   }
+  },
+  "870e99d1c000783329fce2bf50479e598c51b8f25efd32d201d926f8ea5d54aa": {
+   "photo": "2026/duplicate-10",
+   "seconds": 4.34,
+   "tries": 1,
+   "read_at": "2026-10-31T12:09:01+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041337",
+    "date": "2026-09-14",
+    "items": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 18,
+      "line_total": 63.9,
+      "unit_price": 3.55
+     }
+    ],
+    "total": 63.9,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:52"
+   }
+  },
+  "238fcd9d6c13d3127f6ad5fb14db12c9a76ab33719bdd8f6c017e8dbad1e3486": {
+   "photo": "2026/duplicate-12",
+   "seconds": 4.16,
+   "tries": 1,
+   "read_at": "2026-10-31T12:10:56+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041398",
+    "date": "2026-09-23",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "line_total": 76.0,
+      "unit_price": 1.9
+     }
+    ],
+    "total": 76.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:17"
+   }
+  },
+  "f8e2b7fc6ccaa641d7ce83ed245882b62865b16b8e8464b20b1b0a201cc121aa": {
+   "photo": "2026/duplicate-14",
+   "seconds": 4.52,
+   "tries": 1,
+   "read_at": "2026-10-31T12:15:07+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003638",
+    "date": "2026-10-05",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 48,
+      "line_total": 24.0,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 24.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:08"
+   }
+  },
+  "9deb02a0f6469938d2ae736767dd756731f5c05032268af11f4a0fdec6f09078": {
+   "photo": "2026/duplicate-16",
+   "seconds": 5.67,
+   "tries": 1,
+   "read_at": "2026-10-31T12:17:05+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041680",
+    "date": "2026-10-13",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "line_total": 72.0,
+      "unit_price": 1.8
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 1,
+      "line_total": 0.15,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 72.15,
+    "currency": "USD",
+    "legible": true,
+    "time": "16:04"
+   }
+  },
+  "96358f2b818096fd87b506e0ff35aa4c1f7aa16eb504950a8b847d4923760b0e": {
+   "photo": "2026/duplicate-18",
+   "seconds": 3.59,
+   "tries": 1,
+   "read_at": "2026-10-31T12:13:56+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041512",
+    "date": "2026-10-02",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 30,
+      "line_total": 57.0,
+      "unit_price": 1.9
+     }
+    ],
+    "total": 57.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:12"
+   }
+  },
+  "72a25db0acdbceb631f272adb630c38923e4e5e821a369aff094451ec1b22fdb": {
+   "photo": "2026/duplicate-20",
+   "seconds": 6.42,
+   "tries": 1,
+   "read_at": "2026-10-31T12:16:40+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00425",
+    "date": "2026-10-10",
+    "items": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 4,
+      "line_total": 47.6,
+      "unit_price": 11.9
+     }
+    ],
+    "total": 47.6,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:24"
+   }
+  },
+  "31b723be716b9044045d18277672df676f25c5eb624957ee3e168dc6909fbdcf": {
+   "photo": "2026/genuine-01",
+   "seconds": 5.03,
+   "tries": 1,
+   "read_at": "2026-10-31T12:11:29+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041458",
+    "date": "2026-09-27",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 30,
+      "line_total": 132.0,
+      "unit_price": 4.4
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 2,
+      "line_total": 0.3,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 132.3,
+    "currency": "USD",
+    "legible": true,
+    "time": "16:18"
+   }
+  },
+  "e5f2e33a147469e25ee19b54200a950fa9b214c2c187d00f7fa9be3d59c81169": {
+   "photo": "2026/genuine-02",
+   "seconds": 88.91,
+   "tries": 1,
+   "read_at": "2026-10-31T12:18:26+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041680",
+    "date": "2026-10-13",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "line_total": 72.0,
+      "unit_price": 1.8
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 1,
+      "line_total": 0.15,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 72.15,
+    "currency": "USD",
+    "legible": true,
+    "time": "16:04"
+   }
+  },
+  "1413ce413d85fcb748fd9a31dfa286bb49a09df4102bcc17f4359667bdd99db3": {
+   "photo": "2026/genuine-03",
+   "seconds": 6.87,
+   "tries": 2,
+   "read_at": "2026-10-31T12:09:02+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041337",
+    "date": "2026-09-14",
+    "items": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 18,
+      "line_total": 63.9,
+      "unit_price": 3.55
+     }
+    ],
+    "total": 63.9,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:52"
+   }
+  },
+  "52274080ca0a1ae55e80e562df2326d3db7f021902beaaea71907640368845d8": {
+   "photo": "2026/genuine-04",
+   "seconds": 7.82,
+   "tries": 1,
+   "read_at": "2026-10-31T12:14:04+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05188",
+    "date": "2026-10-02",
+    "items": [
+     {
+      "name": "SUGAR 2KG PKT",
+      "quantity": 40,
+      "line_total": 72,
+      "unit_price": 1.8
+     }
+    ],
+    "total": 72,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:14"
+   }
+  },
+  "ae4d1ecab43f3560db680192481a3e44bc04f410f83dc86ad1a08c503e32abdd": {
+   "photo": "2026/genuine-05",
+   "seconds": 7.79,
+   "tries": 1,
+   "read_at": "2026-10-31T12:18:41+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003816",
+    "date": "2026-10-19",
+    "items": [
+     {
+      "name": "CKNG OIL 2LT",
+      "quantity": 8,
+      "line_total": 30.4,
+      "unit_price": 3.8
+     }
+    ],
+    "total": 30.4,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:44"
+   }
+  },
+  "a05e864ee6cc6190d3e03bcf823c3b480b4e48d02510c601a8b1c34e10a6a60d": {
+   "photo": "2026/genuine-06",
+   "seconds": 6.08,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:33+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027186",
+    "date": "2026-09-13",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 48,
+      "line_total": 24.0,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 24.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:03"
+   }
+  },
+  "bc6c5332335cb76dbdd842c35e0e30dab38ce499a415b1ea6fc387b0d61d420d": {
+   "photo": "2026/genuine-07",
+   "seconds": 8.51,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:22+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027158",
+    "date": "2026-09-11",
+    "items": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 25,
+      "line_total": 30.0,
+      "unit_price": 1.2
+     }
+    ],
+    "total": 30.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:46"
+   }
+  },
+  "e0090b41c4272e57827f17579c7174e44be9f2b5030ece3c7aae7d8820ae2ef9": {
+   "photo": "2026/genuine-08",
+   "seconds": 5.43,
+   "tries": 1,
+   "read_at": "2026-10-31T12:15:33+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027340",
+    "date": "2026-10-07",
+    "items": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 10,
+      "line_total": 11,
+      "unit_price": 1.1
+     }
+    ],
+    "total": 11,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:47"
+   }
+  },
+  "53996764eb68e1fa16bc356cf87801b7ee8dc5fb847da3806f7943df2d372095": {
+   "photo": "2026/genuine-09",
+   "seconds": 16.17,
+   "tries": 1,
+   "read_at": "2026-10-31T12:18:26+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00509",
+    "date": "2026-10-18",
+    "items": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 2,
+      "line_total": 23.7,
+      "unit_price": 11.85
+     }
+    ],
+    "total": 23.7,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:08"
+   }
+  },
+  "03d61bd5b79a910779257e2f480c46f0239afc89429bfb1f6aa8dcb50ba4e6d9": {
+   "photo": "2026/genuine-10",
+   "seconds": 3.87,
+   "tries": 1,
+   "read_at": "2026-10-31T12:16:36+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00425",
+    "date": "2026-10-10",
+    "items": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 4,
+      "line_total": 47.6,
+      "unit_price": 11.9
+     }
+    ],
+    "total": 47.6,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:24"
+   }
+  },
+  "05554ea3cdc07faaec2d92dc1553152151b8de8d27bf35de691e7bc535e3ab3f": {
+   "photo": "2026/genuine-11",
+   "seconds": 6.95,
+   "tries": 1,
+   "read_at": "2026-10-31T12:19:05+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041841",
+    "date": "2026-10-22",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 20,
+      "line_total": 85,
+      "unit_price": 4.25
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 3,
+      "line_total": 0.45,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 85.45,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:04"
+   }
+  },
+  "563a0ba2e3ebf889b9b6abff0740f362b762272341a8768dcff4797b5de5264d": {
+   "photo": "2026/genuine-12",
+   "seconds": 5.45,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:13+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041253",
+    "date": "2026-09-09",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 21,
+      "line_total": 39.9,
+      "unit_price": 1.9
+     }
+    ],
+    "total": 39.9,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:05"
+   }
+  },
+  "52bf1c087bbd9bad0f2eea5757c0e10ad6fa9fe86c21f271d3f893175e9d838a": {
+   "photo": "2026/genuine-13",
+   "seconds": 6.87,
+   "tries": 1,
+   "read_at": "2026-10-31T12:14:11+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05272",
+    "date": "2026-10-03",
+    "items": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 5,
+      "line_total": 32.25,
+      "unit_price": 6.45
+     }
+    ],
+    "total": 32.25,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:27"
+   }
+  },
+  "f83a6c5f8f3562569cad6551c39a5a4a98bb4a47996c5b4bc78bfafe8c24b896": {
+   "photo": "2026/genuine-14",
+   "seconds": 6.37,
+   "tries": 1,
+   "read_at": "2026-10-31T12:16:03+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003690",
+    "date": "2026-10-09",
+    "items": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 46,
+      "line_total": 110.4,
+      "unit_price": 2.4
+     }
+    ],
+    "total": 110.4,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:40"
+   }
+  },
+  "c556d6ff1b20f476c4eb663642eabeba3595ee8c28e720ad53dc609f06017220": {
+   "photo": "2026/genuine-15",
+   "seconds": 83.57,
+   "tries": 2,
+   "read_at": "2026-10-31T12:12:18+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003532",
+    "date": "2026-09-17",
+    "items": [
+     {
+      "name": "EGGS TRAY X30",
+      "quantity": 40,
+      "line_total": 178.0,
+      "unit_price": 4.45
+     }
+    ],
+    "total": 178.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:20"
+   }
+  },
+  "f050fa292418c97fb2cf8ba37333ddb9e49c4314b6b8983de4f968e12a54791d": {
+   "photo": "2026/genuine-16",
+   "seconds": 5.95,
+   "tries": 1,
+   "read_at": "2026-10-31T12:15:13+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027328",
+    "date": "2026-10-07",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 96,
+      "line_total": 52.8,
+      "unit_price": 0.55
+     }
+    ],
+    "total": 52.8,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:00"
+   }
+  },
+  "5e2440f0d3dec2789385bf6dcac0e623eb1bd31b8bc0841e0960df5c0bec7665": {
+   "photo": "2026/genuine-17",
+   "seconds": 12.36,
+   "tries": 1,
+   "read_at": "2026-10-31T12:18:05+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003781",
+    "date": "2026-10-17",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 51,
+      "line_total": 25.5,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 25.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:12"
+   }
+  },
+  "d2a881aea80b4202ba28b89ad6fa82a2898d7a1399ece004ef340e0d1a77fb90": {
+   "photo": "2026/genuine-18",
+   "seconds": 7.14,
+   "tries": 1,
+   "read_at": "2026-10-31T12:17:17+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003774",
+    "date": "2026-10-14",
+    "items": [
+     {
+      "name": "EGGS TRAY X30",
+      "quantity": 30,
+      "line_total": 141,
+      "unit_price": 4.7
+     }
+    ],
+    "total": 141,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:42"
+   }
+  },
+  "2bc69422e2d251e6d29962b821dbd1755548a84777d26bf2a6e50e642c230a4c": {
+   "photo": "2026/genuine-19",
+   "seconds": 8.22,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:27+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041303",
+    "date": "2026-09-12",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 10,
+      "line_total": 42.5,
+      "unit_price": 4.25
+     }
+    ],
+    "total": 42.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:32"
+   }
+  },
+  "6e5a70b29c9052a7446468a587d7214dad208da9fab0e72045e5efa5e04d17cb": {
+   "photo": "2026/genuine-20",
+   "seconds": 5.09,
+   "tries": 1,
+   "read_at": "2026-10-31T12:09:55+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003584",
+    "date": "2026-09-23",
+    "items": [
+     {
+      "name": "CKNG OIL 2LT",
+      "quantity": 7,
+      "line_total": 24.85,
+      "unit_price": 3.55
+     }
+    ],
+    "total": 24.85,
+    "currency": "USD",
+    "legible": true,
+    "time": "07:40"
+   }
+  },
+  "c7c92967e5b2f2e17f61ae91e370edf09027c8c79461fe03c5c3d63603e4ca50": {
+   "photo": "2026/genuine-21",
+   "seconds": 10.06,
+   "tries": 3,
+   "read_at": "2026-10-31T12:16:28+00:00",
+   "reading": {
+    "payee": "MBARE BAKERY",
+    "receipt_no": "8866",
+    "date": "2026-09-28",
+    "items": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 40,
+      "line_total": 36.0,
+      "unit_price": 0.9
+     }
+    ],
+    "total": 36.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:10"
+   }
+  },
+  "dce8a6db67d8569179e3baefa68c28576f5efadbf41241eebfdd7d67d52cde04": {
+   "photo": "2026/genuine-22",
+   "seconds": 7.14,
+   "tries": 1,
+   "read_at": "2026-10-31T12:11:17+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041441",
+    "date": "2026-09-25",
+    "items": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 3,
+      "line_total": 10.95,
+      "unit_price": 3.65
+     },
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 3,
+      "line_total": 10.95,
+      "unit_price": 3.65
+     }
+    ],
+    "total": 21.9,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:03"
+   }
+  },
+  "01dabdb8a86bc991cf0a5c07a128bb8e0d51a71f0c78d2419fd2d20893e95539": {
+   "photo": "2026/genuine-23",
+   "seconds": 4.68,
+   "tries": 1,
+   "read_at": "2026-10-31T12:17:10+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05276",
+    "date": "2026-10-14",
+    "items": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 5,
+      "line_total": 32.75,
+      "unit_price": 6.55
+     }
+    ],
+    "total": 32.75,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:19"
+   }
+  },
+  "04882d41e15043b910513193ef18bc5fd810fa6cb7b3561761e226013dabf8ce": {
+   "photo": "2026/genuine-24",
+   "seconds": 9.25,
+   "tries": 1,
+   "read_at": "2026-10-31T12:11:10+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041405",
+    "date": "2026-09-24",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 30,
+      "line_total": 52.5,
+      "unit_price": 1.75
+     }
+    ],
+    "total": 52.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:52"
+   }
+  },
+  "0315ddb92f21d44adb893b4d9228a4fa41eacfd82377a490aee7343b9b75e298": {
+   "photo": "2026/genuine-25",
+   "seconds": 3.73,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:09+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003481",
+    "date": "2026-09-09",
+    "items": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 40,
+      "line_total": 100,
+      "unit_price": 2.5
+     }
+    ],
+    "total": 100,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:27"
+   }
+  },
+  "d23df0fe774ef62263d1e7c844b80d73e4a0763d5769c5dd0e9645826038d6fc": {
+   "photo": "2026/genuine-26",
+   "seconds": 5.74,
+   "tries": 1,
+   "read_at": "2026-10-31T12:18:51+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027448",
+    "date": "2026-10-21",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 12,
+      "line_total": 6,
+      "unit_price": 0.5
+     },
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 12,
+      "line_total": 6,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 12,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:51"
+   }
+  },
+  "c62a433bfd72627078410045e67d217a8382e6a3a49b9025967125d401f7a32b": {
+   "photo": "2026/genuine-27",
+   "seconds": 55.25,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:06+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003404",
+    "date": "2026-09-07",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 48,
+      "line_total": 21.6,
+      "unit_price": 0.45
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 3,
+      "line_total": 0.45,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 22.05,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:29"
+   }
+  },
+  "793035457b4cf89acd67acebfa5e36396ec5c40e6d0fbd3cfb9f2d0d2e4584d7": {
+   "photo": "2026/genuine-28",
+   "seconds": 6.19,
+   "tries": 1,
+   "read_at": "2026-10-31T12:09:15+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027245",
+    "date": "2026-09-17",
+    "items": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 40,
+      "line_total": 46,
+      "unit_price": 1.15
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 1,
+      "line_total": 0.15,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 46.15,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:42"
+   }
+  },
+  "a0f493a204063e08311d39fff4464ad3d87161bb3fb07be0da9f513744d8ac80": {
+   "photo": "2026/genuine-29",
+   "seconds": 54.59,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:06+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027129",
+    "date": "2026-09-07",
+    "items": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 39,
+      "line_total": 40.95,
+      "unit_price": 1.05
+     }
+    ],
+    "total": 40.95,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:53"
+   }
+  },
+  "d4a9f2a592b27e546076b2e6284bbd31455ee93fd2176ec891040c0a595ff2f4": {
+   "photo": "2026/genuine-30",
+   "seconds": 83.58,
+   "tries": 1,
+   "read_at": "2026-10-31T12:13:52+00:00",
+   "reading": {
+    "payee": "MBARE BAKERY",
+    "receipt_no": "8883",
+    "date": "2026-10-01",
+    "items": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 20,
+      "line_total": 17.0,
+      "unit_price": 0.85
+     }
+    ],
+    "total": 17.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:51"
+   }
+  },
+  "02779245eeb36a0a194d4bfaa88cc4afa0966e8078a2cff584e334be086e11e3": {
+   "photo": "2026/genuine-31",
+   "seconds": 6.41,
+   "tries": 1,
+   "read_at": "2026-10-31T12:15:19+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041584",
+    "date": "2026-10-07",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 30,
+      "line_total": 126.0,
+      "unit_price": 4.2
+     }
+    ],
+    "total": 126.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:04"
+   }
+  },
+  "ee14b66334aa70392e5ea640f53bda0456aa6788047c1c408884f8527887c315": {
+   "photo": "2026/genuine-32",
+   "seconds": 19.7,
+   "tries": 1,
+   "read_at": "2026-10-31T12:17:49+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041712",
+    "date": "2026-10-15",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 35,
+      "line_total": 59.5,
+      "unit_price": 1.7
+     }
+    ],
+    "total": 59.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:29"
+   }
+  },
+  "ad39b38f75042127e99138b045b4f27591fcfb897e2609792b4288631de3cac5": {
+   "photo": "2026/genuine-33",
+   "seconds": 87.39,
+   "tries": 2,
+   "read_at": "2026-10-31T12:13:33+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041398",
+    "date": "2026-09-23",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "line_total": 76,
+      "unit_price": 1.9
+     }
+    ],
+    "total": 76,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:17"
+   }
+  },
+  "682f9345e56afe547164e2bfb2db7b4bd6b6b080badfb4479f5ede215caa1a99": {
+   "photo": "2026/genuine-34",
+   "seconds": 7.29,
+   "tries": 1,
+   "read_at": "2026-10-31T12:13:58+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041512",
+    "date": "2026-10-02",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 30,
+      "line_total": 57,
+      "unit_price": 1.9
+     }
+    ],
+    "total": 57,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:12"
+   }
+  },
+  "da3d6dee2aca23f9a416c6f25f87656ca451e71b31efa067bae707902310e201": {
+   "photo": "2026/genuine-35",
+   "seconds": 6.44,
+   "tries": 1,
+   "read_at": "2026-10-31T12:15:02+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003638",
+    "date": "2026-10-05",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 48,
+      "line_total": 24,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 24,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:08"
+   }
+  },
+  "2ba6bc9819e5fad8824855d52f0e8bc1283fdbe885ccbd2b59e9b047ee1736c8": {
+   "photo": "2026/genuine-36",
+   "seconds": 4.17,
+   "tries": 1,
+   "read_at": "2026-10-31T12:19:05+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003856",
+    "date": "2026-10-23",
+    "items": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 40,
+      "line_total": 102.0,
+      "unit_price": 2.55
+     }
+    ],
+    "total": 102.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:17"
+   }
+  },
+  "7aba7c5632636a86d9baa38a8c119b0bc3d289c2ea9f5dd6fb3752a0f087d630": {
+   "photo": "2026/genuine-37",
+   "seconds": 5.44,
+   "tries": 1,
+   "read_at": "2026-10-31T12:17:48+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027409",
+    "date": "2026-10-16",
+    "items": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 30,
+      "line_total": 34.5,
+      "unit_price": 1.15
+     }
+    ],
+    "total": 34.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:08"
+   }
+  },
+  "b16a6123694d4cc9a0091bc759d12e3096870ca1a5d4add601aa739b1638284c": {
+   "photo": "2026/genuine-38",
+   "seconds": 53.78,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:05+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003444",
+    "date": "2026-09-08",
+    "items": [
+     {
+      "name": "CKNG OIL 2LT",
+      "quantity": 24,
+      "line_total": 92.4,
+      "unit_price": 3.85
+     }
+    ],
+    "total": 92.4,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:14"
+   }
+  },
+  "ab25c1a6514e5ea82bdc5c0e7ff87dfbf982e78f0ae9187a4cb0ce9ff3e92b4f": {
+   "photo": "2026/genuine-39",
+   "seconds": 5.74,
+   "tries": 1,
+   "read_at": "2026-10-31T12:13:51+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041497",
+    "date": "2026-10-02",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 10,
+      "line_total": 41.5,
+      "unit_price": 4.15
+     }
+    ],
+    "total": 41.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:20"
+   }
+  },
+  "c078193fe56b987bac660a3e4bc340a4454c12e728497a44316ba323914b31bc": {
+   "photo": "2026/genuine-40",
+   "seconds": 6.43,
+   "tries": 1,
+   "read_at": "2026-10-31T12:18:32+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00543",
+    "date": "2026-10-19",
+    "items": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 2,
+      "line_total": 23.8,
+      "unit_price": 11.9
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 3,
+      "line_total": 0.45,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 24.25,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:34"
+   }
+  },
+  "700173fbb5fa256adccc159da77ddbe1dd1414bfedef8d9b8b680f17aa649de4": {
+   "photo": "2026/inflated-01",
+   "seconds": 4.47,
+   "tries": 1,
+   "read_at": "2026-10-31T12:14:03+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05234",
+    "date": "2026-10-03",
+    "items": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 15,
+      "line_total": 154.5,
+      "unit_price": 10.3
+     }
+    ],
+    "total": 154.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:41"
+   }
+  },
+  "93bac38c680f2bb0b213cb3e0cd42322bebc28ab67d79ed8bc69117a33e9bd21": {
+   "photo": "2026/inflated-02",
+   "seconds": 4.16,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:37+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05117",
+    "date": "2026-09-13",
+    "items": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 15,
+      "line_total": 147.75,
+      "unit_price": 9.85
+     }
+    ],
+    "total": 147.75,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:12"
+   }
+  },
+  "21fd2aace8bca964d01e4e81b0b718035ac469a1a1848137fc667dac0763d332": {
+   "photo": "2026/inflated-03",
+   "seconds": 22.17,
+   "tries": 1,
+   "read_at": "2026-10-31T12:16:32+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027352",
+    "date": "2026-10-10",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 72,
+      "line_total": 61.2,
+      "unit_price": 0.85
+     }
+    ],
+    "total": 61.2,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:07"
+   }
+  },
+  "295adddac669daa5bcab2c0637ff8de7d834248a379ab5eb7a5177d7cdb44b79": {
+   "photo": "2026/inflated-04",
+   "seconds": 13.96,
+   "tries": 1,
+   "read_at": "2026-10-31T12:17:31+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027378",
+    "date": "2026-10-14",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 48,
+      "line_total": 38.4,
+      "unit_price": 0.8
+     }
+    ],
+    "total": 38.4,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:47"
+   }
+  },
+  "4f531597d7844020edc94493f103ec0052b9b176ec88998f320c3e11c755a238": {
+   "photo": "2026/inflated-05",
+   "seconds": 7.05,
+   "tries": 1,
+   "read_at": "2026-10-31T12:09:09+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027218",
+    "date": "2026-09-14",
+    "items": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 30,
+      "line_total": 51,
+      "unit_price": 1.7
+     }
+    ],
+    "total": 51,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:24"
+   }
+  },
+  "f466ef08e1f0ad32c9c5486b8e461ff32d6bfcf3e31cf81c5a4d431d4bc00bce": {
+   "photo": "2026/inflated-06",
+   "seconds": 9.09,
+   "tries": 1,
+   "read_at": "2026-10-31T12:16:59+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00474",
+    "date": "2026-10-13",
+    "items": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 8,
+      "line_total": 136.8,
+      "unit_price": 17.1
+     }
+    ],
+    "total": 136.8,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:04"
+   }
+  },
+  "3cc7768fe0082171d27a65f3988348a1945d4b7de4d7565f21b3711fc4955072": {
+   "photo": "2026/inflated-07",
+   "seconds": 6.45,
+   "tries": 1,
+   "read_at": "2026-10-31T12:16:47+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00463",
+    "date": "2026-10-11",
+    "items": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 6,
+      "line_total": 101.7,
+      "unit_price": 16.95
+     }
+    ],
+    "total": 101.7,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:19"
+   }
+  },
+  "4ebc22eda75109f616fd2a76d2a8a7134ba9474e9eb4fb80e4a9d750fcee2fa8": {
+   "photo": "2026/inflated-08",
+   "seconds": 12.0,
+   "tries": 1,
+   "read_at": "2026-10-31T12:17:43+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041749",
+    "date": "2026-10-16",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 26,
+      "line_total": 171.6,
+      "unit_price": 6.6
+     }
+    ],
+    "total": 171.6,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:52"
+   }
+  },
+  "e447ac77720189eedfacd3c054546d1a1d21fca73ec2db28822bbfd65f957158": {
+   "photo": "2026/inflated-09",
+   "seconds": 11.59,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:49+00:00",
+   "reading": {
+    "payee": "MBARE BAKERY",
+    "receipt_no": "No. 8854",
+    "date": "2026-09-13",
+    "items": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 20,
+      "line_total": 23,
+      "unit_price": 1.15
+     }
+    ],
+    "total": 23,
+    "currency": "USD",
+    "legible": true,
+    "time": "17:28"
+   }
+  },
+  "913a45b568a6dcf59fc785669e4036bd47e6023d05036a54bdbd4e9f10c41110": {
+   "photo": "2026/inflated-10",
+   "seconds": 56.34,
+   "tries": 4,
+   "read_at": "2026-10-31T12:20:32+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05262",
+    "date": "2026-10-03",
+    "items": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 5,
+      "line_total": 47.25,
+      "unit_price": 9.45
+     }
+    ],
+    "total": 47.25,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:51"
+   }
+  },
+  "8257a5193d3ec5c818c858d151a3223dbbd06a0dd0141e80b999f3cda0720466": {
+   "photo": "2026/inflated-11",
+   "seconds": 3.47,
+   "tries": 1,
+   "read_at": "2026-10-31T12:16:57+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041642",
+    "date": "2026-10-13",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "line_total": 96,
+      "unit_price": 2.4
+     }
+    ],
+    "total": 96,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:21"
+   }
+  },
+  "f77786b7b73d10f0d037dfc5713aae885a2dc17ddd7a69fae67678fad51ccbc0": {
+   "photo": "2026/inflated-12",
+   "seconds": 6.46,
+   "tries": 1,
+   "read_at": "2026-10-31T12:09:14+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05148",
+    "date": "2026-09-16",
+    "items": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 24,
+      "line_total": 222,
+      "unit_price": 9.25
+     }
+    ],
+    "total": 222,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:27"
+   }
+  },
+  "df0e62217d0501246497d3cdcddba5c7b1f29697574f33f94a1359bef3c28f03": {
+   "photo": "2026/inflated-13",
+   "seconds": 7.67,
+   "tries": 1,
+   "read_at": "2026-10-31T12:16:50+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003761",
+    "date": "2026-10-12",
+    "items": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 30,
+      "line_total": 97.5,
+      "unit_price": 3.25
+     }
+    ],
+    "total": 97.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:01"
+   }
+  },
+  "c25df4112bef503271a6b0c656dd1dcc946f1f0f306040672630e3c5f414ca6a": {
+   "photo": "2026/inflated-14",
+   "seconds": 6.64,
+   "tries": 1,
+   "read_at": "2026-10-31T12:09:09+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003501",
+    "date": "2026-09-14",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 33,
+      "line_total": 21.45,
+      "unit_price": 0.65
+     }
+    ],
+    "total": 21.45,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:43"
+   }
+  },
+  "4a83547d6ea17b91ca54c419d35cad8c5b96c117be5548d68261f324655b7c0c": {
+   "photo": "2026/inflated-15",
+   "seconds": 4.27,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:14+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027151",
+    "date": "2026-09-10",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 72,
+      "line_total": 61.2,
+      "unit_price": 0.85
+     }
+    ],
+    "total": 61.2,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:32"
+   }
+  },
+  "5b7553c90ec703295eb6bcb3374475987ec80b3117000b7f9fba89d0c8e24652": {
+   "photo": "2026/inflated-16",
+   "seconds": 6.18,
+   "tries": 1,
+   "read_at": "2026-10-31T12:18:45+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041802",
+    "date": "2026-10-20",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 10,
+      "line_total": 57.0,
+      "unit_price": 5.7
+     }
+    ],
+    "total": 57.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "16:06"
+   }
+  },
+  "5ad16de32fb08e750b5d6939cac9d471d795f9b068bb336476c3f5250f831e66": {
+   "photo": "2026/inflated-17",
+   "seconds": 40.33,
+   "tries": 3,
+   "read_at": "2026-10-31T12:16:10+00:00",
+   "reading": {
+    "payee": "MBARE BAKERY",
+    "receipt_no": "8861",
+    "date": "2026-09-27",
+    "items": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 40,
+      "line_total": 46.0,
+      "unit_price": 1.15
+     }
+    ],
+    "total": 46.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:10"
+   }
+  },
+  "6ebae2261beb4adc4995d84a26fa6d7b7a47e37645716ed798930e3d65ae93d3": {
+   "photo": "2026/inflated-18",
+   "seconds": 17.66,
+   "tries": 1,
+   "read_at": "2026-10-31T12:14:37+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041547",
+    "date": "2026-10-04",
+    "items": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 24,
+      "line_total": 122.4,
+      "unit_price": 5.1
+     }
+    ],
+    "total": 122.4,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:31"
+   }
+  },
+  "41d7f11b105293489d1d796bc80dad9629bdb1cd9c07fe8244be07afc026bae1": {
+   "photo": "2026/inflated-19",
+   "seconds": 29.42,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:39+00:00",
+   "reading": {
+    "payee": "MBARE BAKERY",
+    "receipt_no": "8850",
+    "date": "2026-09-10",
+    "items": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 20,
+      "line_total": 28,
+      "unit_price": 1.4
+     }
+    ],
+    "total": 28,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:22"
+   }
+  },
+  "9d1ddbeaa90a7637d3503c922bb269b7f03d513115344f39cd843f75224a6ae5": {
+   "photo": "2026/inflated-20",
+   "seconds": 4.22,
+   "tries": 1,
+   "read_at": "2026-10-31T12:09:39+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041376",
+    "date": "2026-09-21",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 10,
+      "line_total": 25.0,
+      "unit_price": 2.5
+     }
+    ],
+    "total": 25.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:43"
+   }
+  },
+  "80a793a7313cd739c36a960c44e6075ee4acc48ae25114de1cb06bcc5e745043": {
+   "photo": "2026/stale-01",
+   "seconds": 6.68,
+   "tries": 1,
+   "read_at": "2026-10-31T12:16:53+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027301",
+    "date": "2026-10-04",
+    "items": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 40,
+      "line_total": 46,
+      "unit_price": 1.15
+     }
+    ],
+    "total": 46,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:38"
+   }
+  },
+  "4713d51226bc27556145a47959a6aab458d6d9df5ebd0bd9103bebb129f8e787": {
+   "photo": "2026/stale-02",
+   "seconds": 4.76,
+   "tries": 1,
+   "read_at": "2026-10-31T12:14:42+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027275",
+    "date": "2026-09-26",
+    "items": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 10,
+      "line_total": 12,
+      "unit_price": 1.2
+     }
+    ],
+    "total": 12,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:26"
+   }
+  },
+  "d62ddd1571935beaa65e0b45c70d14fc31741c265cb9eadc9ba2157270662b8c": {
+   "photo": "2026/stale-03",
+   "seconds": 11.93,
+   "tries": 1,
+   "read_at": "2026-10-31T12:13:45+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00383",
+    "date": "2026-10-01",
+    "items": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 6,
+      "line_total": 69,
+      "unit_price": 11.5
+     }
+    ],
+    "total": 69,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:03"
+   }
+  },
+  "43b1c89ec9f3da1c9bf186328e0a38bf224bf0585fea8e4cca75cc8eea04b357": {
+   "photo": "2026/stale-04",
+   "seconds": 40.24,
+   "tries": 1,
+   "read_at": "2026-10-31T12:09:07+00:00",
+   "reading": {
+    "payee": "MBARE BAKERY",
+    "receipt_no": "No. 8834",
+    "date": "2026-08-26",
+    "items": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 20,
+      "line_total": 17,
+      "unit_price": 0.85
+     }
+    ],
+    "total": 17,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:28"
+   }
+  },
+  "43a787f9e60c1750b033c15dd34fe28b7970362931976c12ebf25c0757d8d06b": {
+   "photo": "2026/stale-05",
+   "seconds": 4.07,
+   "tries": 1,
+   "read_at": "2026-10-31T12:17:52+00:00",
+   "reading": {
+    "payee": "MBARE BAKERY",
+    "receipt_no": "No. 8893",
+    "date": "2026-10-07",
+    "items": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 20,
+      "line_total": 18.0,
+      "unit_price": 0.9
+     }
+    ],
+    "total": 18.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:50"
+   }
+  },
+  "7c8d088c526623f5ce8f1a8752ba4e6e5c90bac7c4c40d8833896d658924a21e": {
+   "photo": "2026/stale-06",
+   "seconds": 8.61,
+   "tries": 1,
+   "read_at": "2026-10-31T12:18:03+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041783",
+    "date": "2026-10-18",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "line_total": 70.0,
+      "unit_price": 1.75
+     }
+    ],
+    "total": 70.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:25"
+   }
+  },
+  "16e83dca5947be34383e4ea993594cc0bfe83bb2f94c0b6c68141257cbfd1939": {
+   "photo": "2026/stale-07",
+   "seconds": 8.57,
+   "tries": 1,
+   "read_at": "2026-10-31T12:14:19+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041488",
+    "date": "2026-09-29",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "line_total": 70,
+      "unit_price": 1.75
+     }
+    ],
+    "total": 70,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:21"
+   }
+  },
+  "e0f4562b4f41642c48ad8112d5abe6085ae2e3057c29364fd6e342601fb9cd07": {
+   "photo": "2026/stale-08",
+   "seconds": 4.64,
+   "tries": 1,
+   "read_at": "2026-10-31T12:18:09+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05339",
+    "date": "2026-10-18",
+    "items": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 10,
+      "line_total": 61.0,
+      "unit_price": 6.1
+     }
+    ],
+    "total": 61.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:05"
+   }
+  },
+  "333615c17b54db44cf0dba1f4a652775f52ade97f4a10e62ca9db9a767ae2119": {
+   "photo": "2026/stale-09",
+   "seconds": 6.46,
+   "tries": 1,
+   "read_at": "2026-10-31T12:19:01+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003669",
+    "date": "2026-10-07",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 48,
+      "line_total": 24,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 24,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:08"
+   }
+  },
+  "ceb95558ad33d00112774cb167dbee42b96a438f665ca08b62dbcdca2abb9a07": {
+   "photo": "2026/stale-10",
+   "seconds": 4.68,
+   "tries": 1,
+   "read_at": "2026-10-31T12:17:54+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003737",
+    "date": "2026-10-11",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 48,
+      "line_total": 24,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 24,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:58"
+   }
+  },
+  "1576092c200cd92314ea459efbc7ccd7d64c3f68301cd27bf48174ace1fa6702": {
+   "photo": "2026/stale-11",
+   "seconds": 7.47,
+   "tries": 1,
+   "read_at": "2026-10-31T12:18:58+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027295",
+    "date": "2026-10-02",
+    "items": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 10,
+      "line_total": 10.5,
+      "unit_price": 1.05
+     }
+    ],
+    "total": 10.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:11"
+   }
+  },
+  "e475f3ab1ca04d705447ad19cbd8363fd87d8338a1c3bc81530845440b68e2ee": {
+   "photo": "2026/stale-12",
+   "seconds": 6.38,
+   "tries": 1,
+   "read_at": "2026-10-31T12:16:42+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00353",
+    "date": "2026-09-28",
+    "items": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 4,
+      "line_total": 46.2,
+      "unit_price": 11.55
+     }
+    ],
+    "total": 46.2,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:51"
+   }
+  },
+  "a9257fa835484c7ae2225eed41eb7a8f7574a756aecad07ddf68212b2c9c237c": {
+   "photo": "2026/stale-13",
+   "seconds": 7.46,
+   "tries": 1,
+   "read_at": "2026-10-31T12:18:33+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00390",
+    "date": "2026-10-09",
+    "items": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 2,
+      "line_total": 22.7,
+      "unit_price": 11.35
+     }
+    ],
+    "total": 22.7,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:30"
+   }
+  },
+  "8accd57b61a3b7f6f0b3f2397d718d4ec9afec400e587c31b2765a42dddd8c91": {
+   "photo": "2026/stale-14",
+   "seconds": 8.83,
+   "tries": 1,
+   "read_at": "2026-10-31T12:15:28+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041618",
+    "date": "2026-10-07",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 40,
+      "line_total": 180.0,
+      "unit_price": 4.5
+     }
+    ],
+    "total": 180.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:38"
+   }
+  },
+  "7e4941a989d9b9952a67ecb632dd8c80e9c14d7bfce57d5d8db7c63c97387b89": {
+   "photo": "2026/stale-15",
+   "seconds": 8.03,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:57+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041226",
+    "date": "2026-09-03",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 20,
+      "line_total": 37.0,
+      "unit_price": 1.85
+     }
+    ],
+    "total": 37.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:04"
+   }
+  },
+  "3f685909d9c97beeabd11d2963c62d570db20d9b196e777729139f4138e1185e": {
+   "photo": "2026/stale-16",
+   "seconds": 6.12,
+   "tries": 1,
+   "read_at": "2026-10-31T12:09:31+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041271",
+    "date": "2026-09-11",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 30,
+      "line_total": 54.0,
+      "unit_price": 1.8
+     }
+    ],
+    "total": 54.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:57"
+   }
+  },
+  "391fc0abc29dc0c66150d82e69d1852e366f64f306369d0b6d5c41535ebf3167": {
+   "photo": "2026/stale-17",
+   "seconds": 63.42,
+   "tries": 1,
+   "read_at": "2026-10-31T12:10:21+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003547",
+    "date": "2026-09-17",
+    "items": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 10,
+      "line_total": 25.5,
+      "unit_price": 2.55
+     }
+    ],
+    "total": 25.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:41"
+   }
+  },
+  "16b4a565d16e3de4eaf62cde2a2cb7b93dc0cab2176df9deeadcbbe3de031b44": {
+   "photo": "2026/stale-18",
+   "seconds": 7.46,
+   "tries": 1,
+   "read_at": "2026-10-31T12:18:49+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05214",
+    "date": "2026-10-02",
+    "items": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 10,
+      "line_total": 61.5,
+      "unit_price": 6.15
+     }
+    ],
+    "total": 61.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:27"
+   }
+  },
+  "211d518427720a479ce9a4bcdb7274118effe0389e329f98fc5ab6afbc3704c9": {
+   "photo": "2026/stale-19",
+   "seconds": 5.58,
+   "tries": 1,
+   "read_at": "2026-10-31T12:18:54+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003717",
+    "date": "2026-10-10",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 24,
+      "line_total": 12.0,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 12.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:58"
+   }
+  },
+  "2c027d9b51a25d9318b1219f26aafff49e9432a91d2276b9e06f69ddec63321b": {
+   "photo": "2026/stale-20",
+   "seconds": 7.33,
+   "tries": 1,
+   "read_at": "2026-10-31T12:11:24+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027166",
+    "date": "2026-09-13",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 48,
+      "line_total": 24,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 24,
+    "currency": "USD",
+    "legible": true,
+    "time": "08:38"
+   }
+  },
+  "e5467d866036187250db53ff1e43e33855a431ea663c49e1d23a5a2133f664ad": {
+   "photo": "2026/wrong_payee-01",
+   "seconds": 3.6,
+   "tries": 1,
+   "read_at": "2026-10-31T12:19:09+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027458",
+    "date": "2026-10-24",
+    "items": [
+     {
+      "name": "SALT (1 KG PACKS)",
+      "quantity": 36,
+      "line_total": 18.0,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 18.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:51"
+   }
+  },
+  "078d051f129060dc43b73bf8ea2edeafa2fff98569ea763dc646eb6ed57fc60c": {
+   "photo": "2026/wrong_payee-02",
+   "seconds": 3.86,
+   "tries": 1,
+   "read_at": "2026-10-31T12:09:34+00:00",
+   "reading": {
+    "payee": "RUFARO SUPERMARKET",
+    "receipt_no": "120467",
+    "date": "2026-09-21",
+    "items": [
+     {
+      "name": "BATH SOAP (BARS)",
+      "quantity": 24,
+      "line_total": 13.2,
+      "unit_price": 0.55
+     }
+    ],
+    "total": 13.2,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:37"
+   }
+  },
+  "26b1f2d0692f80fa52062bd753ef1fe94a7791b651ac87d4a0021bc2f404d19b": {
+   "photo": "2026/wrong_payee-03",
+   "seconds": 80.65,
+   "tries": 1,
+   "read_at": "2026-10-31T12:17:24+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003703",
+    "date": "2026-10-09",
+    "items": [
+     {
+      "name": "CANDLES (PACKS)",
+      "quantity": 10,
+      "line_total": 11.5,
+      "unit_price": 1.15
+     }
+    ],
+    "total": 11.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:10"
+   }
+  },
+  "9960ddef5f40f9722ecdbe23d90b4cdf84cc373c1072dabf88a307b27775d22d": {
+   "photo": "2026/wrong_payee-04",
+   "seconds": 6.05,
+   "tries": 1,
+   "read_at": "2026-10-31T12:09:45+00:00",
+   "reading": {
+    "payee": "MBARE GENERAL DEALERS",
+    "receipt_no": "GD 06436",
+    "date": "2026-09-21",
+    "items": [
+     {
+      "name": "CANDLES (PACKS)",
+      "quantity": 30,
+      "line_total": 36.0,
+      "unit_price": 1.2
+     }
+    ],
+    "total": 36.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:12"
+   }
+  },
+  "e9d0c20d27c6bb92241d85eb4fa447ac7eb52959c807d2240364ad91cfb865ad": {
+   "photo": "2026/wrong_payee-05",
+   "seconds": 4.97,
+   "tries": 1,
+   "read_at": "2026-10-31T12:11:01+00:00",
+   "reading": {
+    "payee": "MUPEDZANHAMO TRADERS",
+    "receipt_no": "MP09108",
+    "date": "2026-09-24",
+    "items": [
+     {
+      "name": "BREAD (LOAVES)",
+      "quantity": 20,
+      "line_total": 17,
+      "unit_price": 0.85
+     }
+    ],
+    "total": 17,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:45"
+   }
+  },
+  "967c57a0feb333e6c3b8f42aae716e5ffe4822eecddea9dd83ec0c25fb7145db": {
+   "photo": "2026/wrong_payee-06",
+   "seconds": 9.16,
+   "tries": 1,
+   "read_at": "2026-10-31T12:15:52+00:00",
+   "reading": {
+    "payee": "MBARE BAKERY",
+    "receipt_no": "8920",
+    "date": "2026-10-08",
+    "items": [
+     {
+      "name": "EGGS (TRAYS)",
+      "quantity": 30,
+      "line_total": 126.0,
+      "unit_price": 4.2
+     }
+    ],
+    "total": 126.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:02"
+   }
+  },
+  "6daf5fb8d7974c7e0ad791a72163dc5a48b4c2aaa7f700d11f43bd3d83f04e77": {
+   "photo": "2026/wrong_payee-07",
+   "seconds": 71.9,
+   "tries": 1,
+   "read_at": "2026-10-31T12:09:17+00:00",
+   "reading": {
+    "payee": "RUFARO SUPERMARKET",
+    "receipt_no": "120429",
+    "date": "2026-09-09",
+    "items": [
+     {
+      "name": "COOKING OIL (2 L BOTTLES)",
+      "quantity": 16,
+      "line_total": 54.4,
+      "unit_price": 3.4
+     }
+    ],
+    "total": 54.4,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:13"
+   }
+  },
+  "a1a31f48bf3b0466ef9a7c66f3ae19e3756983fe3b9dec25ebe230d5c1eebbbb": {
+   "photo": "2026/wrong_payee-08",
+   "seconds": 4.74,
+   "tries": 1,
+   "read_at": "2026-10-31T12:09:49+00:00",
+   "reading": {
+    "payee": "RUFARO SUPERMARKET",
+    "receipt_no": "120474",
+    "date": "2026-09-22",
+    "items": [
+     {
+      "name": "SUGAR (2 KG PACKS)",
+      "quantity": 31,
+      "line_total": 55.8,
+      "unit_price": 1.8
+     }
+    ],
+    "total": 55.8,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:42"
+   }
+  },
+  "94f2a8f10c592b7b71b133aa28bf2a0bc5ab2ad57c0276e8beb9c45a53d149fb": {
+   "photo": "2026/wrong_payee-09",
+   "seconds": 9.43,
+   "tries": 1,
+   "read_at": "2026-10-31T12:15:43+00:00",
+   "reading": {
+    "payee": "RUFARO SUPERMARKET",
+    "receipt_no": "120494",
+    "date": "2026-10-08",
+    "items": [
+     {
+      "name": "MEALIE MEAL (10 KG BAGS)",
+      "quantity": 20,
+      "line_total": 131,
+      "unit_price": 6.55
+     }
+    ],
+    "total": 131,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:36"
+   }
+  },
+  "b5dadc56b1146e695905ae18403ec15098d92a4a5e76d6ae14778e55c092fea5": {
+   "photo": "2026/wrong_payee-10",
+   "seconds": 13.92,
+   "tries": 1,
+   "read_at": "2026-10-31T12:14:56+00:00",
+   "reading": {
+    "payee": "REMEMBRANCE CASH & CARRY (PVT) LTD",
+    "receipt_no": "RC077125",
+    "date": "2026-10-05",
+    "items": [
+     {
+      "name": "RICE (2 KG PACKS)",
+      "quantity": 10,
+      "line_total": 26,
+      "unit_price": 2.6
+     }
+    ],
+    "total": 26,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:27"
+   }
+  },
+  "89d7672f8ebbddec448abe958f01f3b80b30b346d8deed0be05022d680957a01": {
+   "photo": "2026/wrong_payee-11",
+   "seconds": 4.75,
+   "tries": 1,
+   "read_at": "2026-10-31T12:15:57+00:00",
+   "reading": {
+    "payee": "REMEMBRANCE CASH & CARRY (PVT) LTD",
+    "receipt_no": "RC077153",
+    "date": "2026-10-08",
+    "items": [
+     {
+      "name": "RICE (2 KG PACKS)",
+      "quantity": 20,
+      "line_total": 52,
+      "unit_price": 2.6
+     }
+    ],
+    "total": 52,
+    "currency": "USD",
+    "legible": true,
+    "time": "16:50"
+   }
+  },
+  "a87dee4224be77f4157277de4ee6994da55bf134961b377f76c497d0660baf27": {
+   "photo": "2026/wrong_payee-12",
+   "seconds": 56.63,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:08+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00331",
+    "date": "2026-09-08",
+    "items": [
+     {
+      "name": "CANDLES (PACKS)",
+      "quantity": 10,
+      "line_total": 12.0,
+      "unit_price": 1.2
+     }
+    ],
+    "total": 12.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:43"
+   }
+  },
+  "351e8e9227a27a07b4904eec4c9c5deb3c8b656a37ed3d917ebc68a820dbb1bf": {
+   "photo": "2026/wrong_payee-13",
+   "seconds": 6.08,
+   "tries": 1,
+   "read_at": "2026-10-31T12:16:34+00:00",
+   "reading": {
+    "payee": "MBARE GENERAL DEALERS",
+    "receipt_no": "GD 06439",
+    "date": "2026-10-10",
+    "items": [
+     {
+      "name": "CANDLES (PACKS)",
+      "quantity": 40,
+      "line_total": 46,
+      "unit_price": 1.15
+     }
+    ],
+    "total": 46,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:03"
+   }
+  },
+  "9445e8d9e75debf73452ca2b7da27b1cfe10a09391a8842401a8c26beaea703f": {
+   "photo": "2026/wrong_payee-14",
+   "seconds": 6.07,
+   "tries": 1,
+   "read_at": "2026-10-31T12:19:11+00:00",
+   "reading": {
+    "payee": "MUPEDZANHAMO TRADERS",
+    "receipt_no": "MP09136",
+    "date": "2026-10-24",
+    "items": [
+     {
+      "name": "EGGS (TRAYS)",
+      "quantity": 20,
+      "line_total": 85,
+      "unit_price": 4.25
+     }
+    ],
+    "total": 85,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:29"
+   }
+  },
+  "3e85cf62bbfb78ec4e506614c3f02c13adb2620c555ea5e24ac91efdef5a025d": {
+   "photo": "2026/wrong_payee-15",
+   "seconds": 4.7,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:09+00:00",
+   "reading": {
+    "payee": "MBARE FRESH MARKET",
+    "receipt_no": "MF 4423",
+    "date": "2026-09-08",
+    "items": [
+     {
+      "name": "TOMATOES (CRATES)",
+      "quantity": 4,
+      "line_total": 47,
+      "unit_price": 11.75
+     }
+    ],
+    "total": 47,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:57"
+   }
+  },
+  "6cf58fbb45c0a55e06b0e371ede948690eeb71e4b54113e545e36b171dddba25": {
+   "photo": "2026/wrong_payee-16",
+   "seconds": 83.96,
+   "tries": 1,
+   "read_at": "2026-10-31T12:19:27+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05303",
+    "date": "2026-10-18",
+    "items": [
+     {
+      "name": "COOKING OIL (2 L BOTTLES)",
+      "quantity": 6,
+      "line_total": 21.9,
+      "unit_price": 3.65
+     }
+    ],
+    "total": 21.9,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:39"
+   }
+  },
+  "ec98c98c0c688936ed7858bcad1f2027824be133854a393c06680684babc3045": {
+   "photo": "2026/wrong_payee-17",
+   "seconds": 10.35,
+   "tries": 1,
+   "read_at": "2026-10-31T12:12:29+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003607",
+    "date": "2026-09-30",
+    "items": [
+     {
+      "name": "SUGAR (2 KG PACKS)",
+      "quantity": 30,
+      "line_total": 54,
+      "unit_price": 1.8
+     }
+    ],
+    "total": 54,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:32"
+   }
+  },
+  "d1ac4a581736a92972dabc9c645f3ec8936a8d9dea3b743423bbaf548cc36919": {
+   "photo": "2026/wrong_payee-18",
+   "seconds": 77.99,
+   "tries": 2,
+   "read_at": "2026-10-31T12:12:18+00:00",
+   "reading": {
+    "payee": "MUPEDZANHAMO TRADERS",
+    "receipt_no": "MP09088",
+    "date": "2026-09-19",
+    "items": [
+     {
+      "name": "COOKING OIL (2 L BOTTLES)",
+      "quantity": 24,
+      "line_total": 82.8,
+      "unit_price": 3.45
+     }
+    ],
+    "total": 82.8,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:18"
+   }
+  },
+  "8bf5cce036b6b515148d5837604345538dc016d2d3aeec99a60ae3a915f24fc4": {
+   "photo": "2026/wrong_payee-19",
+   "seconds": 56.81,
+   "tries": 1,
+   "read_at": "2026-10-31T12:10:51+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00334",
+    "date": "2026-09-23",
+    "items": [
+     {
+      "name": "RICE (2 KG PACKS)",
+      "quantity": 40,
+      "line_total": 98,
+      "unit_price": 2.45
+     }
+    ],
+    "total": 98,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:45"
+   }
+  },
+  "c36c9e6cbf6a3076861bb1c1772d41ad3867cdfd769974ba87ef0b6a48f86344": {
+   "photo": "2026/wrong_payee-20",
+   "seconds": 5.55,
+   "tries": 1,
+   "read_at": "2026-10-31T12:08:19+00:00",
+   "reading": {
+    "payee": "RUFARO SUPERMARKET",
+    "receipt_no": "120439",
+    "date": "2026-09-10",
+    "items": [
+     {
+      "name": "RICE (2 KG PACKS)",
+      "quantity": 10,
+      "line_total": 26,
+      "unit_price": 2.6
+     }
+    ],
+    "total": 26,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:52"
+   }
+  },
+  "4d871d4a0cef4a731df30f6ea01aeab7e85ed92624959daf691907643c60de1e": {
+   "photo": "7/duplicate-02",
+   "seconds": 4.25,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:24+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041478",
+    "date": "2026-09-24",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 10,
+      "line_total": 17.5,
+      "unit_price": 1.75
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 2,
+      "line_total": 0.3,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 17.8,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:49"
+   }
+  },
+  "e38ee79fd000f1e735b7f4a9c46f3f11e589b7d1c1fb80aed910fcf2c44ce487": {
+   "photo": "7/duplicate-04",
+   "seconds": 5.56,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:45+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003627",
+    "date": "2026-09-28",
+    "items": [
+     {
+      "name": "EGGS TRAY X30",
+      "quantity": 20,
+      "line_total": 95,
+      "unit_price": 4.75
+     }
+    ],
+    "total": 95,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:34"
+   }
+  },
+  "419a4d1a8bb49313139d94f3deccb4755bbc52e61a95e5b5653f6cd3ac20dd10": {
+   "photo": "7/duplicate-06",
+   "seconds": 4.07,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:22+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041442",
+    "date": "2026-09-24",
+    "items": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 9,
+      "line_total": 34.2,
+      "unit_price": 3.8
+     }
+    ],
+    "total": 34.2,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:46"
+   }
+  },
+  "60993198b570985d90c8c2588b81b61879d6cf6282b00390c58011e9dae87555": {
+   "photo": "7/duplicate-08",
+   "seconds": 4.18,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:26+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003750",
+    "date": "2026-10-12",
+    "items": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 15,
+      "line_total": 39.75,
+      "unit_price": 2.65
+     },
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 16,
+      "line_total": 42.4,
+      "unit_price": 2.65
+     }
+    ],
+    "total": 82.15,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:43"
+   }
+  },
+  "476424f5a3d990b2168504b40c37571d4c973bc4ad97729ed815eb88e646becc": {
+   "photo": "7/duplicate-10",
+   "seconds": 4.79,
+   "tries": 1,
+   "read_at": "2026-10-31T12:40:52+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003787",
+    "date": "2026-10-18",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 27,
+      "line_total": 13.5,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 13.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "16:37"
+   }
+  },
+  "66d223ab97da204fade334f92ed00ae16ffde92ecae1c5712f29a1283ad24c02": {
+   "photo": "7/duplicate-12",
+   "seconds": 17.34,
+   "tries": 1,
+   "read_at": "2026-10-31T12:41:21+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003849",
+    "date": "2026-10-23",
+    "items": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 40,
+      "line_total": 106,
+      "unit_price": 2.65
+     }
+    ],
+    "total": 106,
+    "currency": "USD",
+    "legible": true,
+    "time": "08:37"
+   }
+  },
+  "58062ed98d00b8b8455d023217253de09f87b6187a289a0d7fade512dff91f26": {
+   "photo": "7/duplicate-14",
+   "seconds": 4.21,
+   "tries": 1,
+   "read_at": "2026-10-31T12:40:58+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041783",
+    "date": "2026-10-19",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 20,
+      "line_total": 37.0,
+      "unit_price": 1.85
+     }
+    ],
+    "total": 37.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:19"
+   }
+  },
+  "03f6e77aa99bf05116a5db297cb63e10aca352abf8193d26ca6a491c16843aad": {
+   "photo": "7/duplicate-16",
+   "seconds": 6.16,
+   "tries": 1,
+   "read_at": "2026-10-31T12:41:03+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027392",
+    "date": "2026-10-20",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 72,
+      "line_total": 39.6,
+      "unit_price": 0.55
+     }
+    ],
+    "total": 39.6,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:52"
+   }
+  },
+  "327498a06c624534887b5d741f54f40a8ae8851f8eee577a27479c3feb755b7d": {
+   "photo": "7/duplicate-18",
+   "seconds": 3.7,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:25+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041319",
+    "date": "2026-09-11",
+    "items": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 22,
+      "line_total": 82.5,
+      "unit_price": 3.75
+     }
+    ],
+    "total": 82.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:14"
+   }
+  },
+  "1f512b3071ab63155332d47149302165e8ed3c70f534de99e51268e57e627b96": {
+   "photo": "7/duplicate-20",
+   "seconds": 4.77,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:27+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041496",
+    "date": "2026-09-25",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "line_total": 66,
+      "unit_price": 1.65
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 1,
+      "line_total": 0.15,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 66.15,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:49"
+   }
+  },
+  "ce2b77c0d5f2935ca5df74dfb214ac744854744c62df7f17d43d37208706bd6b": {
+   "photo": "7/genuine-01",
+   "seconds": 83.21,
+   "tries": 1,
+   "read_at": "2026-10-31T12:40:56+00:00",
+   "reading": {
+    "payee": "MBARE BAKERY",
+    "receipt_no": "No. 8968",
+    "date": "2026-10-14",
+    "items": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 92,
+      "line_total": 87.4,
+      "unit_price": 0.95
+     }
+    ],
+    "total": 87.4,
+    "currency": "USD",
+    "legible": true,
+    "time": "08:17"
+   }
+  },
+  "09bea97571bce3131bfc985488a064f3da00d9f0fd4fe1f45f9a0a45d20907b6": {
+   "photo": "7/genuine-02",
+   "seconds": 7.99,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:18+00:00",
+   "reading": {
+    "payee": "MBARE BAKERY",
+    "receipt_no": "8877",
+    "date": "2026-09-23",
+    "items": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 40,
+      "line_total": 34,
+      "unit_price": 0.85
+     }
+    ],
+    "total": 34,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:40"
+   }
+  },
+  "5da93d5fbeab5653704a795f8828424a5bcb0cc44967a7ead109d312d05166a9": {
+   "photo": "7/genuine-03",
+   "seconds": 5.2,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:48+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05276",
+    "date": "2026-10-15",
+    "items": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 10,
+      "line_total": 65.5,
+      "unit_price": 6.55
+     }
+    ],
+    "total": 65.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:54"
+   }
+  },
+  "6deacaebc5df83db636803fe69b8830f60a303e153d8dbde8d9f1e3b314d3054": {
+   "photo": "7/genuine-04",
+   "seconds": 8.76,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:36+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003550",
+    "date": "2026-09-15",
+    "items": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 40,
+      "line_total": 106,
+      "unit_price": 2.65
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 3,
+      "line_total": 0.45,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 106.45,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:00"
+   }
+  },
+  "b25ef74a410ede3bdb05c13417e45f43a82eeb47b480e59339ed0fb5f2c3d6b8": {
+   "photo": "7/genuine-05",
+   "seconds": 4.19,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:16+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003468",
+    "date": "2026-09-10",
+    "items": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 10,
+      "line_total": 25.5,
+      "unit_price": 2.55
+     }
+    ],
+    "total": 25.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:45"
+   }
+  },
+  "ae4c3b44516dff93b526146e75f9d4e0ab8a208e08a637ef421c79444539a593": {
+   "photo": "7/genuine-06",
+   "seconds": 9.37,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:10+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003591",
+    "date": "2026-09-22",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 36,
+      "line_total": 18,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 18,
+    "currency": "USD",
+    "legible": true,
+    "time": "16:46"
+   }
+  },
+  "7da364f9947abfa73c1902867d05df321135300bbc155e306b0e04d8d8c0f577": {
+   "photo": "7/genuine-07",
+   "seconds": 15.39,
+   "tries": 1,
+   "read_at": "2026-10-31T12:40:41+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003787",
+    "date": "2026-10-18",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 27,
+      "line_total": 13.5,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 13.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "16:37"
+   }
+  },
+  "47d89a5d4af3ee8336dc64ba2a47f01a6c922bc052e9d6ba441e42f5531f0465": {
+   "photo": "7/genuine-08",
+   "seconds": 5.9,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:34+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00396",
+    "date": "2026-09-25",
+    "items": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 4,
+      "line_total": 47,
+      "unit_price": 11.75
+     }
+    ],
+    "total": 47,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:34"
+   }
+  },
+  "d31b8770f4bb8bb006fbe9c6727176dc93efe30f09491b3b123ea598392a4dad": {
+   "photo": "7/genuine-09",
+   "seconds": 84.44,
+   "tries": 1,
+   "read_at": "2026-10-31T12:40:21+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027240",
+    "date": "2026-10-05",
+    "items": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 30,
+      "line_total": 34.5,
+      "unit_price": 1.15
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 1,
+      "line_total": 0.15,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 34.65,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:16"
+   }
+  },
+  "d6abae97a84ac34c4afa2472a448104f484abbb2c51c4a02e5bd2bc738bff1b4": {
+   "photo": "7/genuine-10",
+   "seconds": 6.08,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:03+00:00",
+   "reading": {
+    "payee": "MBARE BAKERY",
+    "receipt_no": "8838",
+    "date": "2026-09-21",
+    "items": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 60,
+      "line_total": 54.0,
+      "unit_price": 0.9
+     }
+    ],
+    "total": 54.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:38"
+   }
+  },
+  "5b9ce980eac2ceff92c0de022c85ea37170f19b5cd4dd83cea1fd83ae6ab9d09": {
+   "photo": "7/genuine-11",
+   "seconds": 7.59,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:57+00:00",
+   "reading": {
+    "payee": "MBARE BAKERY",
+    "receipt_no": "8897",
+    "date": "2026-10-01",
+    "items": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 60,
+      "line_total": 51,
+      "unit_price": 0.85
+     }
+    ],
+    "total": 51,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:24"
+   }
+  },
+  "ab4199c40166992c20493cb508bed3e51aaba665666d557e29141b79964f8cdc": {
+   "photo": "7/genuine-12",
+   "seconds": 5.52,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:21+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041478",
+    "date": "2026-09-24",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 10,
+      "line_total": 17.5,
+      "unit_price": 1.75
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 2,
+      "line_total": 0.3,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 17.8,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:49"
+   }
+  },
+  "4ecc2d570937fa18ac2cd1297f4e578c4f9708dc2dc023d765838ff4f2bb8f34": {
+   "photo": "7/genuine-13",
+   "seconds": 43.45,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:12+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003436",
+    "date": "2026-09-08",
+    "items": [
+     {
+      "name": "CKNG OIL 2LT",
+      "quantity": 18,
+      "line_total": 66.6,
+      "unit_price": 3.7
+     }
+    ],
+    "total": 66.6,
+    "currency": "USD",
+    "legible": true,
+    "time": "17:29"
+   }
+  },
+  "a90cf0edc42bac2930b30cc66c1705d5d2c70ed68b207f474f33537e72ec5892": {
+   "photo": "7/genuine-14",
+   "seconds": 9.42,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:03+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05212",
+    "date": "2026-10-03",
+    "items": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 22,
+      "line_total": 135.3,
+      "unit_price": 6.15
+     }
+    ],
+    "total": 135.3,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:27"
+   }
+  },
+  "7d574d17fb13639ff6ae70d913adc0c5584e7ea16ee11c1c6cb7af97792e68f1": {
+   "photo": "7/genuine-15",
+   "seconds": 5.52,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:52+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003576",
+    "date": "2026-09-20",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 59,
+      "line_total": 26.55,
+      "unit_price": 0.45
+     }
+    ],
+    "total": 26.55,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:03"
+   }
+  },
+  "7b7acf4552bb7f35d1b30edc041c210262f26afafa794c7d113ed3b40aeb035b": {
+   "photo": "7/genuine-16",
+   "seconds": 3.41,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:30+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003622",
+    "date": "2026-09-25",
+    "items": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 20,
+      "line_total": 48.0,
+      "unit_price": 2.4
+     }
+    ],
+    "total": 48.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:54"
+   }
+  },
+  "4c35c8874142fabb300b26d9f02ef2b0bc9ba1313311b4b54d913a9f3e2bfb5d": {
+   "photo": "7/genuine-17",
+   "seconds": 5.26,
+   "tries": 1,
+   "read_at": "2026-10-31T12:41:02+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027392",
+    "date": "2026-10-20",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 72,
+      "line_total": 39.6,
+      "unit_price": 0.55
+     }
+    ],
+    "total": 39.6,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:52"
+   }
+  },
+  "57bae65f7162eeceb49a8e763b81885ad6ee935a413fd8b2f6de1c623610bf92": {
+   "photo": "7/genuine-18",
+   "seconds": 4.07,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:09+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027305",
+    "date": "2026-10-07",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 71,
+      "line_total": 39.05,
+      "unit_price": 0.55
+     }
+    ],
+    "total": 39.05,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:25"
+   }
+  },
+  "538e89964666594c7ea9f2b0a3c321290c90fe1832cd8b321f4e4004e69d60c0": {
+   "photo": "7/genuine-19",
+   "seconds": 6.17,
+   "tries": 1,
+   "read_at": "2026-10-31T12:40:48+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027389",
+    "date": "2026-10-18",
+    "items": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 10,
+      "line_total": 11.5,
+      "unit_price": 1.15
+     }
+    ],
+    "total": 11.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "17:48"
+   }
+  },
+  "8e6e06dcd750d5ebcd8ad705827c2a4645e620c9c019784a0a2c3ba1f1213fec": {
+   "photo": "7/genuine-20",
+   "seconds": 4.5,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:19+00:00",
+   "reading": {
+    "payee": "MBARE BAKERY",
+    "receipt_no": "8929",
+    "date": "2026-10-10",
+    "items": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 30,
+      "line_total": 27,
+      "unit_price": 0.9
+     },
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 30,
+      "line_total": 27,
+      "unit_price": 0.9
+     }
+    ],
+    "total": 54,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:36"
+   }
+  },
+  "228f676dccfe128c6dd6915ba360dc06735925392a62f18a8298056769ffa26b": {
+   "photo": "7/genuine-21",
+   "seconds": 4.08,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:20+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041442",
+    "date": "2026-09-24",
+    "items": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 9,
+      "line_total": 34.2,
+      "unit_price": 3.8
+     }
+    ],
+    "total": 34.2,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:46"
+   }
+  },
+  "a21796b115a8128527597155ec1bc0217ffdca591d5ba4342b912de22391fe87": {
+   "photo": "7/genuine-22",
+   "seconds": 5.98,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:48+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041573",
+    "date": "2026-09-30",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 44,
+      "line_total": 79.2,
+      "unit_price": 1.8
+     }
+    ],
+    "total": 79.2,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:22"
+   }
+  },
+  "3714a5bcdb6ff6ed7ce280a37cd0b032a1c6b3f70e68ecb165f7207880a07e74": {
+   "photo": "7/genuine-23",
+   "seconds": 4.83,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:35+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05152",
+    "date": "2026-09-26",
+    "items": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 5,
+      "line_total": 33.75,
+      "unit_price": 6.75
+     }
+    ],
+    "total": 33.75,
+    "currency": "USD",
+    "legible": true,
+    "time": "17:21"
+   }
+  },
+  "498831cfb9603e24f8ad148ca795a120284ab265193331b12290d9eddf1cf37f": {
+   "photo": "7/genuine-24",
+   "seconds": 3.97,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:21+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041259",
+    "date": "2026-09-10",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 20,
+      "line_total": 37.0,
+      "unit_price": 1.85
+     }
+    ],
+    "total": 37.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:01"
+   }
+  },
+  "52a40b92d3906e3f0894ec9c3cae99853d31f496d191af869c3ad4ba968c8397": {
+   "photo": "7/genuine-25",
+   "seconds": 6.1,
+   "tries": 1,
+   "read_at": "2026-10-31T12:41:09+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003849",
+    "date": "2026-10-23",
+    "items": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 40,
+      "line_total": 106,
+      "unit_price": 2.65
+     }
+    ],
+    "total": 106,
+    "currency": "USD",
+    "legible": true,
+    "time": "08:37"
+   }
+  },
+  "1277f77b0e1faf9f7fe931ff31fc06b70ed2006dbea04a5f207e372bb3ed310f": {
+   "photo": "7/genuine-26",
+   "seconds": 5.02,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:27+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003505",
+    "date": "2026-09-12",
+    "items": [
+     {
+      "name": "CKNG OIL 2LT",
+      "quantity": 25,
+      "line_total": 88.75,
+      "unit_price": 3.55
+     }
+    ],
+    "total": 88.75,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:06"
+   }
+  },
+  "f52a390af79d9df987b8a285c7350821c21e9764326642a4c9f00475f29baaa1": {
+   "photo": "7/genuine-27",
+   "seconds": 5.98,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:46+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05127",
+    "date": "2026-09-19",
+    "items": [
+     {
+      "name": "SUGAR 2KG PKT",
+      "quantity": 20,
+      "line_total": 39,
+      "unit_price": 1.95
+     }
+    ],
+    "total": 39,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:38"
+   }
+  },
+  "4d805c8aec642305757735760c941d33a6eb9cbd868139b106eee2ceb20b10be": {
+   "photo": "7/genuine-28",
+   "seconds": 9.3,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:48+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003627",
+    "date": "2026-09-28",
+    "items": [
+     {
+      "name": "EGGS TRAY X30",
+      "quantity": 20,
+      "line_total": 95,
+      "unit_price": 4.75
+     }
+    ],
+    "total": 95,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:34"
+   }
+  },
+  "4c3620dfe1d18c58c3cab4b86ca1036c463b73f84f070e72e03bb4a4b81ce931": {
+   "photo": "7/genuine-29",
+   "seconds": 6.41,
+   "tries": 1,
+   "read_at": "2026-10-31T12:41:17+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041815",
+    "date": "2026-10-26",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 14,
+      "line_total": 59.5,
+      "unit_price": 4.25
+     }
+    ],
+    "total": 59.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:44"
+   }
+  },
+  "d32527286ca4e5dcddc061b1a2f2411c943e7c6dfbf00995b234be0f811d32ae": {
+   "photo": "7/genuine-30",
+   "seconds": 4.77,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:40+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041519",
+    "date": "2026-09-27",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 20,
+      "line_total": 87,
+      "unit_price": 4.35
+     }
+    ],
+    "total": 87,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:47"
+   }
+  },
+  "3c19d29690dfb3eacb526b48e11e4e349a097be4e3aa061ba3494a6bdfe49748": {
+   "photo": "7/genuine-31",
+   "seconds": 7.45,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:26+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041319",
+    "date": "2026-09-11",
+    "items": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 22,
+      "line_total": 82.5,
+      "unit_price": 3.75
+     }
+    ],
+    "total": 82.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:14"
+   }
+  },
+  "85b9fa9541a0cab551cb0f02964b3ebf6b2ffb398c3f7c2024f4b7c4617e588e": {
+   "photo": "7/genuine-32",
+   "seconds": 4.93,
+   "tries": 1,
+   "read_at": "2026-10-31T12:40:58+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041783",
+    "date": "2026-10-19",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 20,
+      "line_total": 37,
+      "unit_price": 1.85
+     }
+    ],
+    "total": 37,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:19"
+   }
+  },
+  "dab6d17ede1b846a6ed59d923876417fe77d8d2844b9ad53fff7fc75cc11590b": {
+   "photo": "7/genuine-33",
+   "seconds": 4.66,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:39+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041505",
+    "date": "2026-09-27",
+    "items": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 18,
+      "line_total": 65.7,
+      "unit_price": 3.65
+     }
+    ],
+    "total": 65.7,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:34"
+   }
+  },
+  "7bd1f820a1b33840b1667da8929cce620a523332dd634d67d5d778b258d871f4": {
+   "photo": "7/genuine-34",
+   "seconds": 6.84,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:28+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041496",
+    "date": "2026-09-25",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "line_total": 66.0,
+      "unit_price": 1.65
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 1,
+      "line_total": 0.15,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 66.15,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:49"
+   }
+  },
+  "0a392cbbfc08b158d8c3de4e5497e74801676feb2ec3ff493555e1e84525b369": {
+   "photo": "7/genuine-35",
+   "seconds": 6.68,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:51+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05184",
+    "date": "2026-09-30",
+    "items": [
+     {
+      "name": "SUGAR 2KG PKT",
+      "quantity": 16,
+      "line_total": 28.8,
+      "unit_price": 1.8
+     }
+    ],
+    "total": 28.8,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:50"
+   }
+  },
+  "3a11436a09d7dc6ad617a3d759a40b65e94ccc4baa72b9d8fe3d5048b1bda111": {
+   "photo": "7/genuine-36",
+   "seconds": 7.16,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:26+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003750",
+    "date": "2026-10-12",
+    "items": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 15,
+      "line_total": 39.75,
+      "unit_price": 2.65
+     },
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 16,
+      "line_total": 42.4,
+      "unit_price": 2.65
+     }
+    ],
+    "total": 82.15,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:43"
+   }
+  },
+  "6a4fab8618e646388b4e607514a3e57a882e06145c78b76b2630f882e672ff06": {
+   "photo": "7/genuine-37",
+   "seconds": 6.16,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:22+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027123",
+    "date": "2026-09-10",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 72,
+      "line_total": 39.6,
+      "unit_price": 0.55
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 3,
+      "line_total": 0.45,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 40.05,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:09"
+   }
+  },
+  "fd4afd7970877ce7043f97b8aced46df8922696e5e2518d17bb5a024a8855890": {
+   "photo": "7/genuine-38",
+   "seconds": 3.5,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:49+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003667",
+    "date": "2026-09-30",
+    "items": [
+     {
+      "name": "CKNG OIL 2LT",
+      "quantity": 25,
+      "line_total": 92.5,
+      "unit_price": 3.7
+     }
+    ],
+    "total": 92.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:32"
+   }
+  },
+  "3373cecb6741cca43d401f248f59b11a240919b0b76e0e726098235963e70a80": {
+   "photo": "7/genuine-39",
+   "seconds": 3.57,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:36+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041379",
+    "date": "2026-09-17",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 25,
+      "line_total": 106.25,
+      "unit_price": 4.25
+     }
+    ],
+    "total": 106.25,
+    "currency": "USD",
+    "legible": true,
+    "time": "08:21"
+   }
+  },
+  "b4eaff7a830e1c218d397541ae53696f90f23e238d9bfb985fa4e0a174625113": {
+   "photo": "7/genuine-40",
+   "seconds": 9.11,
+   "tries": 1,
+   "read_at": "2026-10-31T12:41:11+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041792",
+    "date": "2026-10-22",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 37,
+      "line_total": 157.25,
+      "unit_price": 4.25
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 1,
+      "line_total": 0.15,
+      "unit_price": 0.15
+     }
+    ],
+    "total": 157.4,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:33"
+   }
+  },
+  "3212a76a111847d63ebc134c9047c3c16c4c76ae8d81e233acf842140eab6c0b": {
+   "photo": "7/inflated-01",
+   "seconds": 6.79,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:55+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003677",
+    "date": "2026-10-01",
+    "items": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 40,
+      "line_total": 140,
+      "unit_price": 3.5
+     }
+    ],
+    "total": 140,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:31"
+   }
+  },
+  "c30273bfe80bee5a30e3967af05b2093038c4fde6e8003169c5762ed1c550a7a": {
+   "photo": "7/inflated-02",
+   "seconds": 6.17,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:23+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003474",
+    "date": "2026-09-11",
+    "items": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 20,
+      "line_total": 72,
+      "unit_price": 3.6
+     }
+    ],
+    "total": 72,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:56"
+   }
+  },
+  "4acd687965bfc4177b9268a42eb287e3a56791abbec1dce4816ac20ed05d2959": {
+   "photo": "7/inflated-03",
+   "seconds": 8.47,
+   "tries": 1,
+   "read_at": "2026-10-31T12:40:50+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003762",
+    "date": "2026-10-18",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 21,
+      "line_total": 16.8,
+      "unit_price": 0.8
+     }
+    ],
+    "total": 16.8,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:35"
+   }
+  },
+  "7774f1ecd0d40601435cc282a5774846665f61022187b3f607d5bb7348aa3cfe": {
+   "photo": "7/inflated-04",
+   "seconds": 4.78,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:55+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027186",
+    "date": "2026-09-21",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 48,
+      "line_total": 40.8,
+      "unit_price": 0.85
+     }
+    ],
+    "total": 40.8,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:26"
+   }
+  },
+  "c1717b6094c46f06432ccf6806c4b97700f0d3d561006303334b53f5fdd3ceaa": {
+   "photo": "7/inflated-05",
+   "seconds": 5.37,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:14+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027333",
+    "date": "2026-10-09",
+    "items": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 40,
+      "line_total": 62.0,
+      "unit_price": 1.55
+     }
+    ],
+    "total": 62.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:42"
+   }
+  },
+  "e8ea3118ecc59528ccef596682732b46dcf357da754a0df6d46bfd10ab21ba66": {
+   "photo": "7/inflated-06",
+   "seconds": 5.28,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:17+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00340",
+    "date": "2026-09-10",
+    "items": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 2,
+      "line_total": 33.8,
+      "unit_price": 16.9
+     }
+    ],
+    "total": 33.8,
+    "currency": "USD",
+    "legible": true,
+    "time": "16:24"
+   }
+  },
+  "4189517004a7cc4dba4a2b6d23367b151dcecf189a07ba4ac4f8019bca7b95cf": {
+   "photo": "7/inflated-07",
+   "seconds": 12.14,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:38+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041730",
+    "date": "2026-10-13",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 30,
+      "line_total": 217.5,
+      "unit_price": 7.25
+     }
+    ],
+    "total": 217.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:06"
+   }
+  },
+  "5498d5e9bd0dd0fe71b5bf086e6f5448980f63fc523dc541c6db9a38c093614c": {
+   "photo": "7/inflated-08",
+   "seconds": 5.18,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:54+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041401",
+    "date": "2026-09-21",
+    "items": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 18,
+      "line_total": 94.5,
+      "unit_price": 5.25
+     }
+    ],
+    "total": 94.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:50"
+   }
+  },
+  "eb9e5b5a0975716f8437c86a2e454fa2b004721357751e7d4482981e819b8666": {
+   "photo": "7/inflated-09",
+   "seconds": 7.83,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:21+00:00",
+   "reading": {
+    "payee": "MBARE BAKERY",
+    "receipt_no": "8903",
+    "date": "2026-10-10",
+    "items": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 32,
+      "line_total": 38.4,
+      "unit_price": 1.2
+     }
+    ],
+    "total": 38.4,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:38"
+   }
+  },
+  "fd59963717e1eb1323dc110803acbf88aef8fcec5c6a89f8ff1ea00f7f52e1f2": {
+   "photo": "7/inflated-10",
+   "seconds": 8.7,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:37+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041371",
+    "date": "2026-09-16",
+    "items": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 6,
+      "line_total": 29.4,
+      "unit_price": 4.9
+     }
+    ],
+    "total": 29.4,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:34"
+   }
+  },
+  "35addfe7ab34545165b80856e4afa40fd59336dd3b906de59ceaca1cd4ec9fb1": {
+   "photo": "7/inflated-11",
+   "seconds": 7.04,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:14+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05248",
+    "date": "2026-10-08",
+    "items": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 20,
+      "line_total": 187.0,
+      "unit_price": 9.35
+     }
+    ],
+    "total": 187.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:09"
+   }
+  },
+  "6b6e880e3e129a8358b5d14d67c9f468ecd1b7db5d4df438064ba0b560690446": {
+   "photo": "7/inflated-12",
+   "seconds": 11.38,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:48+00:00",
+   "reading": {
+    "payee": "SIYASO TRADERS",
+    "receipt_no": "ST 05114",
+    "date": "2026-09-19",
+    "items": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 5,
+      "line_total": 48.25,
+      "unit_price": 9.65
+     }
+    ],
+    "total": 48.25,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:17"
+   }
+  },
+  "24ac4c2edd4a30b9cc8cd397a1e2c4e6e0cac59697a0bec8dd42c913d7abb47f": {
+   "photo": "7/inflated-13",
+   "seconds": 4.91,
+   "tries": 1,
+   "read_at": "2026-10-31T12:41:12+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003856",
+    "date": "2026-10-23",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 12,
+      "line_total": 7.8,
+      "unit_price": 0.65
+     }
+    ],
+    "total": 7.8,
+    "currency": "USD",
+    "legible": true,
+    "time": "16:02"
+   }
+  },
+  "b43bb599810a3cd4d29d87f40a3d9d1393f271ee4418ecc17dbfa04309ce1c49": {
+   "photo": "7/inflated-14",
+   "seconds": 6.48,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:32+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003546",
+    "date": "2026-09-14",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 12,
+      "line_total": 8.4,
+      "unit_price": 0.7
+     }
+    ],
+    "total": 8.4,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:22"
+   }
+  },
+  "c435497f097f82515fb6aa910b3fce16ab653e94abe4a4ab81c9d6b91a451671": {
+   "photo": "7/inflated-15",
+   "seconds": 7.63,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:16+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027213",
+    "date": "2026-09-23",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 24,
+      "line_total": 16.8,
+      "unit_price": 0.7
+     }
+    ],
+    "total": 16.8,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:55"
+   }
+  },
+  "f309a6d7c7af6ff69fd6bec9c5f7141a858e8ee90b2faf39bf09dda10ffef49f": {
+   "photo": "7/inflated-16",
+   "seconds": 43.28,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:11+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041231",
+    "date": "2026-09-07",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 40,
+      "line_total": 262.0,
+      "unit_price": 6.55
+     }
+    ],
+    "total": 262.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:45"
+   }
+  },
+  "05dd173831f343eacff430ea7d95b49afc1c574585124e75e72107cec6e1dd52": {
+   "photo": "7/inflated-17",
+   "seconds": 80.09,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:45+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00376",
+    "date": "2026-09-14",
+    "items": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 4,
+      "line_total": 59.2,
+      "unit_price": 14.8
+     }
+    ],
+    "total": 59.2,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:53"
+   }
+  },
+  "b6be5455aab2277eeedb1e13dc9d08968561fe95c815266bdfeae1418b794625": {
+   "photo": "7/inflated-18",
+   "seconds": 4.67,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:43+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041753",
+    "date": "2026-10-14",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 10,
+      "line_total": 58,
+      "unit_price": 5.8
+     }
+    ],
+    "total": 58,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:23"
+   }
+  },
+  "0ed80599ccd978c5cd4b79c04240616bc585a2dd6bc5de33121408e8f6bacdf0": {
+   "photo": "7/inflated-19",
+   "seconds": 11.92,
+   "tries": 1,
+   "read_at": "2026-10-31T12:40:22+00:00",
+   "reading": {
+    "payee": "MBARE BAKERY",
+    "receipt_no": "No. 8991",
+    "date": "2026-10-17",
+    "items": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 20,
+      "line_total": 28,
+      "unit_price": 1.4
+     }
+    ],
+    "total": 28,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:35"
+   }
+  },
+  "ce455a1bf7e092ed5c37a0bfdc09edf359a0092b56d07715964aa03d09c3e03b": {
+   "photo": "7/inflated-20",
+   "seconds": 5.21,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:17+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041298",
+    "date": "2026-09-10",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 10,
+      "line_total": 26.5,
+      "unit_price": 2.65
+     }
+    ],
+    "total": 26.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "16:40"
+   }
+  },
+  "719c7a8efd940f58db1b13df28efaf6b423c4758d9fb43f05127686d784f98bc": {
+   "photo": "7/stale-01",
+   "seconds": 3.65,
+   "tries": 1,
+   "read_at": "2026-10-31T12:40:54+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027272",
+    "date": "2026-10-06",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 45,
+      "line_total": 24.75,
+      "unit_price": 0.55
+     }
+    ],
+    "total": 24.75,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:39"
+   }
+  },
+  "23a2c14b31651c8aa1dfebd84fda1ccd1994a855901524160daae5b29e7cb7d1": {
+   "photo": "7/stale-02",
+   "seconds": 4.87,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:45+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00387",
+    "date": "2026-09-15",
+    "items": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 8,
+      "line_total": 94,
+      "unit_price": 11.75
+     }
+    ],
+    "total": 94,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:05"
+   }
+  },
+  "172c9f7f973439885dc28111186009509d1573d03d0ce762b34baa045dfa4a0d": {
+   "photo": "7/stale-03",
+   "seconds": 4.29,
+   "tries": 1,
+   "read_at": "2026-10-31T12:40:26+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041539",
+    "date": "2026-09-28",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 10,
+      "line_total": 45.5,
+      "unit_price": 4.55
+     }
+    ],
+    "total": 45.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:11"
+   }
+  },
+  "49ef7993698f4439c1e8884a9b973dafe529c395d849f1acbd34b10b1726a28a": {
+   "photo": "7/stale-04",
+   "seconds": 6.43,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:36+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041353",
+    "date": "2026-09-12",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 40,
+      "line_total": 170,
+      "unit_price": 4.25
+     }
+    ],
+    "total": 170,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:20"
+   }
+  },
+  "9d7146689c71e9097a43a5ed1d04d8f9be66e82b67e70679577788f20106bb60": {
+   "photo": "7/stale-05",
+   "seconds": 5.78,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:47+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041618",
+    "date": "2026-10-02",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "line_total": 68,
+      "unit_price": 1.7
+     }
+    ],
+    "total": 68,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:42"
+   }
+  },
+  "4ca85840b76919dcb9633e05dfa2b25b952fa2a78c164e159fac2eb42e884033": {
+   "photo": "7/stale-06",
+   "seconds": 18.06,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:16+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041410",
+    "date": "2026-09-22",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 10,
+      "line_total": 17.5,
+      "unit_price": 1.75
+     }
+    ],
+    "total": 17.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:35"
+   }
+  },
+  "5e81df3f10149883f2550ba85c90e7d449f451bbbc1f2857cee8272d8ed90760": {
+   "photo": "7/stale-07",
+   "seconds": 68.85,
+   "tries": 1,
+   "read_at": "2026-10-31T12:40:56+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041629",
+    "date": "2026-10-03",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 25,
+      "line_total": 43.75,
+      "unit_price": 1.75
+     }
+    ],
+    "total": 43.75,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:39"
+   }
+  },
+  "dc9f49654003c43156cd02ad10ea80419aa2872081e975d56b682827aa17e626": {
+   "photo": "7/stale-08",
+   "seconds": 4.13,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:40+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003567",
+    "date": "2026-09-18",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 48,
+      "line_total": 21.6,
+      "unit_price": 0.45
+     }
+    ],
+    "total": 21.6,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:25"
+   }
+  },
+  "8365b0ee86fca1ff80953bcd873bdffa56aeba1e32cc2b01e81a84eb08c5b644": {
+   "photo": "7/stale-09",
+   "seconds": 5.29,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:00+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003443",
+    "date": "2026-09-09",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 24,
+      "line_total": 10.8,
+      "unit_price": 0.45
+     }
+    ],
+    "total": 10.8,
+    "currency": "USD",
+    "legible": true,
+    "time": "08:42"
+   }
+  },
+  "a7ea178c4c4aa84f579a72a134f5b7a5211b19480dd7d3c60e47119fbea5517e": {
+   "photo": "7/stale-10",
+   "seconds": 5.79,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:30+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003509",
+    "date": "2026-09-13",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 48,
+      "line_total": 24,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 24,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:49"
+   }
+  },
+  "692c88acf566b448136db0081b4c81d64a0c37c8cca25b0746753dc96323bff9": {
+   "photo": "7/stale-11",
+   "seconds": 5.02,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:28+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027167",
+    "date": "2026-09-12",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 24,
+      "line_total": 13.2,
+      "unit_price": 0.55
+     }
+    ],
+    "total": 13.2,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:08"
+   }
+  },
+  "cef8791f44c20a153b3d4dae8fe48db13664164a203a8d76900ed29e159930af": {
+   "photo": "7/stale-12",
+   "seconds": 6.09,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:54+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027276",
+    "date": "2026-10-07",
+    "items": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 20,
+      "line_total": 22,
+      "unit_price": 1.1
+     }
+    ],
+    "total": 22,
+    "currency": "USD",
+    "legible": true,
+    "time": "08:53"
+   }
+  },
+  "df5d07197a4c8e95bf079c41a3ea67ad971d4a449f72109a12221cec974f1b6b": {
+   "photo": "7/stale-13",
+   "seconds": 6.9,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:18+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00313",
+    "date": "2026-09-03",
+    "items": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 4,
+      "line_total": 48.4,
+      "unit_price": 12.1
+     }
+    ],
+    "total": 48.4,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:49"
+   }
+  },
+  "ca405c4e919126d23f9f0c2d264c2bb0ee3e3c23b754e62462360b8d17bcafe6": {
+   "photo": "7/stale-14",
+   "seconds": 7.21,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:42+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041682",
+    "date": "2026-10-06",
+    "items": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 40,
+      "line_total": 182.0,
+      "unit_price": 4.55
+     }
+    ],
+    "total": 182.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:01"
+   }
+  },
+  "c22a89f432968682c9874abfaf65d3d88bfacefe8957d5eb3273f3960f8b8d3a": {
+   "photo": "7/stale-15",
+   "seconds": 6.89,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:21+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041706",
+    "date": "2026-10-12",
+    "items": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 12,
+      "line_total": 41.4,
+      "unit_price": 3.45
+     }
+    ],
+    "total": 41.4,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:19"
+   }
+  },
+  "31070d43a6ef788e0202a1b942ff8ba2e81fd85fee9974b867901d0c42a986fc": {
+   "photo": "7/stale-16",
+   "seconds": 6.0,
+   "tries": 1,
+   "read_at": "2026-10-31T12:41:04+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041669",
+    "date": "2026-10-04",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 49,
+      "line_total": 83.3,
+      "unit_price": 1.7
+     }
+    ],
+    "total": 83.3,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:04"
+   }
+  },
+  "331b0619b96951822d86177623aa8eeb73b3365f7cdf0022c2869974c2c51173": {
+   "photo": "7/stale-17",
+   "seconds": 4.96,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:50+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041241",
+    "date": "2026-09-10",
+    "items": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 10,
+      "line_total": 17.5,
+      "unit_price": 1.75
+     }
+    ],
+    "total": 17.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:13"
+   }
+  },
+  "49d4ebfba1c5b84efc5c328ca58f06889746c9481a6ca60d66fb7735b6cbe901": {
+   "photo": "7/stale-18",
+   "seconds": 5.22,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:34+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003694",
+    "date": "2026-10-04",
+    "items": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 43,
+      "line_total": 19.35,
+      "unit_price": 0.45
+     }
+    ],
+    "total": 19.35,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:52"
+   }
+  },
+  "d42110b4cfec8a50a5054735a1f72ad24d835c003265d63c74efb5cf02de12d9": {
+   "photo": "7/stale-19",
+   "seconds": 4.7,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:40+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027132",
+    "date": "2026-09-11",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 96,
+      "line_total": 48,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 48,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:58"
+   }
+  },
+  "40ae8ccaf1628c0c4a3393fedea1b80ed9afe061fae474004f188ed10b7670da": {
+   "photo": "7/stale-20",
+   "seconds": 8.69,
+   "tries": 1,
+   "read_at": "2026-10-31T12:40:03+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027371",
+    "date": "2026-10-16",
+    "items": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 72,
+      "line_total": 39.6,
+      "unit_price": 0.55
+     }
+    ],
+    "total": 39.6,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:29"
+   }
+  },
+  "d27ad3c9dc6f32109d64c17e316c4bf38fa06c14e5f3bbf9fab254b401ea0c35": {
+   "photo": "7/wrong_payee-01",
+   "seconds": 6.18,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:14+00:00",
+   "reading": {
+    "payee": "RUFARO SUPERMARKET",
+    "receipt_no": "120452",
+    "date": "2026-10-08",
+    "items": [
+     {
+      "name": "SALT (1 KG PACKS)",
+      "quantity": 48,
+      "line_total": 24,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 24,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:51"
+   }
+  },
+  "537742889b9ff96202ddc3bc87e11560dea11082440e55e928f70a45e59ea5af": {
+   "photo": "7/wrong_payee-02",
+   "seconds": 4.49,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:56+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027223",
+    "date": "2026-10-02",
+    "items": [
+     {
+      "name": "SALT (1 KG PACKS)",
+      "quantity": 12,
+      "line_total": 6.0,
+      "unit_price": 0.5
+     }
+    ],
+    "total": 6.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:52"
+   }
+  },
+  "d21c0f86072ac950003705a79d3e625fa45fc8b12a8b77d6d8388fc61ee0f3fc": {
+   "photo": "7/wrong_payee-03",
+   "seconds": 6.7,
+   "tries": 1,
+   "read_at": "2026-10-31T12:40:10+00:00",
+   "reading": {
+    "payee": "MBARE FRESH MARKET",
+    "receipt_no": "MF 4416",
+    "date": "2026-10-17",
+    "items": [
+     {
+      "name": "TOMATOES (CRATES)",
+      "quantity": 8,
+      "line_total": 96.4,
+      "unit_price": 12.05
+     }
+    ],
+    "total": 96.4,
+    "currency": "USD",
+    "legible": true,
+    "time": "11:16"
+   }
+  },
+  "e17500e535e47ff927e58e2a009a9eaa47b8f63e2f292ac662ebcc26a2d25391": {
+   "photo": "7/wrong_payee-04",
+   "seconds": 5.4,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:02+00:00",
+   "reading": {
+    "payee": "MUPEDZANHAMO TRADERS",
+    "receipt_no": "MP09066",
+    "date": "2026-10-05",
+    "items": [
+     {
+      "name": "TOMATOES (CRATES)",
+      "quantity": 6,
+      "line_total": 67.2,
+      "unit_price": 11.2
+     }
+    ],
+    "total": 67.2,
+    "currency": "USD",
+    "legible": true,
+    "time": "16:29"
+   }
+  },
+  "8171240a13bd8cac5aa17fd8d98396b8f428e9685cf4626654c58f7820510352": {
+   "photo": "7/wrong_payee-05",
+   "seconds": 5.11,
+   "tries": 1,
+   "read_at": "2026-10-31T12:41:14+00:00",
+   "reading": {
+    "payee": "MUPEDZANHAMO TRADERS",
+    "receipt_no": "MP09119",
+    "date": "2026-10-23",
+    "items": [
+     {
+      "name": "BREAD (LOAVES)",
+      "quantity": 40,
+      "line_total": 36.0,
+      "unit_price": 0.9
+     }
+    ],
+    "total": 36.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:41"
+   }
+  },
+  "90445ecb3e19b970a1498bc2611bb239de72319c59272952a0424a1a8b736db0": {
+   "photo": "7/wrong_payee-06",
+   "seconds": 5.23,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:00+00:00",
+   "reading": {
+    "payee": "RUFARO SUPERMARKET",
+    "receipt_no": "120447",
+    "date": "2026-10-04",
+    "items": [
+     {
+      "name": "BREAD (LOAVES)",
+      "quantity": 40,
+      "line_total": 36.0,
+      "unit_price": 0.9
+     }
+    ],
+    "total": 36.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:30"
+   }
+  },
+  "5a9175dcec63622401461145ff42d830a11f814c62e08097fdfd8528b7ebf7cd": {
+   "photo": "7/wrong_payee-07",
+   "seconds": 4.32,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:05+00:00",
+   "reading": {
+    "payee": "MUPEDZANHAMO TRADERS",
+    "receipt_no": "MP09105",
+    "date": "2026-10-06",
+    "items": [
+     {
+      "name": "COOKING OIL (2 L BOTTLES)",
+      "quantity": 12,
+      "line_total": 43.8,
+      "unit_price": 3.65
+     }
+    ],
+    "total": 43.8,
+    "currency": "USD",
+    "legible": true,
+    "time": "08:07"
+   }
+  },
+  "ecf8e331594c62e02081254966fc0e9e6901f050c6d7b8999fdc5fa717d336eb": {
+   "photo": "7/wrong_payee-08",
+   "seconds": 5.09,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:07+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003722",
+    "date": "2026-10-06",
+    "items": [
+     {
+      "name": "SUGAR (2 KG PACKS)",
+      "quantity": 20,
+      "line_total": 36.0,
+      "unit_price": 1.8
+     }
+    ],
+    "total": 36.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:21"
+   }
+  },
+  "a92594e45988699fb8723dfb08a895289fcd120196cbf01bdcaf42abc0e92e20": {
+   "photo": "7/wrong_payee-09",
+   "seconds": 43.29,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:11+00:00",
+   "reading": {
+    "payee": "MBARE GENERAL DEALERS",
+    "receipt_no": "GD 06461",
+    "date": "2026-09-07",
+    "items": [
+     {
+      "name": "SUGAR (2 KG PACKS)",
+      "quantity": 20,
+      "line_total": 35,
+      "unit_price": 1.75
+     }
+    ],
+    "total": 35,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:11"
+   }
+  },
+  "d39d399364bc6c570021ba98294c3cc447b5cd449a3bfc79fd53f073d21fb667": {
+   "photo": "7/wrong_payee-10",
+   "seconds": 20.72,
+   "tries": 1,
+   "read_at": "2026-10-31T12:40:41+00:00",
+   "reading": {
+    "payee": "MUSIKA FRESH PRODUCE",
+    "receipt_no": "FP-00432",
+    "date": "2026-10-17",
+    "items": [
+     {
+      "name": "RICE (2 KG PACKS)",
+      "quantity": 20,
+      "line_total": 51.0,
+      "unit_price": 2.55
+     }
+    ],
+    "total": 51.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "17:37"
+   }
+  },
+  "4144a79a28b569682a49e2a89a6ee669d9e1771bfa393f93cc9facc280c59adf": {
+   "photo": "7/wrong_payee-11",
+   "seconds": 4.87,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:53+00:00",
+   "reading": {
+    "payee": "MBARE WHOLESALE (PVT) LTD",
+    "receipt_no": "MW-041608",
+    "date": "2026-10-01",
+    "items": [
+     {
+      "name": "BATH SOAP (BARS)",
+      "quantity": 72,
+      "line_total": 39.6,
+      "unit_price": 0.55
+     }
+    ],
+    "total": 39.6,
+    "currency": "USD",
+    "legible": true,
+    "time": "10:59"
+   }
+  },
+  "5325c23df4e2b3fe4f09b9fe0c81bbac589700e2a81d2f28503570037d13ad6e": {
+   "photo": "7/wrong_payee-12",
+   "seconds": 4.07,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:58+00:00",
+   "reading": {
+    "payee": "MUPEDZANHAMO TRADERS",
+    "receipt_no": "MP09054",
+    "date": "2026-09-21",
+    "items": [
+     {
+      "name": "BATH SOAP (BARS)",
+      "quantity": 96,
+      "line_total": 52.8,
+      "unit_price": 0.55
+     }
+    ],
+    "total": 52.8,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:50"
+   }
+  },
+  "afcbbb7bf7a61d388697e760bcc1734b6b6448b233b404375045fc002502bac2": {
+   "photo": "7/wrong_payee-13",
+   "seconds": 7.47,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:29+00:00",
+   "reading": {
+    "payee": "MBARE GENERAL DEALERS",
+    "receipt_no": "GD 06479",
+    "date": "2026-10-12",
+    "items": [
+     {
+      "name": "BATH SOAP (BARS)",
+      "quantity": 96,
+      "line_total": 52.8,
+      "unit_price": 0.55
+     }
+    ],
+    "total": 52.8,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:24"
+   }
+  },
+  "6c6bf5e594ff2263b1d888fceba2f77b4fa07b26c1dbc07052b635b917b5b4a1": {
+   "photo": "7/wrong_payee-14",
+   "seconds": 4.32,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:07+00:00",
+   "reading": {
+    "payee": "MATAPI TRADERS",
+    "receipt_no": "MT-02237",
+    "date": "2026-10-07",
+    "items": [
+     {
+      "name": "EGGS (TRAYS)",
+      "quantity": 30,
+      "line_total": 132,
+      "unit_price": 4.4
+     }
+    ],
+    "total": 132,
+    "currency": "USD",
+    "legible": true,
+    "time": "13:17"
+   }
+  },
+  "5080802ddb3abbb85931b87731b70eb36780ce9a409cd17e250be39a706be486": {
+   "photo": "7/wrong_payee-15",
+   "seconds": 43.48,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:11+00:00",
+   "reading": {
+    "payee": "MBARE GENERAL DEALERS",
+    "receipt_no": "GD 06425",
+    "date": "2026-09-07",
+    "items": [
+     {
+      "name": "EGGS (TRAYS)",
+      "quantity": 30,
+      "line_total": 129.0,
+      "unit_price": 4.3
+     }
+    ],
+    "total": 129.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "09:25"
+   }
+  },
+  "fe1d953f557b3c45c4c390fcffab641b80eed5895cae9acd9af7d02cc69a0a7c": {
+   "photo": "7/wrong_payee-16",
+   "seconds": 8.96,
+   "tries": 1,
+   "read_at": "2026-10-31T12:41:07+00:00",
+   "reading": {
+    "payee": "GULF CASH & CARRY",
+    "receipt_no": "INV1003813",
+    "date": "2026-10-21",
+    "items": [
+     {
+      "name": "EGGS TRAY X30",
+      "quantity": 40,
+      "line_total": 176.0,
+      "unit_price": 4.4
+     }
+    ],
+    "total": 176.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "15:51"
+   }
+  },
+  "6568003f5af0ecc922e8397b07de4ffe67918161a88998214164bb58da72c113": {
+   "photo": "7/wrong_payee-17",
+   "seconds": 4.76,
+   "tries": 1,
+   "read_at": "2026-10-31T12:37:57+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027190",
+    "date": "2026-09-21",
+    "items": [
+     {
+      "name": "SUGAR (2 KG PACKS)",
+      "quantity": 10,
+      "line_total": 17.5,
+      "unit_price": 1.75
+     }
+    ],
+    "total": 17.5,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:58"
+   }
+  },
+  "2f7da81f90646f493bf12620af9f047d947d7096677b4c159adab47597650d2e": {
+   "photo": "7/wrong_payee-18",
+   "seconds": 7.11,
+   "tries": 1,
+   "read_at": "2026-10-31T12:39:33+00:00",
+   "reading": {
+    "payee": "SIYASO HARDWARE",
+    "receipt_no": "SH01860",
+    "date": "2026-10-13",
+    "items": [
+     {
+      "name": "MEALIE MEAL (10 KG BAGS)",
+      "quantity": 10,
+      "line_total": 64,
+      "unit_price": 6.4
+     }
+    ],
+    "total": 64,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:24"
+   }
+  },
+  "0256ebf2a59d933f08ae2627633c8a6119b762551fa9db4299a09aa7ee2e359a": {
+   "photo": "7/wrong_payee-19",
+   "seconds": 5.3,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:42+00:00",
+   "reading": {
+    "payee": "RUFARO SUPERMARKET",
+    "receipt_no": "120410",
+    "date": "2026-09-28",
+    "items": [
+     {
+      "name": "RICE (2 KG PACKS)",
+      "quantity": 10,
+      "line_total": 26.0,
+      "unit_price": 2.6
+     }
+    ],
+    "total": 26.0,
+    "currency": "USD",
+    "legible": true,
+    "time": "14:38"
+   }
+  },
+  "9b1b4496f76eb474358de0feea6a088c9b30f7a75b5743368d7d169c328d0154": {
+   "photo": "7/wrong_payee-20",
+   "seconds": 5.35,
+   "tries": 1,
+   "read_at": "2026-10-31T12:38:08+00:00",
+   "reading": {
+    "payee": "MAGABA GENERAL DEALERS",
+    "receipt_no": "RCPT#027209",
+    "date": "2026-09-23",
+    "items": [
+     {
+      "name": "RICE (2 KG PACKS)",
+      "quantity": 20,
+      "line_total": 50,
+      "unit_price": 2.5
+     }
+    ],
+    "total": 50,
+    "currency": "USD",
+    "legible": true,
+    "time": "12:16"
+   }
+  }
+ }
+}

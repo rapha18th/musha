@@ -1,71 +1,64 @@
-import { useCallback, useEffect, useState } from "react";
-import { PayPalProvider } from "@paypal/react-paypal-js/sdk-v6";
-import { api, type Entry, type Message, type Shop, type StockRequest } from "./api";
-import { Owner } from "./Owner";
-import { Phone } from "./Phone";
+import { Component, lazy, Suspense, type ReactNode } from "react";
+import { api } from "./api";
+import { Landing } from "./Landing";
+import { useRetry, useRoute, useShopId, useTheme } from "./shell";
+import { Waiting } from "./Waiting";
 
-const SHOP_ID = 1;
+// The landing paints from the entry chunk alone; the shop, its console and its grids load behind it.
+const Shop = lazy(() => import("./Shop"));
+const Counter = lazy(() => import("./Counter"));
 
 export default function App() {
-  const [shop, setShop] = useState<Shop>();
-  const [requests, setRequests] = useState<StockRequest[]>([]);
-  const [entries, setEntries] = useState<Entry[]>([]);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [clientId, setClientId] = useState<string>();
-  const [view, setView] = useState<"owner" | "phone">("owner");
+  const route = useRoute();
+  const [theme, toggleTheme] = useTheme();
+  if (route.name === "landing") {
+    return <Landing theme={theme} toggleTheme={toggleTheme} />;
+  }
+  return (
+    <Reloads>
+      <Opening route={route.name} theme={theme} toggleTheme={toggleTheme} />
+    </Reloads>
+  );
+}
 
-  const refresh = useCallback(async () => {
-    const [s, r, l, m] = await Promise.all([
-      api.shop(SHOP_ID), api.requests(SHOP_ID), api.ledger(SHOP_ID), api.messages(SHOP_ID),
-    ]);
-    setShop(s);
-    setRequests(r);
-    setEntries(l);
-    setMessages(m);
-  }, []);
+/** Finds the visitor's shop and the app's settings, trying again until the server answers. */
+function Opening({ route, theme, toggleTheme }: { route: "shop" | "counter"; theme: string; toggleTheme: () => void }) {
+  const shop = useShopId(route === "counter" ? "counter" : "owner");
+  const config = useRetry(api.config, route === "shop");
+  const retry = () => {
+    shop.retry();
+    config.retry();
+  };
+  const failures = Math.max(shop.failures, config.failures);
+  const shopId = shop.value;
+  if (!shopId || (route === "shop" && !config.value)) {
+    return <Waiting failures={failures} retry={retry} />;
+  }
+  return (
+    <Suspense fallback={<Waiting />}>
+      {route === "counter"
+        ? <Counter shopId={shopId} />
+        : <Shop shopId={shopId} config={config.value!} theme={theme} toggleTheme={toggleTheme} />}
+    </Suspense>
+  );
+}
 
-  useEffect(() => {
-    api.config().then((c) => setClientId(c.paypal_client_id || ""));
-  }, []);
+/** A chunk that fails to load (a new deploy, a dropped connection) offers a reload in place of a blank page. */
+class Reloads extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
 
-  useEffect(() => {
-    refresh();
-    const t = setInterval(refresh, 3000);
-    return () => {
-      clearInterval(t);
-    };
-  }, [refresh]);
-
-  if (!shop) {
-    return <div className="loading">Musha</div>;
+  static getDerivedStateFromError() {
+    return { failed: true };
   }
 
-  const owner = <Owner shop={shop} requests={requests} entries={entries} refresh={refresh} paypalReady={!!clientId} />;
-
-  return (
-    <div className="app" data-view={view}>
-      <header className="top">
-        <div className="brand">
-          <span className="mark">Musha</span>
-          <span className="tag">Run your business at home from anywhere</span>
-        </div>
-        <nav className="switch" aria-label="View">
-          <button aria-pressed={view === "owner"} onClick={() => setView("owner")}>{shop.owner.name}, {shop.owner.city}</button>
-          <button aria-pressed={view === "phone"} onClick={() => setView("phone")}>{shop.manager.name}, Mbare</button>
-        </nav>
-      </header>
-      <main className="stage">
-        <section className="owner-pane">
-          {clientId ? (
-            <PayPalProvider clientId={clientId} environment="sandbox" components={["paypal-payments"]} pageType="checkout">
-              {owner}
-            </PayPalProvider>
-          ) : owner}
-        </section>
-        <aside className="phone-pane">
-          <Phone shop={shop} messages={messages} refresh={refresh} />
-        </aside>
-      </main>
-    </div>
-  );
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <div className="loading" role="alert">
+        <span className="loading-mark">Musha</span>
+        <p className="loading-line">Musha needs a fresh copy of the page.</p>
+        <button type="button" className="loading-retry" onClick={() => window.location.reload()}>Reload</button>
+      </div>
+    );
+  }
 }

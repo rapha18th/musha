@@ -1,41 +1,297 @@
-"""The money loop over HTTP: shops, requests, approval, settlement, wages, books, threads, webhooks, jobs."""
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
-from pydantic import BaseModel, Field
+"""The money loop over HTTP: shops, requests, approval, settlement, wages, books, threads, webhooks, jobs.
+
+Also the guards every route in the app shares:
+- Keys. A visitor's demo shop gets three keys when it is made: the owner's, the manager's and the
+  counter phone's. Each opens the routes of its own role and the ones below it (owner, then manager,
+  then counter). The browser that made the shop keeps the owner key in a cookie, so its pictures and
+  calls carry it; another device joins with a key it was given. A shop made without keys, such as
+  the server's own first shop, stays open, for local runs.
+- Amounts. Money arrives as a decimal string, checked here, and stays inside US$100,000.
+- Rates. Each shop has a budget of calls for the routes that wake the model or PayPal, and each
+  client a budget of new shops, so one visitor never fills the database or spends the model.
+- Bodies. `BodyLimit` refuses a body past its size before anything reads it, and
+  `validation_errors` answers a bad body without echoing it back.
+"""
+import asyncio
+import hmac
+import json
+import logging
+import re
+import secrets
+import time
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, Request, Response
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from pydantic import AfterValidator, BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .. import flows, ledger, webhooks
 from ..config import Settings
 from ..deps import db, guarded, model, paypal, request_or_404, settings, shop_or_404
-from ..models import Message
+from ..models import Message, Shop, SpendRequest
 from ..money import to_cents
 from ..views import iso, message_view, request_view, requests_for, shop_view
 
+log = logging.getLogger("musha.routes")
+
 router = APIRouter(prefix="/api")
+
+# Amounts
+
+MAX_CENTS = 10_000_000  # US$100,000; a larger amount is a slip of the finger
+MAX_ID = 2_147_483_647  # Postgres integer ids
+_AMOUNT = re.compile(r"\d{1,7}(\.\d{1,2})?")
+AMOUNT_HELP = "Give the amount as a number, for example 180.00."
+
+
+def cents_of(value, *, zero: bool = False) -> int:
+    """A decimal string as cents, inside the range Musha takes. ValueError says what to send."""
+    text = str(value).strip()
+    if not _AMOUNT.fullmatch(text):
+        raise ValueError(AMOUNT_HELP)
+    cents = to_cents(text)
+    if cents > MAX_CENTS:
+        raise ValueError(f"Amounts go up to {flows.money(MAX_CENTS)}.")
+    if cents <= 0 and not zero:
+        raise ValueError("Give an amount above zero.")
+    return cents
+
+
+def _amount(value: str) -> str:
+    cents_of(value)
+    return value.strip()
+
+
+def _spent(value: str) -> str:
+    cents_of(value, zero=True)
+    return value.strip()
+
+
+Amount = Annotated[str, Field(max_length=16), AfterValidator(_amount)]
+Spent = Annotated[str, Field(max_length=16), AfterValidator(_spent)]
+ShopId = Annotated[int, Path(ge=1, le=MAX_ID)]
+RequestId = Annotated[int, Path(ge=1, le=MAX_ID)]
 
 
 class NewRequest(BaseModel):
-    kind: str = "stock"
+    kind: str = Field(default="stock", max_length=12)
     item: str = Field(min_length=1, max_length=80)
-    quantity: int = Field(default=1, gt=0)
-    unit: str = "units"
-    amount: str  # decimal string, e.g. "180.00"
-    payee: str = ""
-    words: str = ""
+    quantity: int = Field(default=1, gt=0, le=100_000)
+    unit: str = Field(default="units", max_length=24)
+    amount: Amount  # decimal string, e.g. "180.00"
+    payee: str = Field(default="", max_length=120)
+    words: str = Field(default="", max_length=2000)
 
 
 class Settle(BaseModel):
-    spent: str
-    reason: str = ""
+    spent: Spent
+    reason: str = Field(default="", max_length=300)
 
 
 class Wages(BaseModel):
-    amount: str
-    note: str = ""
+    amount: Amount
+    note: str = Field(default="", max_length=200)
 
+
+class Join(BaseModel):
+    key: str = Field(min_length=16, max_length=64)
+
+
+# Keys
+
+ROLES = ("counter", "manager", "owner")  # each opens what the roles before it open
+KEY_HEADER = "x-shop-key"
+KEY_DAYS = 30
+FORBIDDEN = "This shop opens with its own key, kept by the browser that made it."
+
+
+def keys_of(shop: Shop) -> dict[str, str]:
+    """The shop's keys by role. Empty strings for a shop made without keys."""
+    return {role: getattr(shop, f"{role}_key", None) or "" for role in ROLES}
+
+
+def issue_keys(shop: Shop) -> dict[str, str]:
+    """Three new keys for a visitor's shop, once the shop table keeps them; {} until then."""
+    if not all(hasattr(Shop, f"{role}_key") for role in ROLES):
+        return {}
+    keys = {role: secrets.token_urlsafe(24) for role in ROLES}
+    for role, value in keys.items():
+        setattr(shop, f"{role}_key", value)
+    return keys
+
+
+def cookie_name(shop_id: int) -> str:
+    return f"musha_shop_{shop_id}"
+
+
+def role_of(keys: dict[str, str], offered: str) -> str | None:
+    """The highest role this key opens."""
+    if not offered:
+        return None
+    for role in reversed(ROLES):
+        if keys[role] and hmac.compare_digest(offered.encode(), keys[role].encode()):
+            return role
+    return None
+
+
+def level_of(request: Request, shop: Shop) -> int:
+    """How far the caller reaches into this shop: an index into ROLES, -1 for nowhere."""
+    keys = keys_of(shop)
+    if not keys["owner"]:
+        return len(ROLES) - 1  # a shop without keys is open: the server's own, for local runs
+    found = [role_of(keys, request.headers.get(KEY_HEADER, "")),
+             role_of(keys, request.cookies.get(cookie_name(shop.id), ""))]
+    return max((ROLES.index(r) for r in found if r), default=-1)
+
+
+def allow(request: Request, shop: Shop, role: str):
+    if level_of(request, shop) < ROLES.index(role):
+        raise HTTPException(403, FORBIDDEN)
+
+
+def shop_for(role: str):
+    """A dependency: the shop in the path, opened to `role` and above."""
+    def dependency(request: Request, shop_id: ShopId, session: Session = Depends(db)) -> Shop:
+        shop = shop_or_404(session, shop_id)
+        allow(request, shop, role)
+        return shop
+    return dependency
+
+
+def request_for(role: str):
+    """A dependency: the request in the path, opened to `role` and above in its shop."""
+    def dependency(request: Request, request_id: RequestId, session: Session = Depends(db)) -> SpendRequest:
+        req = request_or_404(session, request_id)
+        allow(request, req.shop, role)
+        return req
+    return dependency
+
+
+def remember(response: Response, request: Request, shop_id: int, key: str):
+    """Keep a shop's key in this browser: sent with every call and every picture, read by no script."""
+    https = request.url.scheme == "https" or \
+        request.headers.get("x-forwarded-proto", "").split(",")[0].strip() == "https"
+    response.set_cookie(cookie_name(shop_id), key, max_age=KEY_DAYS * 86400, path="/api",
+                        httponly=True, samesite="strict", secure=https)
+
+
+# Rates
+
+def client_of(request: Request) -> str:
+    """The visitor's address. Behind Render's proxy it is the first X-Forwarded-For entry."""
+    forwarded = request.headers.get("x-forwarded-for", "")
+    if forwarded:
+        return forwarded.split(",")[0].strip()[:64]
+    return request.client.host if request.client else "?"
+
+
+def limit(name: str, capacity: int, per_seconds: float, *, by: str = "shop"):
+    """A dependency: a token bucket of `capacity` calls refilled over `per_seconds`, kept per app.
+    `by` is "shop" (the shop or request in the path), "client" (the caller's address) or "all"."""
+    rate = capacity / per_seconds
+
+    def dependency(request: Request):
+        state = request.app.state
+        buckets = getattr(state, "musha_buckets", None)
+        if buckets is None:
+            buckets = state.musha_buckets = {}
+        if by == "client":
+            who = client_of(request)
+        elif by == "all":
+            who = "*"
+        else:
+            p = request.path_params
+            who = f"shop:{p['shop_id']}" if "shop_id" in p else f"request:{p.get('request_id', '?')}"
+        key, at = (name, who), time.monotonic()
+        tokens, then = buckets.get(key, (float(capacity), at))
+        tokens = min(float(capacity), tokens + (at - then) * rate)
+        if tokens < 1:
+            wait = max(1, int((1 - tokens) / rate + 0.999))
+            buckets[key] = (tokens, at)
+            raise HTTPException(429, f"Musha is busy for a moment. Try again in {wait} seconds.",
+                                headers={"Retry-After": str(wait)})
+        buckets[key] = (tokens - 1, at)
+        if len(buckets) > 50_000:  # a crowd of one-off callers; their buckets are full again by now
+            buckets.clear()
+
+    return dependency
+
+
+# Bodies: registered on the app in api.py
+
+TOO_LARGE = "That is more than Musha takes in one go. Files go up to 8 MB."
+
+
+class _TooLarge(HTTPException):
+    """Raised from inside the body as it streams in: FastAPI passes an HTTPException through as it is."""
+
+    def __init__(self):
+        super().__init__(413, TOO_LARGE)
+
+
+class BodyLimit:
+    """ASGI middleware: a multipart upload stops past `multipart` bytes and any other body past
+    `other`, before a parser spools it or reads it into memory. A declared Content-Length over the
+    limit is refused unread; a streamed body is counted as it arrives."""
+
+    def __init__(self, app, *, multipart: int = 9_000_000, other: int = 64_000):
+        self.app, self.multipart, self.other = app, multipart, other
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        headers = dict(scope.get("headers") or [])
+        kind = headers.get(b"content-type", b"").decode("latin-1").lower()
+        cap = self.multipart if kind.startswith("multipart/") else self.other
+        declared = headers.get(b"content-length", b"")
+        if declared.isdigit() and int(declared) > cap:
+            return await _too_large(send)
+        received, started = 0, False
+
+        async def counted():
+            nonlocal received
+            message = await receive()
+            if message.get("type") == "http.request":
+                received += len(message.get("body", b""))
+                if received > cap:
+                    raise _TooLarge()
+            return message
+
+        async def watched(message):
+            nonlocal started
+            if message.get("type") == "http.response.start":
+                started = True
+            await send(message)
+
+        try:
+            await self.app(scope, counted, watched)
+        except _TooLarge:
+            if not started:
+                await _too_large(send)
+
+
+async def _too_large(send):
+    body = json.dumps({"detail": TOO_LARGE}).encode()
+    await send({"type": "http.response.start", "status": 413,
+                "headers": [(b"content-type", b"application/json"), (b"content-length", str(len(body)).encode())]})
+    await send({"type": "http.response.body", "body": body})
+
+
+async def validation_errors(request: Request, exc: RequestValidationError) -> JSONResponse:
+    """A bad body comes back as what was wrong with it, never as the body itself."""
+    errors = [{k: v for k, v in e.items() if k in ("type", "loc", "msg")} for e in exc.errors()]
+    return JSONResponse({"detail": errors}, status_code=422)
+
+
+# Routes
 
 @router.get("/health")
-def health():
+def health(session: Session = Depends(db)):
+    """Render's health check: the app answers and its database answers."""
+    session.scalar(select(Shop.id).limit(1))
     return {"ok": True}
 
 
@@ -45,41 +301,65 @@ def config(s: Settings = Depends(settings), m=Depends(model)):
             "currency": s.currency, "ai": {"enabled": m.enabled, "model": m.model}}
 
 
-@router.post("/demo/shops", status_code=201)
-def new_demo_shop(session: Session = Depends(db)):
-    """Every visitor gets a shop of their own, seeded with the same family and history."""
+@router.post("/demo/shops", status_code=201, dependencies=[
+    Depends(limit("demo_shop", 6, 3600, by="client")), Depends(limit("demo_shops", 200, 3600, by="all"))])
+def new_demo_shop(request: Request, response: Response, session: Session = Depends(db)):
+    """Every visitor gets a shop of their own, seeded with the same family and history. The answer
+    carries the shop's keys: the counter phone's goes in the counter link, the manager's in the
+    manager's. This browser keeps the owner key in a cookie."""
     from ..seed import seed
 
     shop = seed(session)
-    return shop_view(session, shop)
+    keys = issue_keys(shop)
+    if keys:
+        session.commit()
+        remember(response, request, shop.id, keys["owner"])
+    return {**shop_view(session, shop), "keys": keys}
+
+
+@router.post("/shops/{shop_id}/join", dependencies=[Depends(limit("join", 10, 60))])
+def join(shop_id: ShopId, body: Join, request: Request, response: Response, session: Session = Depends(db)):
+    """Another device opens a shop with a key it was given, from a counter or manager link."""
+    shop = shop_or_404(session, shop_id)
+    role = role_of(keys_of(shop), body.key.strip())
+    if role is None:
+        raise HTTPException(403, FORBIDDEN)
+    if level_of(request, shop) < ROLES.index(role):  # a browser holding a wider key keeps it
+        remember(response, request, shop.id, body.key.strip())
+    return {"role": role, "shop": shop_view(session, shop)}
 
 
 @router.get("/shops/{shop_id}")
-def shop(shop_id: int, session: Session = Depends(db)):
-    return shop_view(session, shop_or_404(session, shop_id))
+def one_shop(request: Request, shop: Shop = Depends(shop_for("counter")), session: Session = Depends(db)):
+    """The shop, and what the caller's key opens in it: the console needs the owner's."""
+    return {**shop_view(session, shop), "role": ROLES[level_of(request, shop)]}
+
+
+def _view(req: SpendRequest) -> dict:
+    from .. import proof
+
+    return {**request_view(req), "proving": req.id in proof.PROVING}
 
 
 @router.get("/shops/{shop_id}/requests")
-def requests(shop_id: int, session: Session = Depends(db)):
-    shop_or_404(session, shop_id)
-    return [request_view(r) for r in requests_for(session, shop_id)]
+def requests(shop: Shop = Depends(shop_for("manager")), session: Session = Depends(db)):
+    return [_view(r) for r in requests_for(session, shop.id)]
 
 
 @router.get("/requests/{request_id}")
-def one_request(request_id: int, session: Session = Depends(db)):
-    return request_view(request_or_404(session, request_id))
+def one_request(req: SpendRequest = Depends(request_for("manager"))):
+    return _view(req)
 
 
-@router.post("/shops/{shop_id}/requests", status_code=201)
-async def new_request(shop_id: int, body: NewRequest, session: Session = Depends(db),
-                      pp=Depends(paypal), m=Depends(model)):
+@router.post("/shops/{shop_id}/requests", status_code=201, dependencies=[Depends(limit("requests", 20, 60))])
+async def new_request(body: NewRequest, shop: Shop = Depends(shop_for("manager")),
+                      session: Session = Depends(db), pp=Depends(paypal), m=Depends(model)):
     from .. import agent
 
-    shop = shop_or_404(session, shop_id)
     try:
         req = flows.create_request(session, shop, kind=body.kind, item=body.item,
                                    quantity=body.quantity, unit=body.unit,
-                                   amount_cents=to_cents(body.amount), payee=body.payee,
+                                   amount_cents=cents_of(body.amount), payee=body.payee,
                                    words=body.words, language=shop.manager.language if body.words else "en")
     except flows.FlowError as e:
         raise HTTPException(422, str(e))
@@ -87,71 +367,117 @@ async def new_request(shop_id: int, body: NewRequest, session: Session = Depends
     return request_view(req)
 
 
-@router.post("/requests/{request_id}/order")
-async def order(request_id: int, session: Session = Depends(db), pp=Depends(paypal)):
-    req = request_or_404(session, request_id)
+@router.post("/requests/{request_id}/order", dependencies=[Depends(limit("order", 20, 60))])
+async def order(req: SpendRequest = Depends(request_for("owner")), session: Session = Depends(db),
+                pp=Depends(paypal)):
     return {"order_id": await guarded(flows.open_order(session, pp, req))}
 
 
-@router.post("/requests/{request_id}/authorize")
-async def authorize(request_id: int, session: Session = Depends(db), pp=Depends(paypal)):
-    req = request_or_404(session, request_id)
+@router.post("/requests/{request_id}/authorize", dependencies=[Depends(limit("authorize", 20, 60))])
+async def authorize(req: SpendRequest = Depends(request_for("owner")), session: Session = Depends(db),
+                    pp=Depends(paypal)):
     await guarded(flows.authorize(session, pp, req))
     return request_view(req)
 
 
-@router.post("/requests/{request_id}/settle")
-async def settle(request_id: int, body: Settle, session: Session = Depends(db), pp=Depends(paypal)):
+@router.post("/requests/{request_id}/settle", dependencies=[Depends(limit("settle", 20, 60))])
+async def settle(body: Settle, req: SpendRequest = Depends(request_for("owner")),
+                 session: Session = Depends(db), pp=Depends(paypal)):
     """The owner's own hand on the money: release a given amount, or return it all with zero."""
-    req = request_or_404(session, request_id)
-    return await guarded(flows.settle(session, pp, req, spent_cents=to_cents(body.spent),
+    return await guarded(flows.settle(session, pp, req, spent_cents=cents_of(body.spent, zero=True),
                                       reason=body.reason))
 
 
-@router.post("/shops/{shop_id}/wages")
-async def wages(shop_id: int, body: Wages, session: Session = Depends(db), pp=Depends(paypal)):
-    shop = shop_or_404(session, shop_id)
-    payout = await guarded(flows.pay_wages(session, pp, shop, cents=to_cents(body.amount),
-                                           note=body.note))
-    return {"batch_id": payout.batch_id, "status": payout.status}
+@router.post("/shops/{shop_id}/wages", dependencies=[Depends(limit("wages", 10, 60))])
+async def wages(body: Wages, shop: Shop = Depends(shop_for("owner")), session: Session = Depends(db)):
+    """Wages for the manager, from the owner's own PayPal: a request she approves with PayPal like
+    any other. Once PayPal holds it, Musha captures it and pays the manager by Payouts."""
+    try:
+        req = flows.ask_wages(session, shop, cents=cents_of(body.amount), note=body.note)
+    except flows.FlowError as e:
+        raise HTTPException(422, str(e))
+    return {"request_id": req.id, "status": req.status, "batch_id": flows.release_batch(req),
+            "request": request_view(req)}
 
 
 @router.get("/shops/{shop_id}/ledger")
-def books(shop_id: int, session: Session = Depends(db)):
-    shop_or_404(session, shop_id)
+def books(shop: Shop = Depends(shop_for("manager")), session: Session = Depends(db)):
     return [{
         "id": e.id, "at": iso(e.at), "kind": e.kind, "amount_cents": e.amount_cents,
         "item": e.item, "quantity": e.quantity, "memo": e.memo, "source": e.source,
         "request_id": e.request_id,
-    } for e in ledger.entries(session, shop_id)]
+    } for e in ledger.entries(session, shop.id)]
+
+
+LOCALIZE_WAIT = 1.5  # seconds a poll waits for the manager's language; the next poll brings the rest
+_localizing: set[asyncio.Task] = set()
 
 
 @router.get("/shops/{shop_id}/messages")
-async def messages(shop_id: int, thread: str = "manager", session: Session = Depends(db),
-                   m=Depends(model)):
-    from .. import bridge
-
+async def messages(request: Request, shop_id: ShopId, thread: str = Query("manager", pattern="^(manager|owner)$"),
+                   session: Session = Depends(db), m=Depends(model)):
+    """A thread's lines. The manager's thread is put in the manager's language: a translation that
+    takes longer than a moment carries on after the answer, and the next poll shows it."""
     shop = shop_or_404(session, shop_id)
-    await bridge.localize_pending(session, m, shop)
-    rows = session.scalars(select(Message).where(Message.shop_id == shop_id, Message.thread == thread)
+    allow(request, shop, "owner" if thread == "owner" else "manager")
+    if thread == "manager":
+        await _localize(request.app, m, shop.id)
+    rows = session.scalars(select(Message).where(Message.shop_id == shop.id, Message.thread == thread)
                            .order_by(Message.id))
     return [message_view(x) for x in rows]
+
+
+async def _localize(app, m, shop_id: int):
+    from .. import bridge
+
+    async def run():
+        with app.state.sessions() as s:
+            shop = s.get(Shop, shop_id)
+            if shop is not None:
+                await bridge.localize_pending(s, m, shop)
+
+    task = asyncio.ensure_future(run())
+    _localizing.add(task)
+    task.add_done_callback(_settled)
+    try:
+        await asyncio.wait_for(asyncio.shield(task), LOCALIZE_WAIT)
+    except asyncio.TimeoutError:
+        pass
+    except Exception as e:  # the lines go out in English; the next poll tries again
+        log.warning("translating for shop %s: %r", shop_id, e)
+
+
+def _settled(task: asyncio.Task):
+    _localizing.discard(task)
+    if not task.cancelled() and task.exception() is not None:
+        log.warning("translating in the background: %r", task.exception())
 
 
 @router.post("/paypal/webhook")
 async def paypal_webhook(request: Request, session: Session = Depends(db), pp=Depends(paypal),
                          s: Settings = Depends(settings)):
+    """PayPal's events. The signature is checked against the body exactly as PayPal sent it."""
     if not s.paypal_webhook_id:
         raise HTTPException(503, "Set PAYPAL_WEBHOOK_ID to receive webhooks.")
-    event = await request.json()
-    if not await guarded(pp.verify_webhook(dict(request.headers), event)):
+    raw = await request.body()
+    try:
+        event = json.loads(raw)
+    except ValueError:
+        raise HTTPException(400, "A webhook is a JSON event.")
+    if not isinstance(event, dict):
+        raise HTTPException(400, "A webhook is a JSON event.")
+    if not await guarded(pp.verify_webhook(dict(request.headers), raw)):
         raise HTTPException(400, "Webhook signature failed.")
-    return {"outcome": webhooks.handle(session, event)}
+    handled = webhooks.handle(session, event)
+    # A capture PayPal finished on its own time, and this event booked: close the rest, pay the shop.
+    if not await webhooks.follow_up(session, pp, handled):
+        raise HTTPException(503, "Musha needs this event again. PayPal sends it again on its own.")
+    return {"outcome": handled.outcome}
 
 
 @router.post("/jobs/holds")
 async def hold_jobs(session: Session = Depends(db), pp=Depends(paypal), s: Settings = Depends(settings),
                     x_jobs_key: str = Header(default="")):
-    if not s.jobs_key or x_jobs_key != s.jobs_key:
+    if not s.jobs_key or not hmac.compare_digest(x_jobs_key.encode(), s.jobs_key.encode()):
         raise HTTPException(403, "Jobs key required.")
     return {"done": await guarded(flows.run_due(session, pp))}

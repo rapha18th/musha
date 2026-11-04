@@ -6,6 +6,7 @@ and it labels the call in the logs. When no key or project is set, Musha runs
 without a model: `enabled` is False and both calls return None, so every
 caller keeps a plain fallback.
 """
+import asyncio
 import json
 import logging
 import time
@@ -25,6 +26,48 @@ class Blob:
 
 
 Part = str | Blob
+
+# Light tasks run with low thinking: a person waits on each, and each reads short text. The
+# proof engine's question and its weighing of an answer run inside the manager's message. The goods
+# check runs beside the receipt read inside a 15 s cap; at low thinking it judged the right goods,
+# the wrong goods and a short count the same as at the default, in a third of the time.
+QUICK = {"localize", "transcribe", "read_message", "camera.read", "owner_answer",
+         "proof_question", "proof_answer", "goods_check"}
+# A call that runs past this is dropped and the caller falls back, so a request never hangs on the model.
+TIMEOUT = {"quick": 40.0, "other": 90.0}
+_LATE = object()
+
+
+async def _within(aw, seconds: float):
+    """The awaitable's result, or _LATE once `seconds` pass. A late call is cancelled and left
+    behind, so a call that ignores cancellation never holds its caller."""
+    task = asyncio.ensure_future(aw)
+    try:
+        done, _ = await asyncio.wait({task}, timeout=max(0.0, seconds))
+    except asyncio.CancelledError:
+        task.cancel()
+        raise
+    if task in done:
+        return task.result()
+    task.cancel()
+    _left.add(task)  # the loop keeps tasks weakly; this keeps a late one until it ends
+    task.add_done_callback(_forget)
+    return _LATE
+
+
+_left: set[asyncio.Future] = set()
+
+
+def _forget(task: asyncio.Future) -> None:
+    _left.discard(task)
+    if not task.cancelled():
+        task.exception()  # read, so a late failure stays quiet
+
+
+async def bounded(aw, seconds: float, default=None):
+    """The awaitable's result, or `default` once `seconds` pass. An error inside it raises."""
+    out = await _within(aw, seconds)
+    return default if out is _LATE else out
 
 
 class Gemini:
@@ -51,7 +94,7 @@ class Gemini:
 
         config = types.GenerateContentConfig(
             response_mime_type="application/json", response_json_schema=schema,
-            system_instruction=system or None)
+            system_instruction=system or None, thinking_config=self._thinking(task))
         text = await self._generate(task, parts, config)
         if text is None:
             return None
@@ -64,17 +107,27 @@ class Gemini:
     async def text(self, task: str, parts: list[Part], *, system: str = "") -> str | None:
         from google.genai import types
 
-        config = types.GenerateContentConfig(system_instruction=system or None)
+        config = types.GenerateContentConfig(system_instruction=system or None,
+                                             thinking_config=self._thinking(task))
         text = await self._generate(task, parts, config)
         return text.strip() if text else None
 
+    def _thinking(self, task: str):
+        from google.genai import types
+
+        return types.ThinkingConfig(thinking_level="low") if task in QUICK else None
+
     async def _generate(self, task: str, parts: list[Part], config) -> str | None:
         started = time.monotonic()
+        limit = TIMEOUT["quick" if task in QUICK else "other"]
         try:
-            r = await self.client.aio.models.generate_content(
-                model=self.model, contents=self._contents(parts), config=config)
+            r = await _within(self.client.aio.models.generate_content(
+                model=self.model, contents=self._contents(parts), config=config), limit)
         except Exception as e:  # the model is a witness, never a single point of failure
             log.warning("ai %s failed: %s", task, e)
+            return None
+        if r is _LATE:
+            log.warning("ai %s failed: no answer in %.0fs", task, limit)
             return None
         log.info("ai %s %.1fs", task, time.monotonic() - started)
         return r.text

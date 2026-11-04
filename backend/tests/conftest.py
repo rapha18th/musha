@@ -3,14 +3,22 @@ import pytest
 import respx
 from fastapi.testclient import TestClient
 
+from musha import flows
 from musha.ai import Scripted
 from musha.api import create_app
 from musha.config import SANDBOX_BASE, Settings
+from musha.models import SpendRequest
 from musha.paypal import PayPal
 from musha.seed import reset
 
 AUTH_ID = "AUTH-1"
 ORDER_ID = "ORDER-1"
+
+
+def request_key(app, kind: str, rid: int) -> str:
+    """The PayPal-Request-Id Musha sends for one step of request `rid`."""
+    with app.state.sessions() as s:
+        return flows.key(kind, s.get(SpendRequest, rid))
 
 
 @pytest.fixture
@@ -34,6 +42,8 @@ def sandbox():
                 "expiration_time": "2099-01-01T00:00:00Z"}]}}]})
         mock.post(url__regex=r".*/v2/payments/authorizations/[^/]+/capture").mock(side_effect=_capture)
         mock.post(url__regex=r".*/v2/payments/authorizations/[^/]+/void").respond(204)
+        mock.get(url__regex=r".*/v2/payments/authorizations/[^/]+$").respond(
+            200, json={"id": AUTH_ID, "status": "CAPTURED"})
         mock.post(url__regex=r".*/v2/payments/authorizations/[^/]+/reauthorize").respond(
             201, json={"id": "AUTH-2", "status": "CREATED"})
         mock.post("/v1/payments/payouts").respond(201, json={"batch_header": {

@@ -1,0 +1,6184 @@
+{
+ "seed": 2026,
+ "shop": {
+  "name": "Chipo's Tuck Shop",
+  "place": "Mbare, Harare",
+  "owner": "Chipo",
+  "manager": "Farai",
+  "products": [
+   {
+    "name": "eggs",
+    "unit": "trays",
+    "sell_cents": 550,
+    "usual_payee": "Mbare wholesale",
+    "pack": 10
+   },
+   {
+    "name": "bread",
+    "unit": "loaves",
+    "sell_cents": 110,
+    "usual_payee": "Mbare bakery",
+    "pack": 20
+   },
+   {
+    "name": "cooking oil",
+    "unit": "2 L bottles",
+    "sell_cents": 450,
+    "usual_payee": "Mbare wholesale",
+    "pack": 6
+   },
+   {
+    "name": "sugar",
+    "unit": "2 kg packs",
+    "sell_cents": 230,
+    "usual_payee": "Mbare wholesale",
+    "pack": 10
+   },
+   {
+    "name": "mealie meal",
+    "unit": "10 kg bags",
+    "sell_cents": 780,
+    "usual_payee": "Siyaso traders",
+    "pack": 5
+   },
+   {
+    "name": "rice",
+    "unit": "2 kg packs",
+    "sell_cents": 320,
+    "usual_payee": "Gulf cash and carry",
+    "pack": 10
+   },
+   {
+    "name": "salt",
+    "unit": "1 kg packs",
+    "sell_cents": 70,
+    "usual_payee": "Gulf cash and carry",
+    "pack": 12
+   },
+   {
+    "name": "bath soap",
+    "unit": "bars",
+    "sell_cents": 80,
+    "usual_payee": "Magaba general dealers",
+    "pack": 24
+   },
+   {
+    "name": "candles",
+    "unit": "packs",
+    "sell_cents": 150,
+    "usual_payee": "Magaba general dealers",
+    "pack": 10
+   },
+   {
+    "name": "tomatoes",
+    "unit": "crates",
+    "sell_cents": 1500,
+    "usual_payee": "Musika fresh produce",
+    "pack": 2
+   }
+  ],
+  "price_history": [
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 250,
+    "bought_at": "2026-05-04T07:19:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 185,
+    "bought_at": "2026-05-04T07:23:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1150,
+    "bought_at": "2026-05-04T07:59:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 630,
+    "bought_at": "2026-05-04T08:07:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 85,
+    "bought_at": "2026-05-04T08:42:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-05-04T08:51:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-05-04T09:04:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 45,
+    "bought_at": "2026-05-04T09:34:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 365,
+    "bought_at": "2026-05-04T11:39:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 450,
+    "bought_at": "2026-05-04T11:55:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-05-11T07:28:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-05-11T07:51:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-05-11T08:04:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 380,
+    "bought_at": "2026-05-11T08:09:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 445,
+    "bought_at": "2026-05-11T08:12:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 185,
+    "bought_at": "2026-05-11T08:28:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 365,
+    "bought_at": "2026-05-11T08:41:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 625,
+    "bought_at": "2026-05-11T09:30:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Siyaso traders",
+    "unit_cents": 185,
+    "bought_at": "2026-05-11T10:16:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 255,
+    "bought_at": "2026-05-11T10:53:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 475,
+    "bought_at": "2026-05-11T11:25:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 85,
+    "bought_at": "2026-05-11T11:27:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1150,
+    "bought_at": "2026-05-11T11:36:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-05-18T07:19:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 185,
+    "bought_at": "2026-05-18T07:35:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 360,
+    "bought_at": "2026-05-18T07:42:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-05-18T08:10:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 260,
+    "bought_at": "2026-05-18T09:41:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1155,
+    "bought_at": "2026-05-18T09:41:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-05-18T09:42:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 90,
+    "bought_at": "2026-05-18T10:54:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 445,
+    "bought_at": "2026-05-18T11:45:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 640,
+    "bought_at": "2026-05-18T11:51:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 370,
+    "bought_at": "2026-05-25T07:00:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 85,
+    "bought_at": "2026-05-25T07:04:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 445,
+    "bought_at": "2026-05-25T07:45:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-05-25T07:57:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 375,
+    "bought_at": "2026-05-25T08:21:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1150,
+    "bought_at": "2026-05-25T08:27:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 180,
+    "bought_at": "2026-05-25T08:59:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-05-25T09:15:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-05-25T09:33:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Siyaso traders",
+    "unit_cents": 185,
+    "bought_at": "2026-05-25T10:37:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 635,
+    "bought_at": "2026-05-25T11:44:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 470,
+    "bought_at": "2026-05-25T11:48:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 255,
+    "bought_at": "2026-05-25T11:55:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-06-01T07:28:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-06-01T07:43:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 370,
+    "bought_at": "2026-06-01T07:47:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 185,
+    "bought_at": "2026-06-01T08:45:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 85,
+    "bought_at": "2026-06-01T09:17:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 640,
+    "bought_at": "2026-06-01T09:23:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 445,
+    "bought_at": "2026-06-01T11:22:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-06-01T11:23:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1170,
+    "bought_at": "2026-06-01T11:35:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 255,
+    "bought_at": "2026-06-01T11:47:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 255,
+    "bought_at": "2026-06-08T07:11:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-06-08T08:31:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Siyaso traders",
+    "unit_cents": 190,
+    "bought_at": "2026-06-08T09:19:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 460,
+    "bought_at": "2026-06-08T10:12:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 85,
+    "bought_at": "2026-06-08T10:25:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-06-08T10:29:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 360,
+    "bought_at": "2026-06-08T10:30:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 475,
+    "bought_at": "2026-06-08T10:35:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1170,
+    "bought_at": "2026-06-08T11:05:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 375,
+    "bought_at": "2026-06-08T11:18:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 185,
+    "bought_at": "2026-06-08T11:26:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-06-08T11:37:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 645,
+    "bought_at": "2026-06-08T11:53:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1170,
+    "bought_at": "2026-06-15T07:04:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-06-15T07:10:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-06-15T07:45:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 370,
+    "bought_at": "2026-06-15T08:39:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 255,
+    "bought_at": "2026-06-15T09:00:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 445,
+    "bought_at": "2026-06-15T09:58:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 85,
+    "bought_at": "2026-06-15T11:05:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 120,
+    "bought_at": "2026-06-15T11:27:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 635,
+    "bought_at": "2026-06-15T11:47:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 185,
+    "bought_at": "2026-06-15T11:52:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 635,
+    "bought_at": "2026-06-22T07:13:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 375,
+    "bought_at": "2026-06-22T08:07:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Siyaso traders",
+    "unit_cents": 195,
+    "bought_at": "2026-06-22T08:22:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 445,
+    "bought_at": "2026-06-22T09:08:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 360,
+    "bought_at": "2026-06-22T09:16:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-06-22T09:32:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1155,
+    "bought_at": "2026-06-22T10:02:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 465,
+    "bought_at": "2026-06-22T10:23:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 255,
+    "bought_at": "2026-06-22T10:32:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-06-22T10:33:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 185,
+    "bought_at": "2026-06-22T10:58:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-06-22T11:08:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 85,
+    "bought_at": "2026-06-22T11:40:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 365,
+    "bought_at": "2026-06-29T07:32:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-06-29T08:02:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-06-29T08:18:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 635,
+    "bought_at": "2026-06-29T08:33:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 260,
+    "bought_at": "2026-06-29T09:11:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1175,
+    "bought_at": "2026-06-29T09:26:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 85,
+    "bought_at": "2026-06-29T09:37:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 185,
+    "bought_at": "2026-06-29T10:50:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-06-29T11:05:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 450,
+    "bought_at": "2026-06-29T11:11:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 445,
+    "bought_at": "2026-07-06T07:05:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 250,
+    "bought_at": "2026-07-06T07:32:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 370,
+    "bought_at": "2026-07-06T08:09:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Siyaso traders",
+    "unit_cents": 190,
+    "bought_at": "2026-07-06T08:10:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1165,
+    "bought_at": "2026-07-06T08:23:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-07-06T08:56:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 85,
+    "bought_at": "2026-07-06T09:08:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-07-06T09:28:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 185,
+    "bought_at": "2026-07-06T09:35:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-07-06T09:39:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 375,
+    "bought_at": "2026-07-06T10:37:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 635,
+    "bought_at": "2026-07-06T10:52:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 475,
+    "bought_at": "2026-07-06T11:11:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 185,
+    "bought_at": "2026-07-13T07:13:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 645,
+    "bought_at": "2026-07-13T07:47:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 445,
+    "bought_at": "2026-07-13T07:56:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-07-13T08:15:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 365,
+    "bought_at": "2026-07-13T08:33:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1160,
+    "bought_at": "2026-07-13T08:37:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 255,
+    "bought_at": "2026-07-13T09:11:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-07-13T09:49:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 85,
+    "bought_at": "2026-07-13T11:39:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-07-13T11:57:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 190,
+    "bought_at": "2026-07-20T07:13:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 445,
+    "bought_at": "2026-07-20T07:41:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 650,
+    "bought_at": "2026-07-20T07:48:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 255,
+    "bought_at": "2026-07-20T09:29:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1175,
+    "bought_at": "2026-07-20T09:50:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-07-20T10:43:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 90,
+    "bought_at": "2026-07-20T10:53:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-07-20T10:54:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 385,
+    "bought_at": "2026-07-20T11:11:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 475,
+    "bought_at": "2026-07-20T11:15:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 365,
+    "bought_at": "2026-07-20T11:23:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Siyaso traders",
+    "unit_cents": 185,
+    "bought_at": "2026-07-20T11:31:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-07-20T11:44:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 185,
+    "bought_at": "2026-07-27T07:26:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-07-27T07:29:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 250,
+    "bought_at": "2026-07-27T07:32:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 90,
+    "bought_at": "2026-07-27T08:02:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 650,
+    "bought_at": "2026-07-27T09:20:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1180,
+    "bought_at": "2026-07-27T10:19:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 355,
+    "bought_at": "2026-07-27T10:44:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-07-27T10:55:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-07-27T11:37:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 445,
+    "bought_at": "2026-07-27T12:00:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 190,
+    "bought_at": "2026-08-03T07:37:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 250,
+    "bought_at": "2026-08-03T07:54:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Siyaso traders",
+    "unit_cents": 190,
+    "bought_at": "2026-08-03T08:06:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-08-03T08:33:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 360,
+    "bought_at": "2026-08-03T09:42:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-08-03T09:55:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-08-03T10:19:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 640,
+    "bought_at": "2026-08-03T10:47:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 85,
+    "bought_at": "2026-08-03T11:00:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 435,
+    "bought_at": "2026-08-03T11:11:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1165,
+    "bought_at": "2026-08-03T11:20:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 480,
+    "bought_at": "2026-08-03T11:43:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 390,
+    "bought_at": "2026-08-03T11:54:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-08-10T08:04:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1140,
+    "bought_at": "2026-08-10T08:20:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 255,
+    "bought_at": "2026-08-10T08:34:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-08-10T09:08:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-08-10T09:21:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 355,
+    "bought_at": "2026-08-10T09:28:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 185,
+    "bought_at": "2026-08-10T10:12:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 90,
+    "bought_at": "2026-08-10T10:39:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 630,
+    "bought_at": "2026-08-10T11:06:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 440,
+    "bought_at": "2026-08-10T11:53:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 255,
+    "bought_at": "2026-08-17T07:30:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-08-17T08:01:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 190,
+    "bought_at": "2026-08-17T08:40:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-08-17T09:02:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 645,
+    "bought_at": "2026-08-17T09:27:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-08-17T10:04:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1185,
+    "bought_at": "2026-08-17T10:14:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 450,
+    "bought_at": "2026-08-17T10:35:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 465,
+    "bought_at": "2026-08-17T10:36:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 365,
+    "bought_at": "2026-08-17T10:42:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Siyaso traders",
+    "unit_cents": 190,
+    "bought_at": "2026-08-17T11:07:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 90,
+    "bought_at": "2026-08-17T11:27:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 390,
+    "bought_at": "2026-08-17T11:58:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 90,
+    "bought_at": "2026-08-24T07:25:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 255,
+    "bought_at": "2026-08-24T07:54:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 445,
+    "bought_at": "2026-08-24T08:54:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-08-24T10:13:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 185,
+    "bought_at": "2026-08-24T10:19:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1180,
+    "bought_at": "2026-08-24T10:21:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-08-24T10:24:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 645,
+    "bought_at": "2026-08-24T10:32:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-08-24T10:38:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 355,
+    "bought_at": "2026-08-24T11:14:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 440,
+    "bought_at": "2026-08-31T07:52:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Siyaso traders",
+    "unit_cents": 190,
+    "bought_at": "2026-08-31T08:36:00Z"
+   },
+   {
+    "item": "candles",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 115,
+    "bought_at": "2026-08-31T08:53:00Z"
+   },
+   {
+    "item": "rice",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 250,
+    "bought_at": "2026-08-31T09:15:00Z"
+   },
+   {
+    "item": "salt",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 50,
+    "bought_at": "2026-08-31T09:41:00Z"
+   },
+   {
+    "item": "mealie meal",
+    "supplier": "Siyaso traders",
+    "unit_cents": 635,
+    "bought_at": "2026-08-31T09:56:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 395,
+    "bought_at": "2026-08-31T10:02:00Z"
+   },
+   {
+    "item": "sugar",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 190,
+    "bought_at": "2026-08-31T10:30:00Z"
+   },
+   {
+    "item": "eggs",
+    "supplier": "Gulf cash and carry",
+    "unit_cents": 470,
+    "bought_at": "2026-08-31T10:56:00Z"
+   },
+   {
+    "item": "cooking oil",
+    "supplier": "Mbare wholesale",
+    "unit_cents": 360,
+    "bought_at": "2026-08-31T11:08:00Z"
+   },
+   {
+    "item": "bread",
+    "supplier": "Mbare bakery",
+    "unit_cents": 90,
+    "bought_at": "2026-08-31T11:54:00Z"
+   },
+   {
+    "item": "bath soap",
+    "supplier": "Magaba general dealers",
+    "unit_cents": 55,
+    "bought_at": "2026-08-31T11:56:00Z"
+   },
+   {
+    "item": "tomatoes",
+    "supplier": "Musika fresh produce",
+    "unit_cents": 1185,
+    "bought_at": "2026-08-31T11:58:00Z"
+   }
+  ]
+ },
+ "counts": {
+  "genuine": 40,
+  "inflated": 20,
+  "wrong_payee": 20,
+  "duplicate": 20,
+  "stale": 20
+ },
+ "cases": [
+  {
+   "id": "genuine-27",
+   "expected": "genuine",
+   "variant": "extra_line",
+   "request": {
+    "kind": "stock",
+    "item": "salt",
+    "quantity": 48,
+    "unit": "1 kg packs",
+    "hold_cents": 2700,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-09-07T08:31:00Z"
+   },
+   "uploaded_at": "2026-09-07T11:02:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003404",
+    "at": "2026-09-07T12:29:00",
+    "lines": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 48,
+      "unit_cents": 45
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 3,
+      "unit_cents": 15
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "2",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 2205
+   },
+   "photo": {
+    "seed": 812095142,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 50,
+   "note": "48 1 kg packs at 45 cents against a usual 50."
+  },
+  {
+   "id": "genuine-29",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "candles",
+    "quantity": 39,
+    "unit": "packs",
+    "hold_cents": 5000,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-09-07T11:56:00Z"
+   },
+   "uploaded_at": "2026-09-07T14:39:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027129",
+    "at": "2026-09-07T15:53:00",
+    "lines": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 39,
+      "unit_cents": 105
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "2",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 4095
+   },
+   "photo": {
+    "seed": 797341850,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 115,
+   "note": "39 packs at 105 cents against a usual 115."
+  },
+  {
+   "id": "genuine-38",
+   "expected": "genuine",
+   "variant": "known_other",
+   "request": {
+    "kind": "stock",
+    "item": "cooking oil",
+    "quantity": 24,
+    "unit": "2 L bottles",
+    "hold_cents": 10000,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-09-08T05:54:00Z"
+   },
+   "uploaded_at": "2026-09-08T07:37:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003444",
+    "at": "2026-09-08T09:14:00",
+    "lines": [
+     {
+      "name": "CKNG OIL 2LT",
+      "quantity": 24,
+      "unit_cents": 385
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 9240
+   },
+   "photo": {
+    "seed": 33365557,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 380,
+   "note": "24 2 L bottles at 385 cents against a usual 380."
+  },
+  {
+   "id": "wrong_payee-12",
+   "expected": "wrong_payee",
+   "variant": "known_supplier",
+   "request": {
+    "kind": "stock",
+    "item": "candles",
+    "quantity": 10,
+    "unit": "packs",
+    "hold_cents": 1300,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-09-08T10:40:00Z"
+   },
+   "uploaded_at": "2026-09-08T13:26:00Z",
+   "receipt": {
+    "payee": "Musika Fresh Produce",
+    "address": "Mbare Musika, Harare",
+    "receipt_no": "FP-00331",
+    "at": "2026-09-08T14:43:00",
+    "lines": [
+     {
+      "name": "candles (packs)",
+      "quantity": 10,
+      "unit_cents": 120
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "1",
+    "font": "liberation",
+    "business": "Musika fresh produce",
+    "total_cents": 1200
+   },
+   "photo": {
+    "seed": 246758866,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 115,
+   "note": "The request named Magaba general dealers; the receipt is from Musika fresh produce."
+  },
+  {
+   "id": "wrong_payee-15",
+   "expected": "wrong_payee",
+   "variant": "near_miss",
+   "request": {
+    "kind": "stock",
+    "item": "tomatoes",
+    "quantity": 4,
+    "unit": "crates",
+    "hold_cents": 5000,
+    "payee": "Musika fresh produce",
+    "approved_at": "2026-09-08T11:22:00Z"
+   },
+   "uploaded_at": "2026-09-08T13:59:00Z",
+   "receipt": {
+    "payee": "Mbare Fresh Market",
+    "address": "Mbare Musika, Harare",
+    "receipt_no": "MF 4423",
+    "at": "2026-09-08T14:57:00",
+    "lines": [
+     {
+      "name": "tomatoes (crates)",
+      "quantity": 4,
+      "unit_cents": 1175
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "2",
+    "font": "consolas",
+    "business": "Mbare fresh market",
+    "total_cents": 4700
+   },
+   "photo": {
+    "seed": 637712401,
+    "tilt": -7.1,
+    "light": "warm"
+   },
+   "usual_cents": 1177,
+   "note": "The request named Musika fresh produce; the receipt is from Mbare fresh market."
+  },
+  {
+   "id": "wrong_payee-07",
+   "expected": "wrong_payee",
+   "variant": "unknown",
+   "request": {
+    "kind": "stock",
+    "item": "cooking oil",
+    "quantity": 16,
+    "unit": "2 L bottles",
+    "hold_cents": 6500,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-09T07:39:00Z"
+   },
+   "uploaded_at": "2026-09-09T10:28:00Z",
+   "receipt": {
+    "payee": "Rufaro Supermarket",
+    "address": "Rufaro, Mbare, Harare",
+    "receipt_no": "120429",
+    "at": "2026-09-09T12:13:00",
+    "lines": [
+     {
+      "name": "cooking oil (2 L bottles)",
+      "quantity": 16,
+      "unit_cents": 340
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "2",
+    "font": "consolas",
+    "business": "Rufaro supermarket",
+    "total_cents": 5440
+   },
+   "photo": {
+    "seed": 328166719,
+    "tilt": 13.3,
+    "light": "shade"
+   },
+   "usual_cents": 360,
+   "note": "The request named Mbare wholesale; the receipt is from Rufaro supermarket."
+  },
+  {
+   "id": "genuine-25",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "rice",
+    "quantity": 40,
+    "unit": "2 kg packs",
+    "hold_cents": 10900,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-09-09T12:19:00Z"
+   },
+   "uploaded_at": "2026-09-09T13:38:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003481",
+    "at": "2026-09-09T15:27:00",
+    "lines": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 40,
+      "unit_cents": 250
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 10000
+   },
+   "photo": {
+    "seed": 663300762,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 255,
+   "note": "40 2 kg packs at 250 cents against a usual 255."
+  },
+  {
+   "id": "duplicate-13",
+   "expected": "duplicate",
+   "variant": "same_photo",
+   "request": {
+    "kind": "stock",
+    "item": "rice",
+    "quantity": 40,
+    "unit": "2 kg packs",
+    "hold_cents": 10900,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-09-09T15:51:00Z"
+   },
+   "uploaded_at": "2026-09-09T17:07:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003481",
+    "at": "2026-09-09T15:27:00",
+    "lines": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 40,
+      "unit_cents": 250
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 10000
+   },
+   "photo": {
+    "copy_of": "genuine-25"
+   },
+   "usual_cents": 255,
+   "note": "The receipt already sent for genuine-25."
+  },
+  {
+   "id": "genuine-12",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 21,
+    "unit": "2 kg packs",
+    "hold_cents": 4200,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-09T07:23:00Z"
+   },
+   "uploaded_at": "2026-09-10T07:57:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041253",
+    "at": "2026-09-09T13:05:00",
+    "lines": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 21,
+      "unit_cents": 190
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 3990
+   },
+   "photo": {
+    "seed": 200330228,
+    "tilt": null,
+    "light": "dim"
+   },
+   "usual_cents": 187,
+   "note": "21 2 kg packs at 190 cents against a usual 187."
+  },
+  {
+   "id": "inflated-19",
+   "expected": "inflated",
+   "variant": "inflated_request",
+   "request": {
+    "kind": "stock",
+    "item": "bread",
+    "quantity": 20,
+    "unit": "loaves",
+    "hold_cents": 2900,
+    "payee": "Mbare bakery",
+    "approved_at": "2026-09-10T10:29:00Z"
+   },
+   "uploaded_at": "2026-09-10T14:16:00Z",
+   "receipt": {
+    "payee": "Mbare Bakery",
+    "address": "Stand 3, Ardbennie Road, Mbare",
+    "receipt_no": "No. 8850",
+    "at": "2026-09-10T15:22:00",
+    "lines": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 20,
+      "unit_cents": 140
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "2",
+    "font": "lucida",
+    "business": "Mbare bakery",
+    "total_cents": 2800
+   },
+   "photo": {
+    "seed": 925686816,
+    "tilt": null,
+    "light": "shade"
+   },
+   "usual_cents": 90,
+   "note": "140 cents a unit, 56% above the usual 90."
+  },
+  {
+   "id": "inflated-15",
+   "expected": "inflated",
+   "variant": "inflated_request",
+   "request": {
+    "kind": "stock",
+    "item": "bath soap",
+    "quantity": 72,
+    "unit": "bars",
+    "hold_cents": 6300,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-09-10T09:44:00Z"
+   },
+   "uploaded_at": "2026-09-11T06:18:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027151",
+    "at": "2026-09-10T13:32:00",
+    "lines": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 72,
+      "unit_cents": 85
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "1",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 6120
+   },
+   "photo": {
+    "seed": 955000951,
+    "tilt": null,
+    "light": "dim"
+   },
+   "usual_cents": 55,
+   "note": "85 cents a unit, 55% above the usual 55."
+  },
+  {
+   "id": "wrong_payee-20",
+   "expected": "wrong_payee",
+   "variant": "unknown",
+   "request": {
+    "kind": "stock",
+    "item": "rice",
+    "quantity": 10,
+    "unit": "2 kg packs",
+    "hold_cents": 2900,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-09-10T08:43:00Z"
+   },
+   "uploaded_at": "2026-09-11T07:01:00Z",
+   "receipt": {
+    "payee": "Rufaro Supermarket",
+    "address": "Rufaro, Mbare, Harare",
+    "receipt_no": "120439",
+    "at": "2026-09-10T11:52:00",
+    "lines": [
+     {
+      "name": "rice (2 kg packs)",
+      "quantity": 10,
+      "unit_cents": 260
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "",
+    "font": "consolas",
+    "business": "Rufaro supermarket",
+    "total_cents": 2600
+   },
+   "photo": {
+    "seed": 181515556,
+    "tilt": null,
+    "light": "warm"
+   },
+   "usual_cents": 255,
+   "note": "The request named Gulf cash and carry; the receipt is from Rufaro supermarket."
+  },
+  {
+   "id": "genuine-07",
+   "expected": "genuine",
+   "variant": "next_days",
+   "request": {
+    "kind": "stock",
+    "item": "candles",
+    "quantity": 25,
+    "unit": "packs",
+    "hold_cents": 3100,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-09-09T06:34:00Z"
+   },
+   "uploaded_at": "2026-09-11T14:50:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027158",
+    "at": "2026-09-11T15:46:00",
+    "lines": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 25,
+      "unit_cents": 120
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "1",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 3000
+   },
+   "photo": {
+    "seed": 900827227,
+    "tilt": null,
+    "light": "shade"
+   },
+   "usual_cents": 115,
+   "note": "25 packs at 120 cents against a usual 115."
+  },
+  {
+   "id": "genuine-19",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "eggs",
+    "quantity": 10,
+    "unit": "trays",
+    "hold_cents": 5100,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-12T10:02:00Z"
+   },
+   "uploaded_at": "2026-09-12T11:24:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041303",
+    "at": "2026-09-12T12:32:00",
+    "lines": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 10,
+      "unit_cents": 425
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "3",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 4250
+   },
+   "photo": {
+    "seed": 164393407,
+    "tilt": 6.5,
+    "light": "dim"
+   },
+   "usual_cents": 445,
+   "note": "10 trays at 425 cents against a usual 445."
+  },
+  {
+   "id": "duplicate-02",
+   "expected": "duplicate",
+   "variant": "photographed_again",
+   "request": {
+    "kind": "stock",
+    "item": "eggs",
+    "quantity": 10,
+    "unit": "trays",
+    "hold_cents": 5100,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-12T12:03:00Z"
+   },
+   "uploaded_at": "2026-09-12T12:18:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041303",
+    "at": "2026-09-12T12:32:00",
+    "lines": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 10,
+      "unit_cents": 425
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "3",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 4250
+   },
+   "photo": {
+    "seed": 26883478,
+    "tilt": null,
+    "light": "warm",
+    "receipt_of": "genuine-19"
+   },
+   "usual_cents": 445,
+   "note": "The receipt already sent for genuine-19."
+  },
+  {
+   "id": "genuine-06",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "bath soap",
+    "quantity": 48,
+    "unit": "bars",
+    "hold_cents": 2800,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-09-13T06:19:00Z"
+   },
+   "uploaded_at": "2026-09-13T08:45:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027186",
+    "at": "2026-09-13T10:03:00",
+    "lines": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 48,
+      "unit_cents": 50
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "2",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 2400
+   },
+   "photo": {
+    "seed": 560279352,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 55,
+   "note": "48 bars at 50 cents against a usual 55."
+  },
+  {
+   "id": "duplicate-17",
+   "expected": "duplicate",
+   "variant": "same_photo",
+   "request": {
+    "kind": "stock",
+    "item": "bath soap",
+    "quantity": 48,
+    "unit": "bars",
+    "hold_cents": 2800,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-09-13T09:54:00Z"
+   },
+   "uploaded_at": "2026-09-13T10:25:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027186",
+    "at": "2026-09-13T10:03:00",
+    "lines": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 48,
+      "unit_cents": 50
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "2",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 2400
+   },
+   "photo": {
+    "copy_of": "genuine-06"
+   },
+   "usual_cents": 55,
+   "note": "The receipt already sent for genuine-06."
+  },
+  {
+   "id": "stale-04",
+   "expected": "stale",
+   "variant": "before_approval",
+   "request": {
+    "kind": "stock",
+    "item": "bread",
+    "quantity": 20,
+    "unit": "loaves",
+    "hold_cents": 2100,
+    "payee": "Mbare bakery",
+    "approved_at": "2026-09-13T09:15:00Z"
+   },
+   "uploaded_at": "2026-09-13T12:24:00Z",
+   "receipt": {
+    "payee": "Mbare Bakery",
+    "address": "Stand 3, Ardbennie Road, Mbare",
+    "receipt_no": "No. 8834",
+    "at": "2026-08-26T12:28:00",
+    "lines": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 20,
+      "unit_cents": 85
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "",
+    "font": "lucida",
+    "business": "Mbare bakery",
+    "total_cents": 1700
+   },
+   "photo": {
+    "seed": 865385308,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 90,
+   "note": "Printed 18 days before approval."
+  },
+  {
+   "id": "inflated-02",
+   "expected": "inflated",
+   "variant": "inflated_request",
+   "request": {
+    "kind": "stock",
+    "item": "mealie meal",
+    "quantity": 15,
+    "unit": "10 kg bags",
+    "hold_cents": 15100,
+    "payee": "Siyaso traders",
+    "approved_at": "2026-09-13T10:55:00Z"
+   },
+   "uploaded_at": "2026-09-13T13:28:00Z",
+   "receipt": {
+    "payee": "Siyaso Traders",
+    "address": "Siyaso Market, Mbare, Harare",
+    "receipt_no": "ST 05117",
+    "at": "2026-09-13T14:12:00",
+    "lines": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 15,
+      "unit_cents": 985
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "courier",
+    "business": "Siyaso traders",
+    "total_cents": 14775
+   },
+   "photo": {
+    "seed": 930665028,
+    "tilt": 5.3,
+    "light": "shade"
+   },
+   "usual_cents": 645,
+   "note": "985 cents a unit, 53% above the usual 645."
+  },
+  {
+   "id": "inflated-09",
+   "expected": "inflated",
+   "variant": "inflated_request",
+   "request": {
+    "kind": "stock",
+    "item": "bread",
+    "quantity": 20,
+    "unit": "loaves",
+    "hold_cents": 2500,
+    "payee": "Mbare bakery",
+    "approved_at": "2026-09-13T11:46:00Z"
+   },
+   "uploaded_at": "2026-09-13T17:16:00Z",
+   "receipt": {
+    "payee": "Mbare Bakery",
+    "address": "Stand 3, Ardbennie Road, Mbare",
+    "receipt_no": "No. 8854",
+    "at": "2026-09-13T17:28:00",
+    "lines": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 20,
+      "unit_cents": 115
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "3",
+    "font": "lucida",
+    "business": "Mbare bakery",
+    "total_cents": 2300
+   },
+   "photo": {
+    "seed": 603282129,
+    "tilt": null,
+    "light": "shade"
+   },
+   "usual_cents": 90,
+   "note": "115 cents a unit, 28% above the usual 90."
+  },
+  {
+   "id": "genuine-03",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "cooking oil",
+    "quantity": 18,
+    "unit": "2 L bottles",
+    "hold_cents": 7000,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-14T07:17:00Z"
+   },
+   "uploaded_at": "2026-09-14T09:37:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041337",
+    "at": "2026-09-14T10:52:00",
+    "lines": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 18,
+      "unit_cents": 355
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "2",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 6390
+   },
+   "photo": {
+    "seed": 531163353,
+    "tilt": 4.4,
+    "light": "bright"
+   },
+   "usual_cents": 360,
+   "note": "18 2 L bottles at 355 cents against a usual 360."
+  },
+  {
+   "id": "stale-15",
+   "expected": "stale",
+   "variant": "before_approval",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 20,
+    "unit": "2 kg packs",
+    "hold_cents": 3900,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-14T10:11:00Z"
+   },
+   "uploaded_at": "2026-09-14T10:34:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041226",
+    "at": "2026-09-03T15:04:00",
+    "lines": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 20,
+      "unit_cents": 185
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 3700
+   },
+   "photo": {
+    "seed": 975424504,
+    "tilt": null,
+    "light": "warm"
+   },
+   "usual_cents": 187,
+   "note": "Printed 11 days before approval."
+  },
+  {
+   "id": "duplicate-10",
+   "expected": "duplicate",
+   "variant": "photographed_again",
+   "request": {
+    "kind": "stock",
+    "item": "cooking oil",
+    "quantity": 18,
+    "unit": "2 L bottles",
+    "hold_cents": 7000,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-14T11:50:00Z"
+   },
+   "uploaded_at": "2026-09-14T12:27:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041337",
+    "at": "2026-09-14T10:52:00",
+    "lines": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 18,
+      "unit_cents": 355
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "2",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 6390
+   },
+   "photo": {
+    "seed": 243846634,
+    "tilt": 12.7,
+    "light": "",
+    "receipt_of": "genuine-03"
+   },
+   "usual_cents": 360,
+   "note": "The receipt already sent for genuine-03."
+  },
+  {
+   "id": "inflated-05",
+   "expected": "inflated",
+   "variant": "over_hold",
+   "request": {
+    "kind": "stock",
+    "item": "candles",
+    "quantity": 30,
+    "unit": "packs",
+    "hold_cents": 3800,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-09-14T10:38:00Z"
+   },
+   "uploaded_at": "2026-09-14T13:53:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027218",
+    "at": "2026-09-14T14:24:00",
+    "lines": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 30,
+      "unit_cents": 170
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "2",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 5100
+   },
+   "photo": {
+    "seed": 884439546,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 115,
+   "note": "170 cents a unit, 48% above the usual 115."
+  },
+  {
+   "id": "inflated-14",
+   "expected": "inflated",
+   "variant": "inflated_request",
+   "request": {
+    "kind": "stock",
+    "item": "salt",
+    "quantity": 33,
+    "unit": "1 kg packs",
+    "hold_cents": 2200,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-09-14T08:19:00Z"
+   },
+   "uploaded_at": "2026-09-14T14:17:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003501",
+    "at": "2026-09-14T11:43:00",
+    "lines": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 33,
+      "unit_cents": 65
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "1",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 2145
+   },
+   "photo": {
+    "seed": 639136752,
+    "tilt": null,
+    "light": "shade"
+   },
+   "usual_cents": 50,
+   "note": "65 cents a unit, 30% above the usual 50."
+  },
+  {
+   "id": "inflated-12",
+   "expected": "inflated",
+   "variant": "inflated_request",
+   "request": {
+    "kind": "stock",
+    "item": "mealie meal",
+    "quantity": 24,
+    "unit": "10 kg bags",
+    "hold_cents": 22300,
+    "payee": "Siyaso traders",
+    "approved_at": "2026-09-16T06:45:00Z"
+   },
+   "uploaded_at": "2026-09-16T09:29:00Z",
+   "receipt": {
+    "payee": "Siyaso Traders",
+    "address": "Siyaso Market, Mbare, Harare",
+    "receipt_no": "ST 05148",
+    "at": "2026-09-16T10:27:00",
+    "lines": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 24,
+      "unit_cents": 925
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "1",
+    "font": "courier",
+    "business": "Siyaso traders",
+    "total_cents": 22200
+   },
+   "photo": {
+    "seed": 80199960,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 645,
+   "note": "925 cents a unit, 43% above the usual 645."
+  },
+  {
+   "id": "genuine-15",
+   "expected": "genuine",
+   "variant": "known_other",
+   "request": {
+    "kind": "stock",
+    "item": "eggs",
+    "quantity": 40,
+    "unit": "trays",
+    "hold_cents": 20300,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-09-17T07:03:00Z"
+   },
+   "uploaded_at": "2026-09-17T09:17:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003532",
+    "at": "2026-09-17T10:20:00",
+    "lines": [
+     {
+      "name": "EGGS TRAY X30",
+      "quantity": 40,
+      "unit_cents": 445
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 17800
+   },
+   "photo": {
+    "seed": 331471940,
+    "tilt": 7.4,
+    "light": "warm"
+   },
+   "usual_cents": 472,
+   "note": "40 trays at 445 cents against a usual 472."
+  },
+  {
+   "id": "genuine-28",
+   "expected": "genuine",
+   "variant": "extra_line",
+   "request": {
+    "kind": "stock",
+    "item": "candles",
+    "quantity": 40,
+    "unit": "packs",
+    "hold_cents": 5200,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-09-17T08:59:00Z"
+   },
+   "uploaded_at": "2026-09-17T10:57:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027245",
+    "at": "2026-09-17T11:42:00",
+    "lines": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 40,
+      "unit_cents": 115
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 1,
+      "unit_cents": 15
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 4615
+   },
+   "photo": {
+    "seed": 744573155,
+    "tilt": -13.1,
+    "light": "dim"
+   },
+   "usual_cents": 115,
+   "note": "40 packs at 115 cents against a usual 115."
+  },
+  {
+   "id": "duplicate-07",
+   "expected": "duplicate",
+   "variant": "same_photo",
+   "request": {
+    "kind": "stock",
+    "item": "eggs",
+    "quantity": 40,
+    "unit": "trays",
+    "hold_cents": 20300,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-09-17T11:03:00Z"
+   },
+   "uploaded_at": "2026-09-17T11:45:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003532",
+    "at": "2026-09-17T10:20:00",
+    "lines": [
+     {
+      "name": "EGGS TRAY X30",
+      "quantity": 40,
+      "unit_cents": 445
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 17800
+   },
+   "photo": {
+    "copy_of": "genuine-15"
+   },
+   "usual_cents": 472,
+   "note": "The receipt already sent for genuine-15."
+  },
+  {
+   "id": "duplicate-04",
+   "expected": "duplicate",
+   "variant": "photographed_again",
+   "request": {
+    "kind": "stock",
+    "item": "candles",
+    "quantity": 40,
+    "unit": "packs",
+    "hold_cents": 5200,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-09-17T12:11:00Z"
+   },
+   "uploaded_at": "2026-09-17T12:21:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027245",
+    "at": "2026-09-17T11:42:00",
+    "lines": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 40,
+      "unit_cents": 115
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 1,
+      "unit_cents": 15
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 4615
+   },
+   "photo": {
+    "seed": 170031894,
+    "tilt": null,
+    "light": "",
+    "receipt_of": "genuine-28"
+   },
+   "usual_cents": 115,
+   "note": "The receipt already sent for genuine-28."
+  },
+  {
+   "id": "wrong_payee-18",
+   "expected": "wrong_payee",
+   "variant": "unknown",
+   "request": {
+    "kind": "stock",
+    "item": "cooking oil",
+    "quantity": 24,
+    "unit": "2 L bottles",
+    "hold_cents": 9400,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-19T09:30:00Z"
+   },
+   "uploaded_at": "2026-09-19T11:37:00Z",
+   "receipt": {
+    "payee": "Mupedzanhamo Traders",
+    "address": "Mupedzanhamo Market, Mbare",
+    "receipt_no": "MP09088",
+    "at": "2026-09-19T13:18:00",
+    "lines": [
+     {
+      "name": "cooking oil (2 L bottles)",
+      "quantity": 24,
+      "unit_cents": 345
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "",
+    "font": "liberation",
+    "business": "Mupedzanhamo traders",
+    "total_cents": 8280
+   },
+   "photo": {
+    "seed": 818058326,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 360,
+   "note": "The request named Mbare wholesale; the receipt is from Mupedzanhamo traders."
+  },
+  {
+   "id": "stale-17",
+   "expected": "stale",
+   "variant": "before_approval",
+   "request": {
+    "kind": "stock",
+    "item": "rice",
+    "quantity": 10,
+    "unit": "2 kg packs",
+    "hold_cents": 2900,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-09-20T10:33:00Z"
+   },
+   "uploaded_at": "2026-09-20T13:22:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003547",
+    "at": "2026-09-17T12:41:00",
+    "lines": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 10,
+      "unit_cents": 255
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "1",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 2550
+   },
+   "photo": {
+    "seed": 320867726,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 255,
+   "note": "Printed 3 days before approval."
+  },
+  {
+   "id": "stale-16",
+   "expected": "stale",
+   "variant": "late_upload",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 30,
+    "unit": "2 kg packs",
+    "hold_cents": 6300,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-11T08:07:00Z"
+   },
+   "uploaded_at": "2026-09-21T08:17:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041271",
+    "at": "2026-09-11T11:57:00",
+    "lines": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 30,
+      "unit_cents": 180
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "1",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 5400
+   },
+   "photo": {
+    "seed": 312172912,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 187,
+   "note": "Sent 10 days after approval."
+  },
+  {
+   "id": "wrong_payee-02",
+   "expected": "wrong_payee",
+   "variant": "unknown",
+   "request": {
+    "kind": "stock",
+    "item": "bath soap",
+    "quantity": 24,
+    "unit": "bars",
+    "hold_cents": 1500,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-09-21T07:38:00Z"
+   },
+   "uploaded_at": "2026-09-21T11:15:00Z",
+   "receipt": {
+    "payee": "Rufaro Supermarket",
+    "address": "Rufaro, Mbare, Harare",
+    "receipt_no": "120467",
+    "at": "2026-09-21T12:37:00",
+    "lines": [
+     {
+      "name": "bath soap (bars)",
+      "quantity": 24,
+      "unit_cents": 55
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "2",
+    "font": "consolas",
+    "business": "Rufaro supermarket",
+    "total_cents": 1320
+   },
+   "photo": {
+    "seed": 296225663,
+    "tilt": 12.5,
+    "light": "warm"
+   },
+   "usual_cents": 55,
+   "note": "The request named Magaba general dealers; the receipt is from Rufaro supermarket."
+  },
+  {
+   "id": "inflated-20",
+   "expected": "inflated",
+   "variant": "inflated_request",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 10,
+    "unit": "2 kg packs",
+    "hold_cents": 2600,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-21T10:30:00Z"
+   },
+   "uploaded_at": "2026-09-21T12:01:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041376",
+    "at": "2026-09-21T13:43:00",
+    "lines": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 10,
+      "unit_cents": 250
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 2500
+   },
+   "photo": {
+    "seed": 509623799,
+    "tilt": null,
+    "light": "shade"
+   },
+   "usual_cents": 187,
+   "note": "250 cents a unit, 34% above the usual 187."
+  },
+  {
+   "id": "wrong_payee-04",
+   "expected": "wrong_payee",
+   "variant": "near_miss",
+   "request": {
+    "kind": "stock",
+    "item": "candles",
+    "quantity": 30,
+    "unit": "packs",
+    "hold_cents": 3900,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-09-21T07:15:00Z"
+   },
+   "uploaded_at": "2026-09-22T07:24:00Z",
+   "receipt": {
+    "payee": "Mbare General Dealers",
+    "address": "Stand 41, Mbare, Harare",
+    "receipt_no": "GD 06436",
+    "at": "2026-09-21T12:12:00",
+    "lines": [
+     {
+      "name": "candles (packs)",
+      "quantity": 30,
+      "unit_cents": 120
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "lucida",
+    "business": "Mbare general dealers",
+    "total_cents": 3600
+   },
+   "photo": {
+    "seed": 805980726,
+    "tilt": 10.4,
+    "light": "shade"
+   },
+   "usual_cents": 115,
+   "note": "The request named Magaba general dealers; the receipt is from Mbare general dealers."
+  },
+  {
+   "id": "wrong_payee-08",
+   "expected": "wrong_payee",
+   "variant": "unknown",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 31,
+    "unit": "2 kg packs",
+    "hold_cents": 6600,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-22T09:21:00Z"
+   },
+   "uploaded_at": "2026-09-22T11:11:00Z",
+   "receipt": {
+    "payee": "Rufaro Supermarket",
+    "address": "Rufaro, Mbare, Harare",
+    "receipt_no": "120474",
+    "at": "2026-09-22T12:42:00",
+    "lines": [
+     {
+      "name": "sugar (2 kg packs)",
+      "quantity": 31,
+      "unit_cents": 180
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "",
+    "font": "consolas",
+    "business": "Rufaro supermarket",
+    "total_cents": 5580
+   },
+   "photo": {
+    "seed": 178951457,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 187,
+   "note": "The request named Mbare wholesale; the receipt is from Rufaro supermarket."
+  },
+  {
+   "id": "genuine-20",
+   "expected": "genuine",
+   "variant": "known_other",
+   "request": {
+    "kind": "stock",
+    "item": "cooking oil",
+    "quantity": 7,
+    "unit": "2 L bottles",
+    "hold_cents": 3000,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-09-23T05:09:00Z"
+   },
+   "uploaded_at": "2026-09-23T10:01:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003584",
+    "at": "2026-09-23T07:40:00",
+    "lines": [
+     {
+      "name": "CKNG OIL 2LT",
+      "quantity": 7,
+      "unit_cents": 355
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "3",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 2485
+   },
+   "photo": {
+    "seed": 769834137,
+    "tilt": 7.8,
+    "light": ""
+   },
+   "usual_cents": 380,
+   "note": "7 2 L bottles at 355 cents against a usual 380."
+  },
+  {
+   "id": "duplicate-03",
+   "expected": "duplicate",
+   "variant": "same_photo",
+   "request": {
+    "kind": "stock",
+    "item": "cooking oil",
+    "quantity": 7,
+    "unit": "2 L bottles",
+    "hold_cents": 3000,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-09-23T10:49:00Z"
+   },
+   "uploaded_at": "2026-09-23T11:21:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003584",
+    "at": "2026-09-23T07:40:00",
+    "lines": [
+     {
+      "name": "CKNG OIL 2LT",
+      "quantity": 7,
+      "unit_cents": 355
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "3",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 2485
+   },
+   "photo": {
+    "copy_of": "genuine-20"
+   },
+   "usual_cents": 380,
+   "note": "The receipt already sent for genuine-20."
+  },
+  {
+   "id": "wrong_payee-19",
+   "expected": "wrong_payee",
+   "variant": "known_supplier",
+   "request": {
+    "kind": "stock",
+    "item": "rice",
+    "quantity": 40,
+    "unit": "2 kg packs",
+    "hold_cents": 11500,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-09-23T06:53:00Z"
+   },
+   "uploaded_at": "2026-09-23T11:59:00Z",
+   "receipt": {
+    "payee": "Musika Fresh Produce",
+    "address": "Mbare Musika, Harare",
+    "receipt_no": "FP-00334",
+    "at": "2026-09-23T09:45:00",
+    "lines": [
+     {
+      "name": "rice (2 kg packs)",
+      "quantity": 40,
+      "unit_cents": 245
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "1",
+    "font": "liberation",
+    "business": "Musika fresh produce",
+    "total_cents": 9800
+   },
+   "photo": {
+    "seed": 801189344,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 255,
+   "note": "The request named Gulf cash and carry; the receipt is from Musika fresh produce."
+  },
+  {
+   "id": "genuine-33",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 40,
+    "unit": "2 kg packs",
+    "hold_cents": 8000,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-23T08:48:00Z"
+   },
+   "uploaded_at": "2026-09-23T12:41:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041398",
+    "at": "2026-09-23T14:17:00",
+    "lines": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "unit_cents": 190
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "2",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 7600
+   },
+   "photo": {
+    "seed": 219662980,
+    "tilt": null,
+    "light": "dim"
+   },
+   "usual_cents": 187,
+   "note": "40 2 kg packs at 190 cents against a usual 187."
+  },
+  {
+   "id": "duplicate-12",
+   "expected": "duplicate",
+   "variant": "photographed_again",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 40,
+    "unit": "2 kg packs",
+    "hold_cents": 8000,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-23T14:44:00Z"
+   },
+   "uploaded_at": "2026-09-23T15:08:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041398",
+    "at": "2026-09-23T14:17:00",
+    "lines": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "unit_cents": 190
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "2",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 7600
+   },
+   "photo": {
+    "seed": 753612958,
+    "tilt": -9.9,
+    "light": "shade",
+    "receipt_of": "genuine-33"
+   },
+   "usual_cents": 187,
+   "note": "The receipt already sent for genuine-33."
+  },
+  {
+   "id": "wrong_payee-05",
+   "expected": "wrong_payee",
+   "variant": "unknown",
+   "request": {
+    "kind": "stock",
+    "item": "bread",
+    "quantity": 20,
+    "unit": "loaves",
+    "hold_cents": 2100,
+    "payee": "Mbare bakery",
+    "approved_at": "2026-09-24T08:23:00Z"
+   },
+   "uploaded_at": "2026-09-24T09:39:00Z",
+   "receipt": {
+    "payee": "Mupedzanhamo Traders",
+    "address": "Mupedzanhamo Market, Mbare",
+    "receipt_no": "MP09108",
+    "at": "2026-09-24T10:45:00",
+    "lines": [
+     {
+      "name": "bread (loaves)",
+      "quantity": 20,
+      "unit_cents": 85
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "2",
+    "font": "liberation",
+    "business": "Mupedzanhamo traders",
+    "total_cents": 1700
+   },
+   "photo": {
+    "seed": 58757640,
+    "tilt": -7.0,
+    "light": ""
+   },
+   "usual_cents": 90,
+   "note": "The request named Mbare bakery; the receipt is from Mupedzanhamo traders."
+  },
+  {
+   "id": "genuine-24",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 30,
+    "unit": "2 kg packs",
+    "hold_cents": 6500,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-24T08:11:00Z"
+   },
+   "uploaded_at": "2026-09-24T10:15:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041405",
+    "at": "2026-09-24T10:52:00",
+    "lines": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 30,
+      "unit_cents": 175
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 5250
+   },
+   "photo": {
+    "seed": 38196863,
+    "tilt": -7.6,
+    "light": "dim"
+   },
+   "usual_cents": 187,
+   "note": "30 2 kg packs at 175 cents against a usual 187."
+  },
+  {
+   "id": "duplicate-11",
+   "expected": "duplicate",
+   "variant": "same_photo",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 30,
+    "unit": "2 kg packs",
+    "hold_cents": 6500,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-24T11:32:00Z"
+   },
+   "uploaded_at": "2026-09-24T11:58:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041405",
+    "at": "2026-09-24T10:52:00",
+    "lines": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 30,
+      "unit_cents": 175
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 5250
+   },
+   "photo": {
+    "copy_of": "genuine-24"
+   },
+   "usual_cents": 187,
+   "note": "The receipt already sent for genuine-24."
+  },
+  {
+   "id": "genuine-22",
+   "expected": "genuine",
+   "variant": "split_lines",
+   "request": {
+    "kind": "stock",
+    "item": "cooking oil",
+    "quantity": 6,
+    "unit": "2 L bottles",
+    "hold_cents": 2500,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-25T07:03:00Z"
+   },
+   "uploaded_at": "2026-09-25T12:46:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041441",
+    "at": "2026-09-25T13:03:00",
+    "lines": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 3,
+      "unit_cents": 365
+     },
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 3,
+      "unit_cents": 365
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "1",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 2190
+   },
+   "photo": {
+    "seed": 178627958,
+    "tilt": null,
+    "light": "shade"
+   },
+   "usual_cents": 360,
+   "note": "6 2 L bottles at 365 cents against a usual 360."
+  },
+  {
+   "id": "duplicate-01",
+   "expected": "duplicate",
+   "variant": "same_photo",
+   "request": {
+    "kind": "stock",
+    "item": "cooking oil",
+    "quantity": 6,
+    "unit": "2 L bottles",
+    "hold_cents": 2500,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-25T13:29:00Z"
+   },
+   "uploaded_at": "2026-09-25T14:28:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041441",
+    "at": "2026-09-25T13:03:00",
+    "lines": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 3,
+      "unit_cents": 365
+     },
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 3,
+      "unit_cents": 365
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "1",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 2190
+   },
+   "photo": {
+    "copy_of": "genuine-22"
+   },
+   "usual_cents": 360,
+   "note": "The receipt already sent for genuine-22."
+  },
+  {
+   "id": "stale-20",
+   "expected": "stale",
+   "variant": "before_approval",
+   "request": {
+    "kind": "stock",
+    "item": "bath soap",
+    "quantity": 48,
+    "unit": "bars",
+    "hold_cents": 2800,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-09-27T07:45:00Z"
+   },
+   "uploaded_at": "2026-09-27T09:11:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027166",
+    "at": "2026-09-13T08:38:00",
+    "lines": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 48,
+      "unit_cents": 50
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 2400
+   },
+   "photo": {
+    "seed": 398600716,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 55,
+   "note": "Printed 14 days before approval."
+  },
+  {
+   "id": "genuine-01",
+   "expected": "genuine",
+   "variant": "extra_line",
+   "request": {
+    "kind": "stock",
+    "item": "eggs",
+    "quantity": 30,
+    "unit": "trays",
+    "hold_cents": 14100,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-27T11:10:00Z"
+   },
+   "uploaded_at": "2026-09-27T17:40:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041458",
+    "at": "2026-09-27T16:18:00",
+    "lines": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 30,
+      "unit_cents": 440
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 2,
+      "unit_cents": 15
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "1",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 13230
+   },
+   "photo": {
+    "seed": 892946454,
+    "tilt": 12.8,
+    "light": ""
+   },
+   "usual_cents": 445,
+   "note": "30 trays at 440 cents against a usual 445."
+  },
+  {
+   "id": "inflated-17",
+   "expected": "inflated",
+   "variant": "inflated_request",
+   "request": {
+    "kind": "stock",
+    "item": "bread",
+    "quantity": 40,
+    "unit": "loaves",
+    "hold_cents": 4700,
+    "payee": "Mbare bakery",
+    "approved_at": "2026-09-27T06:43:00Z"
+   },
+   "uploaded_at": "2026-09-28T06:45:00Z",
+   "receipt": {
+    "payee": "Mbare Bakery",
+    "address": "Stand 3, Ardbennie Road, Mbare",
+    "receipt_no": "No. 8861",
+    "at": "2026-09-27T09:10:00",
+    "lines": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 40,
+      "unit_cents": 115
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "lucida",
+    "business": "Mbare bakery",
+    "total_cents": 4600
+   },
+   "photo": {
+    "seed": 618269197,
+    "tilt": -4.2,
+    "light": "bright"
+   },
+   "usual_cents": 90,
+   "note": "115 cents a unit, 28% above the usual 90."
+  },
+  {
+   "id": "genuine-21",
+   "expected": "genuine",
+   "variant": "next_days",
+   "request": {
+    "kind": "stock",
+    "item": "bread",
+    "quantity": 40,
+    "unit": "loaves",
+    "hold_cents": 3800,
+    "payee": "Mbare bakery",
+    "approved_at": "2026-09-27T08:34:00Z"
+   },
+   "uploaded_at": "2026-09-28T10:27:00Z",
+   "receipt": {
+    "payee": "Mbare Bakery",
+    "address": "Stand 3, Ardbennie Road, Mbare",
+    "receipt_no": "No. 8866",
+    "at": "2026-09-28T12:10:00",
+    "lines": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 40,
+      "unit_cents": 90
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "3",
+    "font": "lucida",
+    "business": "Mbare bakery",
+    "total_cents": 3600
+   },
+   "photo": {
+    "seed": 234683135,
+    "tilt": 5.9,
+    "light": ""
+   },
+   "usual_cents": 90,
+   "note": "40 loaves at 90 cents against a usual 90."
+  },
+  {
+   "id": "wrong_payee-17",
+   "expected": "wrong_payee",
+   "variant": "known_supplier",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 30,
+    "unit": "2 kg packs",
+    "hold_cents": 6200,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-30T11:21:00Z"
+   },
+   "uploaded_at": "2026-09-30T16:13:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003607",
+    "at": "2026-09-30T15:32:00",
+    "lines": [
+     {
+      "name": "sugar (2 kg packs)",
+      "quantity": 30,
+      "unit_cents": 180
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "2",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 5400
+   },
+   "photo": {
+    "seed": 143381980,
+    "tilt": 12.5,
+    "light": "warm"
+   },
+   "usual_cents": 187,
+   "note": "The request named Mbare wholesale; the receipt is from Gulf cash and carry."
+  },
+  {
+   "id": "genuine-30",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "bread",
+    "quantity": 20,
+    "unit": "loaves",
+    "hold_cents": 2000,
+    "payee": "Mbare bakery",
+    "approved_at": "2026-10-01T12:29:00Z"
+   },
+   "uploaded_at": "2026-10-01T15:06:00Z",
+   "receipt": {
+    "payee": "Mbare Bakery",
+    "address": "Stand 3, Ardbennie Road, Mbare",
+    "receipt_no": "No. 8883",
+    "at": "2026-10-01T15:51:00",
+    "lines": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 20,
+      "unit_cents": 85
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "3",
+    "font": "lucida",
+    "business": "Mbare bakery",
+    "total_cents": 1700
+   },
+   "photo": {
+    "seed": 11258813,
+    "tilt": null,
+    "light": "warm"
+   },
+   "usual_cents": 90,
+   "note": "20 loaves at 85 cents against a usual 90."
+  },
+  {
+   "id": "stale-03",
+   "expected": "stale",
+   "variant": "late_receipt",
+   "request": {
+    "kind": "stock",
+    "item": "tomatoes",
+    "quantity": 6,
+    "unit": "crates",
+    "hold_cents": 7700,
+    "payee": "Musika fresh produce",
+    "approved_at": "2026-09-22T11:59:00Z"
+   },
+   "uploaded_at": "2026-10-02T05:01:00Z",
+   "receipt": {
+    "payee": "Musika Fresh Produce",
+    "address": "Mbare Musika, Harare",
+    "receipt_no": "FP-00383",
+    "at": "2026-10-01T15:03:00",
+    "lines": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 6,
+      "unit_cents": 1150
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "2",
+    "font": "liberation",
+    "business": "Musika fresh produce",
+    "total_cents": 6900
+   },
+   "photo": {
+    "seed": 409979845,
+    "tilt": null,
+    "light": "dim"
+   },
+   "usual_cents": 1177,
+   "note": "Printed 9 days after approval."
+  },
+  {
+   "id": "genuine-39",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "eggs",
+    "quantity": 10,
+    "unit": "trays",
+    "hold_cents": 5200,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-02T06:03:00Z"
+   },
+   "uploaded_at": "2026-10-02T09:16:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041497",
+    "at": "2026-10-02T10:20:00",
+    "lines": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 10,
+      "unit_cents": 415
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "3",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 4150
+   },
+   "photo": {
+    "seed": 3692858,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 445,
+   "note": "10 trays at 415 cents against a usual 445."
+  },
+  {
+   "id": "genuine-34",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 30,
+    "unit": "2 kg packs",
+    "hold_cents": 6400,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-02T06:55:00Z"
+   },
+   "uploaded_at": "2026-10-02T10:31:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041512",
+    "at": "2026-10-02T12:12:00",
+    "lines": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 30,
+      "unit_cents": 190
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 5700
+   },
+   "photo": {
+    "seed": 979225775,
+    "tilt": 4.8,
+    "light": "dim"
+   },
+   "usual_cents": 187,
+   "note": "30 2 kg packs at 190 cents against a usual 187."
+  },
+  {
+   "id": "duplicate-18",
+   "expected": "duplicate",
+   "variant": "photographed_again",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 30,
+    "unit": "2 kg packs",
+    "hold_cents": 6400,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-02T11:37:00Z"
+   },
+   "uploaded_at": "2026-10-02T12:36:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041512",
+    "at": "2026-10-02T12:12:00",
+    "lines": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 30,
+      "unit_cents": 190
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 5700
+   },
+   "photo": {
+    "seed": 729436274,
+    "tilt": null,
+    "light": "",
+    "receipt_of": "genuine-34"
+   },
+   "usual_cents": 187,
+   "note": "The receipt already sent for genuine-34."
+  },
+  {
+   "id": "genuine-04",
+   "expected": "genuine",
+   "variant": "known_other",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 40,
+    "unit": "2 kg packs",
+    "hold_cents": 8400,
+    "payee": "Siyaso traders",
+    "approved_at": "2026-10-02T11:10:00Z"
+   },
+   "uploaded_at": "2026-10-02T12:59:00Z",
+   "receipt": {
+    "payee": "Siyaso Traders",
+    "address": "Siyaso Market, Mbare, Harare",
+    "receipt_no": "ST 05188",
+    "at": "2026-10-02T14:14:00",
+    "lines": [
+     {
+      "name": "SUGAR 2KG PKT",
+      "quantity": 40,
+      "unit_cents": 180
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "1",
+    "font": "courier",
+    "business": "Siyaso traders",
+    "total_cents": 7200
+   },
+   "photo": {
+    "seed": 914109948,
+    "tilt": 7.3,
+    "light": "bright"
+   },
+   "usual_cents": 190,
+   "note": "40 2 kg packs at 180 cents against a usual 190."
+  },
+  {
+   "id": "duplicate-05",
+   "expected": "duplicate",
+   "variant": "same_photo",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 40,
+    "unit": "2 kg packs",
+    "hold_cents": 8400,
+    "payee": "Siyaso traders",
+    "approved_at": "2026-10-02T13:29:00Z"
+   },
+   "uploaded_at": "2026-10-02T14:26:00Z",
+   "receipt": {
+    "payee": "Siyaso Traders",
+    "address": "Siyaso Market, Mbare, Harare",
+    "receipt_no": "ST 05188",
+    "at": "2026-10-02T14:14:00",
+    "lines": [
+     {
+      "name": "SUGAR 2KG PKT",
+      "quantity": 40,
+      "unit_cents": 180
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "1",
+    "font": "courier",
+    "business": "Siyaso traders",
+    "total_cents": 7200
+   },
+   "photo": {
+    "copy_of": "genuine-04"
+   },
+   "usual_cents": 190,
+   "note": "The receipt already sent for genuine-04."
+  },
+  {
+   "id": "inflated-01",
+   "expected": "inflated",
+   "variant": "inflated_request",
+   "request": {
+    "kind": "stock",
+    "item": "mealie meal",
+    "quantity": 15,
+    "unit": "10 kg bags",
+    "hold_cents": 16100,
+    "payee": "Siyaso traders",
+    "approved_at": "2026-10-03T06:32:00Z"
+   },
+   "uploaded_at": "2026-10-03T09:38:00Z",
+   "receipt": {
+    "payee": "Siyaso Traders",
+    "address": "Siyaso Market, Mbare, Harare",
+    "receipt_no": "ST 05234",
+    "at": "2026-10-03T10:41:00",
+    "lines": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 15,
+      "unit_cents": 1030
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "1",
+    "font": "courier",
+    "business": "Siyaso traders",
+    "total_cents": 15450
+   },
+   "photo": {
+    "seed": 11775531,
+    "tilt": null,
+    "light": "shade"
+   },
+   "usual_cents": 645,
+   "note": "1030 cents a unit, 60% above the usual 645."
+  },
+  {
+   "id": "inflated-10",
+   "expected": "inflated",
+   "variant": "over_hold",
+   "request": {
+    "kind": "stock",
+    "item": "mealie meal",
+    "quantity": 5,
+    "unit": "10 kg bags",
+    "hold_cents": 3600,
+    "payee": "Siyaso traders",
+    "approved_at": "2026-10-03T08:09:00Z"
+   },
+   "uploaded_at": "2026-10-03T11:13:00Z",
+   "receipt": {
+    "payee": "Siyaso Traders",
+    "address": "Siyaso Market, Mbare, Harare",
+    "receipt_no": "ST 05262",
+    "at": "2026-10-03T12:51:00",
+    "lines": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 5,
+      "unit_cents": 945
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "",
+    "font": "courier",
+    "business": "Siyaso traders",
+    "total_cents": 4725
+   },
+   "photo": {
+    "seed": 575718140,
+    "tilt": null,
+    "light": "shade"
+   },
+   "usual_cents": 645,
+   "note": "945 cents a unit, 47% above the usual 645."
+  },
+  {
+   "id": "genuine-13",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "mealie meal",
+    "quantity": 5,
+    "unit": "10 kg bags",
+    "hold_cents": 3700,
+    "payee": "Siyaso traders",
+    "approved_at": "2026-10-03T10:28:00Z"
+   },
+   "uploaded_at": "2026-10-03T14:35:00Z",
+   "receipt": {
+    "payee": "Siyaso Traders",
+    "address": "Siyaso Market, Mbare, Harare",
+    "receipt_no": "ST 05272",
+    "at": "2026-10-03T15:27:00",
+    "lines": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 5,
+      "unit_cents": 645
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "3",
+    "font": "courier",
+    "business": "Siyaso traders",
+    "total_cents": 3225
+   },
+   "photo": {
+    "seed": 499976982,
+    "tilt": null,
+    "light": "dim"
+   },
+   "usual_cents": 645,
+   "note": "5 10 kg bags at 645 cents against a usual 645."
+  },
+  {
+   "id": "duplicate-19",
+   "expected": "duplicate",
+   "variant": "same_photo",
+   "request": {
+    "kind": "stock",
+    "item": "mealie meal",
+    "quantity": 5,
+    "unit": "10 kg bags",
+    "hold_cents": 3700,
+    "payee": "Siyaso traders",
+    "approved_at": "2026-10-03T15:24:00Z"
+   },
+   "uploaded_at": "2026-10-03T16:06:00Z",
+   "receipt": {
+    "payee": "Siyaso Traders",
+    "address": "Siyaso Market, Mbare, Harare",
+    "receipt_no": "ST 05272",
+    "at": "2026-10-03T15:27:00",
+    "lines": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 5,
+      "unit_cents": 645
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "3",
+    "font": "courier",
+    "business": "Siyaso traders",
+    "total_cents": 3225
+   },
+   "photo": {
+    "copy_of": "genuine-13"
+   },
+   "usual_cents": 645,
+   "note": "The receipt already sent for genuine-13."
+  },
+  {
+   "id": "stale-07",
+   "expected": "stale",
+   "variant": "before_approval",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 40,
+    "unit": "2 kg packs",
+    "hold_cents": 8500,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-04T11:15:00Z"
+   },
+   "uploaded_at": "2026-10-04T11:51:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041488",
+    "at": "2026-09-29T10:21:00",
+    "lines": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "unit_cents": 175
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 7000
+   },
+   "photo": {
+    "seed": 291410842,
+    "tilt": 5.7,
+    "light": "bright"
+   },
+   "usual_cents": 187,
+   "note": "Printed 5 days before approval."
+  },
+  {
+   "id": "inflated-18",
+   "expected": "inflated",
+   "variant": "inflated_request",
+   "request": {
+    "kind": "stock",
+    "item": "cooking oil",
+    "quantity": 24,
+    "unit": "2 L bottles",
+    "hold_cents": 12400,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-04T05:31:00Z"
+   },
+   "uploaded_at": "2026-10-05T07:22:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041547",
+    "at": "2026-10-04T10:31:00",
+    "lines": [
+     {
+      "name": "COOKING OIL 2L",
+      "quantity": 24,
+      "unit_cents": 510
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "1",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 12240
+   },
+   "photo": {
+    "seed": 819401828,
+    "tilt": 7.2,
+    "light": "dim"
+   },
+   "usual_cents": 360,
+   "note": "510 cents a unit, 42% above the usual 360."
+  },
+  {
+   "id": "stale-02",
+   "expected": "stale",
+   "variant": "before_approval",
+   "request": {
+    "kind": "stock",
+    "item": "candles",
+    "quantity": 10,
+    "unit": "packs",
+    "hold_cents": 1300,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-10-05T07:24:00Z"
+   },
+   "uploaded_at": "2026-10-05T09:02:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027275",
+    "at": "2026-09-26T10:26:00",
+    "lines": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 10,
+      "unit_cents": 120
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "3",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 1200
+   },
+   "photo": {
+    "seed": 191709551,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 115,
+   "note": "Printed 9 days before approval."
+  },
+  {
+   "id": "wrong_payee-10",
+   "expected": "wrong_payee",
+   "variant": "near_miss",
+   "request": {
+    "kind": "stock",
+    "item": "rice",
+    "quantity": 10,
+    "unit": "2 kg packs",
+    "hold_cents": 2900,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-10-05T09:02:00Z"
+   },
+   "uploaded_at": "2026-10-05T10:49:00Z",
+   "receipt": {
+    "payee": "Remembrance Cash & Carry (Pvt) Ltd",
+    "address": "Remembrance Drive, Mbare",
+    "receipt_no": "RC077125",
+    "at": "2026-10-05T11:27:00",
+    "lines": [
+     {
+      "name": "rice (2 kg packs)",
+      "quantity": 10,
+      "unit_cents": 260
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "2",
+    "font": "dejavu",
+    "business": "Remembrance cash and carry",
+    "total_cents": 2600
+   },
+   "photo": {
+    "seed": 545825471,
+    "tilt": null,
+    "light": "dim"
+   },
+   "usual_cents": 255,
+   "note": "The request named Gulf cash and carry; the receipt is from Remembrance cash and carry."
+  },
+  {
+   "id": "genuine-35",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "salt",
+    "quantity": 48,
+    "unit": "1 kg packs",
+    "hold_cents": 2700,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-10-05T07:04:00Z"
+   },
+   "uploaded_at": "2026-10-05T12:11:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003638",
+    "at": "2026-10-05T10:08:00",
+    "lines": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 48,
+      "unit_cents": 50
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 2400
+   },
+   "photo": {
+    "seed": 623270574,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 50,
+   "note": "48 1 kg packs at 50 cents against a usual 50."
+  },
+  {
+   "id": "duplicate-14",
+   "expected": "duplicate",
+   "variant": "photographed_again",
+   "request": {
+    "kind": "stock",
+    "item": "salt",
+    "quantity": 48,
+    "unit": "1 kg packs",
+    "hold_cents": 2700,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-10-05T14:34:00Z"
+   },
+   "uploaded_at": "2026-10-05T15:32:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003638",
+    "at": "2026-10-05T10:08:00",
+    "lines": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 48,
+      "unit_cents": 50
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 2400
+   },
+   "photo": {
+    "seed": 848083396,
+    "tilt": null,
+    "light": "bright",
+    "receipt_of": "genuine-35"
+   },
+   "usual_cents": 50,
+   "note": "The receipt already sent for genuine-35."
+  },
+  {
+   "id": "genuine-16",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "bath soap",
+    "quantity": 96,
+    "unit": "bars",
+    "hold_cents": 6000,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-10-07T05:46:00Z"
+   },
+   "uploaded_at": "2026-10-07T08:29:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027328",
+    "at": "2026-10-07T09:00:00",
+    "lines": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 96,
+      "unit_cents": 55
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 5280
+   },
+   "photo": {
+    "seed": 465560379,
+    "tilt": -4.5,
+    "light": ""
+   },
+   "usual_cents": 55,
+   "note": "96 bars at 55 cents against a usual 55."
+  },
+  {
+   "id": "genuine-31",
+   "expected": "genuine",
+   "variant": "next_days",
+   "request": {
+    "kind": "stock",
+    "item": "eggs",
+    "quantity": 30,
+    "unit": "trays",
+    "hold_cents": 14800,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-06T10:02:00Z"
+   },
+   "uploaded_at": "2026-10-07T09:31:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041584",
+    "at": "2026-10-07T10:04:00",
+    "lines": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 30,
+      "unit_cents": 420
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 12600
+   },
+   "photo": {
+    "seed": 4270271,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 445,
+   "note": "30 trays at 420 cents against a usual 445."
+  },
+  {
+   "id": "duplicate-09",
+   "expected": "duplicate",
+   "variant": "same_photo",
+   "request": {
+    "kind": "stock",
+    "item": "bath soap",
+    "quantity": 96,
+    "unit": "bars",
+    "hold_cents": 6000,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-10-07T10:06:00Z"
+   },
+   "uploaded_at": "2026-10-07T10:33:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027328",
+    "at": "2026-10-07T09:00:00",
+    "lines": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 96,
+      "unit_cents": 55
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 5280
+   },
+   "photo": {
+    "copy_of": "genuine-16"
+   },
+   "usual_cents": 55,
+   "note": "The receipt already sent for genuine-16."
+  },
+  {
+   "id": "stale-14",
+   "expected": "stale",
+   "variant": "late_receipt",
+   "request": {
+    "kind": "stock",
+    "item": "eggs",
+    "quantity": 40,
+    "unit": "trays",
+    "hold_cents": 18500,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-09-27T05:59:00Z"
+   },
+   "uploaded_at": "2026-10-07T11:11:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041618",
+    "at": "2026-10-07T12:38:00",
+    "lines": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 40,
+      "unit_cents": 450
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 18000
+   },
+   "photo": {
+    "seed": 31248263,
+    "tilt": 4.2,
+    "light": "bright"
+   },
+   "usual_cents": 445,
+   "note": "Printed 10 days after approval."
+  },
+  {
+   "id": "genuine-08",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "candles",
+    "quantity": 10,
+    "unit": "packs",
+    "hold_cents": 1300,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-10-07T11:54:00Z"
+   },
+   "uploaded_at": "2026-10-07T14:41:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027340",
+    "at": "2026-10-07T15:47:00",
+    "lines": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 10,
+      "unit_cents": 110
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "2",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 1100
+   },
+   "photo": {
+    "seed": 875034788,
+    "tilt": null,
+    "light": "dim"
+   },
+   "usual_cents": 115,
+   "note": "10 packs at 110 cents against a usual 115."
+  },
+  {
+   "id": "wrong_payee-09",
+   "expected": "wrong_payee",
+   "variant": "unknown",
+   "request": {
+    "kind": "stock",
+    "item": "mealie meal",
+    "quantity": 20,
+    "unit": "10 kg bags",
+    "hold_cents": 14600,
+    "payee": "Siyaso traders",
+    "approved_at": "2026-10-08T05:50:00Z"
+   },
+   "uploaded_at": "2026-10-08T07:44:00Z",
+   "receipt": {
+    "payee": "Rufaro Supermarket",
+    "address": "Rufaro, Mbare, Harare",
+    "receipt_no": "120494",
+    "at": "2026-10-08T09:36:00",
+    "lines": [
+     {
+      "name": "mealie meal (10 kg bags)",
+      "quantity": 20,
+      "unit_cents": 655
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "consolas",
+    "business": "Rufaro supermarket",
+    "total_cents": 13100
+   },
+   "photo": {
+    "seed": 449549474,
+    "tilt": null,
+    "light": "shade"
+   },
+   "usual_cents": 645,
+   "note": "The request named Siyaso traders; the receipt is from Rufaro supermarket."
+  },
+  {
+   "id": "wrong_payee-06",
+   "expected": "wrong_payee",
+   "variant": "known_supplier",
+   "request": {
+    "kind": "stock",
+    "item": "eggs",
+    "quantity": 30,
+    "unit": "trays",
+    "hold_cents": 15300,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-08T05:26:00Z"
+   },
+   "uploaded_at": "2026-10-08T09:11:00Z",
+   "receipt": {
+    "payee": "Mbare Bakery",
+    "address": "Stand 3, Ardbennie Road, Mbare",
+    "receipt_no": "No. 8920",
+    "at": "2026-10-08T11:02:00",
+    "lines": [
+     {
+      "name": "eggs (trays)",
+      "quantity": 30,
+      "unit_cents": 420
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "3",
+    "font": "lucida",
+    "business": "Mbare bakery",
+    "total_cents": 12600
+   },
+   "photo": {
+    "seed": 167346975,
+    "tilt": null,
+    "light": "bright"
+   },
+   "usual_cents": 445,
+   "note": "The request named Mbare wholesale; the receipt is from Mbare bakery."
+  },
+  {
+   "id": "wrong_payee-11",
+   "expected": "wrong_payee",
+   "variant": "near_miss",
+   "request": {
+    "kind": "stock",
+    "item": "rice",
+    "quantity": 20,
+    "unit": "2 kg packs",
+    "hold_cents": 5600,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-10-08T10:50:00Z"
+   },
+   "uploaded_at": "2026-10-08T15:08:00Z",
+   "receipt": {
+    "payee": "Remembrance Cash & Carry (Pvt) Ltd",
+    "address": "Remembrance Drive, Mbare",
+    "receipt_no": "RC077153",
+    "at": "2026-10-08T16:50:00",
+    "lines": [
+     {
+      "name": "rice (2 kg packs)",
+      "quantity": 20,
+      "unit_cents": 260
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "3",
+    "font": "dejavu",
+    "business": "Remembrance cash and carry",
+    "total_cents": 5200
+   },
+   "photo": {
+    "seed": 941623312,
+    "tilt": null,
+    "light": "dim"
+   },
+   "usual_cents": 255,
+   "note": "The request named Gulf cash and carry; the receipt is from Remembrance cash and carry."
+  },
+  {
+   "id": "genuine-14",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "rice",
+    "quantity": 46,
+    "unit": "2 kg packs",
+    "hold_cents": 12300,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-10-09T05:20:00Z"
+   },
+   "uploaded_at": "2026-10-09T08:15:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003690",
+    "at": "2026-10-09T09:40:00",
+    "lines": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 46,
+      "unit_cents": 240
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 11040
+   },
+   "photo": {
+    "seed": 540374931,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 255,
+   "note": "46 2 kg packs at 240 cents against a usual 255."
+  },
+  {
+   "id": "wrong_payee-03",
+   "expected": "wrong_payee",
+   "variant": "known_supplier",
+   "request": {
+    "kind": "stock",
+    "item": "candles",
+    "quantity": 10,
+    "unit": "packs",
+    "hold_cents": 1200,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-10-09T08:40:00Z"
+   },
+   "uploaded_at": "2026-10-09T12:48:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003703",
+    "at": "2026-10-09T14:10:00",
+    "lines": [
+     {
+      "name": "candles (packs)",
+      "quantity": 10,
+      "unit_cents": 115
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "2",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 1150
+   },
+   "photo": {
+    "seed": 929465125,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 115,
+   "note": "The request named Magaba general dealers; the receipt is from Gulf cash and carry."
+  },
+  {
+   "id": "inflated-03",
+   "expected": "inflated",
+   "variant": "inflated_request",
+   "request": {
+    "kind": "stock",
+    "item": "bath soap",
+    "quantity": 72,
+    "unit": "bars",
+    "hold_cents": 6200,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-10-10T06:32:00Z"
+   },
+   "uploaded_at": "2026-10-10T10:17:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027352",
+    "at": "2026-10-10T11:07:00",
+    "lines": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 72,
+      "unit_cents": 85
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "1",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 6120
+   },
+   "photo": {
+    "seed": 915135312,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 55,
+   "note": "85 cents a unit, 55% above the usual 55."
+  },
+  {
+   "id": "wrong_payee-13",
+   "expected": "wrong_payee",
+   "variant": "near_miss",
+   "request": {
+    "kind": "stock",
+    "item": "candles",
+    "quantity": 40,
+    "unit": "packs",
+    "hold_cents": 5000,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-10-10T06:15:00Z"
+   },
+   "uploaded_at": "2026-10-10T10:17:00Z",
+   "receipt": {
+    "payee": "Mbare General Dealers",
+    "address": "Stand 41, Mbare, Harare",
+    "receipt_no": "GD 06439",
+    "at": "2026-10-10T12:03:00",
+    "lines": [
+     {
+      "name": "candles (packs)",
+      "quantity": 40,
+      "unit_cents": 115
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "3",
+    "font": "lucida",
+    "business": "Mbare general dealers",
+    "total_cents": 4600
+   },
+   "photo": {
+    "seed": 960100134,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 115,
+   "note": "The request named Magaba general dealers; the receipt is from Mbare general dealers."
+  },
+  {
+   "id": "genuine-10",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "tomatoes",
+    "quantity": 4,
+    "unit": "crates",
+    "hold_cents": 5500,
+    "payee": "Musika fresh produce",
+    "approved_at": "2026-10-10T09:26:00Z"
+   },
+   "uploaded_at": "2026-10-10T11:57:00Z",
+   "receipt": {
+    "payee": "Musika Fresh Produce",
+    "address": "Mbare Musika, Harare",
+    "receipt_no": "FP-00425",
+    "at": "2026-10-10T13:24:00",
+    "lines": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 4,
+      "unit_cents": 1190
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "3",
+    "font": "liberation",
+    "business": "Musika fresh produce",
+    "total_cents": 4760
+   },
+   "photo": {
+    "seed": 565407417,
+    "tilt": null,
+    "light": "dim"
+   },
+   "usual_cents": 1177,
+   "note": "4 crates at 1190 cents against a usual 1177."
+  },
+  {
+   "id": "duplicate-20",
+   "expected": "duplicate",
+   "variant": "photographed_again",
+   "request": {
+    "kind": "stock",
+    "item": "tomatoes",
+    "quantity": 4,
+    "unit": "crates",
+    "hold_cents": 5500,
+    "payee": "Musika fresh produce",
+    "approved_at": "2026-10-10T12:44:00Z"
+   },
+   "uploaded_at": "2026-10-10T13:51:00Z",
+   "receipt": {
+    "payee": "Musika Fresh Produce",
+    "address": "Mbare Musika, Harare",
+    "receipt_no": "FP-00425",
+    "at": "2026-10-10T13:24:00",
+    "lines": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 4,
+      "unit_cents": 1190
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "3",
+    "font": "liberation",
+    "business": "Musika fresh produce",
+    "total_cents": 4760
+   },
+   "photo": {
+    "seed": 75634317,
+    "tilt": null,
+    "light": "bright",
+    "receipt_of": "genuine-10"
+   },
+   "usual_cents": 1177,
+   "note": "The receipt already sent for genuine-10."
+  },
+  {
+   "id": "stale-12",
+   "expected": "stale",
+   "variant": "before_approval",
+   "request": {
+    "kind": "stock",
+    "item": "tomatoes",
+    "quantity": 4,
+    "unit": "crates",
+    "hold_cents": 5100,
+    "payee": "Musika fresh produce",
+    "approved_at": "2026-10-11T10:57:00Z"
+   },
+   "uploaded_at": "2026-10-11T11:55:00Z",
+   "receipt": {
+    "payee": "Musika Fresh Produce",
+    "address": "Mbare Musika, Harare",
+    "receipt_no": "FP-00353",
+    "at": "2026-09-28T09:51:00",
+    "lines": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 4,
+      "unit_cents": 1155
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "1",
+    "font": "liberation",
+    "business": "Musika fresh produce",
+    "total_cents": 4620
+   },
+   "photo": {
+    "seed": 4107156,
+    "tilt": 7.6,
+    "light": ""
+   },
+   "usual_cents": 1177,
+   "note": "Printed 13 days before approval."
+  },
+  {
+   "id": "inflated-07",
+   "expected": "inflated",
+   "variant": "inflated_request",
+   "request": {
+    "kind": "stock",
+    "item": "tomatoes",
+    "quantity": 6,
+    "unit": "crates",
+    "hold_cents": 10400,
+    "payee": "Musika fresh produce",
+    "approved_at": "2026-10-11T11:46:00Z"
+   },
+   "uploaded_at": "2026-10-11T12:54:00Z",
+   "receipt": {
+    "payee": "Musika Fresh Produce",
+    "address": "Mbare Musika, Harare",
+    "receipt_no": "FP-00463",
+    "at": "2026-10-11T14:19:00",
+    "lines": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 6,
+      "unit_cents": 1695
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "1",
+    "font": "liberation",
+    "business": "Musika fresh produce",
+    "total_cents": 10170
+   },
+   "photo": {
+    "seed": 83651279,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 1177,
+   "note": "1695 cents a unit, 44% above the usual 1177."
+  },
+  {
+   "id": "inflated-13",
+   "expected": "inflated",
+   "variant": "inflated_request",
+   "request": {
+    "kind": "stock",
+    "item": "rice",
+    "quantity": 30,
+    "unit": "2 kg packs",
+    "hold_cents": 9800,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-10-12T06:52:00Z"
+   },
+   "uploaded_at": "2026-10-12T08:18:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003761",
+    "at": "2026-10-12T10:01:00",
+    "lines": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 30,
+      "unit_cents": 325
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "1",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 9750
+   },
+   "photo": {
+    "seed": 373362718,
+    "tilt": -6.8,
+    "light": "dim"
+   },
+   "usual_cents": 255,
+   "note": "325 cents a unit, 27% above the usual 255."
+  },
+  {
+   "id": "stale-01",
+   "expected": "stale",
+   "variant": "late_upload",
+   "request": {
+    "kind": "stock",
+    "item": "candles",
+    "quantity": 40,
+    "unit": "packs",
+    "hold_cents": 5100,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-10-03T05:24:00Z"
+   },
+   "uploaded_at": "2026-10-13T09:28:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027301",
+    "at": "2026-10-04T11:38:00",
+    "lines": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 40,
+      "unit_cents": 115
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 4600
+   },
+   "photo": {
+    "seed": 498891345,
+    "tilt": -10.9,
+    "light": "bright"
+   },
+   "usual_cents": 115,
+   "note": "Sent 10 days after approval."
+  },
+  {
+   "id": "inflated-06",
+   "expected": "inflated",
+   "variant": "inflated_request",
+   "request": {
+    "kind": "stock",
+    "item": "tomatoes",
+    "quantity": 8,
+    "unit": "crates",
+    "hold_cents": 14000,
+    "payee": "Musika fresh produce",
+    "approved_at": "2026-10-13T08:13:00Z"
+   },
+   "uploaded_at": "2026-10-13T10:39:00Z",
+   "receipt": {
+    "payee": "Musika Fresh Produce",
+    "address": "Mbare Musika, Harare",
+    "receipt_no": "FP-00474",
+    "at": "2026-10-13T12:04:00",
+    "lines": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 8,
+      "unit_cents": 1710
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "1",
+    "font": "liberation",
+    "business": "Musika fresh produce",
+    "total_cents": 13680
+   },
+   "photo": {
+    "seed": 647670170,
+    "tilt": -5.4,
+    "light": "dim"
+   },
+   "usual_cents": 1177,
+   "note": "1710 cents a unit, 45% above the usual 1177."
+  },
+  {
+   "id": "inflated-11",
+   "expected": "inflated",
+   "variant": "inflated_request",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 40,
+    "unit": "2 kg packs",
+    "hold_cents": 10000,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-13T08:31:00Z"
+   },
+   "uploaded_at": "2026-10-13T12:24:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041642",
+    "at": "2026-10-13T14:21:00",
+    "lines": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "unit_cents": 240
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "2",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 9600
+   },
+   "photo": {
+    "seed": 854976084,
+    "tilt": null,
+    "light": "bright"
+   },
+   "usual_cents": 187,
+   "note": "240 cents a unit, 28% above the usual 187."
+  },
+  {
+   "id": "genuine-02",
+   "expected": "genuine",
+   "variant": "extra_line",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 40,
+    "unit": "2 kg packs",
+    "hold_cents": 8000,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-13T10:36:00Z"
+   },
+   "uploaded_at": "2026-10-13T14:41:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041680",
+    "at": "2026-10-13T16:04:00",
+    "lines": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "unit_cents": 180
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 1,
+      "unit_cents": 15
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "1",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 7215
+   },
+   "photo": {
+    "seed": 287952745,
+    "tilt": 5.1,
+    "light": "dim"
+   },
+   "usual_cents": 187,
+   "note": "40 2 kg packs at 180 cents against a usual 187."
+  },
+  {
+   "id": "duplicate-16",
+   "expected": "duplicate",
+   "variant": "photographed_again",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 40,
+    "unit": "2 kg packs",
+    "hold_cents": 8000,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-13T16:13:00Z"
+   },
+   "uploaded_at": "2026-10-13T17:13:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041680",
+    "at": "2026-10-13T16:04:00",
+    "lines": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "unit_cents": 180
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 1,
+      "unit_cents": 15
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "1",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 7215
+   },
+   "photo": {
+    "seed": 386101655,
+    "tilt": null,
+    "light": "warm",
+    "receipt_of": "genuine-02"
+   },
+   "usual_cents": 187,
+   "note": "The receipt already sent for genuine-02."
+  },
+  {
+   "id": "genuine-23",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "mealie meal",
+    "quantity": 5,
+    "unit": "10 kg bags",
+    "hold_cents": 3500,
+    "payee": "Siyaso traders",
+    "approved_at": "2026-10-14T05:38:00Z"
+   },
+   "uploaded_at": "2026-10-14T08:35:00Z",
+   "receipt": {
+    "payee": "Siyaso Traders",
+    "address": "Siyaso Market, Mbare, Harare",
+    "receipt_no": "ST 05276",
+    "at": "2026-10-14T10:19:00",
+    "lines": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 5,
+      "unit_cents": 655
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "2",
+    "font": "courier",
+    "business": "Siyaso traders",
+    "total_cents": 3275
+   },
+   "photo": {
+    "seed": 211144170,
+    "tilt": 5.6,
+    "light": ""
+   },
+   "usual_cents": 645,
+   "note": "5 10 kg bags at 655 cents against a usual 645."
+  },
+  {
+   "id": "genuine-18",
+   "expected": "genuine",
+   "variant": "known_other",
+   "request": {
+    "kind": "stock",
+    "item": "eggs",
+    "quantity": 30,
+    "unit": "trays",
+    "hold_cents": 16300,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-10-14T05:24:00Z"
+   },
+   "uploaded_at": "2026-10-14T09:44:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003774",
+    "at": "2026-10-14T10:42:00",
+    "lines": [
+     {
+      "name": "EGGS TRAY X30",
+      "quantity": 30,
+      "unit_cents": 470
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "1",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 14100
+   },
+   "photo": {
+    "seed": 564140990,
+    "tilt": null,
+    "light": "bright"
+   },
+   "usual_cents": 472,
+   "note": "30 trays at 470 cents against a usual 472."
+  },
+  {
+   "id": "inflated-04",
+   "expected": "inflated",
+   "variant": "over_hold",
+   "request": {
+    "kind": "stock",
+    "item": "bath soap",
+    "quantity": 48,
+    "unit": "bars",
+    "hold_cents": 2800,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-10-14T08:46:00Z"
+   },
+   "uploaded_at": "2026-10-14T10:04:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027378",
+    "at": "2026-10-14T11:47:00",
+    "lines": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 48,
+      "unit_cents": 80
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "3",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 3840
+   },
+   "photo": {
+    "seed": 638811583,
+    "tilt": -9.0,
+    "light": ""
+   },
+   "usual_cents": 55,
+   "note": "80 cents a unit, 45% above the usual 55."
+  },
+  {
+   "id": "duplicate-06",
+   "expected": "duplicate",
+   "variant": "photographed_again",
+   "request": {
+    "kind": "stock",
+    "item": "eggs",
+    "quantity": 30,
+    "unit": "trays",
+    "hold_cents": 16300,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-10-14T11:45:00Z"
+   },
+   "uploaded_at": "2026-10-14T12:10:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003774",
+    "at": "2026-10-14T10:42:00",
+    "lines": [
+     {
+      "name": "EGGS TRAY X30",
+      "quantity": 30,
+      "unit_cents": 470
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "1",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 14100
+   },
+   "photo": {
+    "seed": 147314709,
+    "tilt": null,
+    "light": "dim",
+    "receipt_of": "genuine-18"
+   },
+   "usual_cents": 472,
+   "note": "The receipt already sent for genuine-18."
+  },
+  {
+   "id": "genuine-32",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 35,
+    "unit": "2 kg packs",
+    "hold_cents": 7100,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-15T07:31:00Z"
+   },
+   "uploaded_at": "2026-10-15T09:01:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041712",
+    "at": "2026-10-15T10:29:00",
+    "lines": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 35,
+      "unit_cents": 170
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 5950
+   },
+   "photo": {
+    "seed": 293895830,
+    "tilt": 7.2,
+    "light": "bright"
+   },
+   "usual_cents": 187,
+   "note": "35 2 kg packs at 170 cents against a usual 187."
+  },
+  {
+   "id": "inflated-08",
+   "expected": "inflated",
+   "variant": "over_hold",
+   "request": {
+    "kind": "stock",
+    "item": "eggs",
+    "quantity": 26,
+    "unit": "trays",
+    "hold_cents": 12400,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-16T09:36:00Z"
+   },
+   "uploaded_at": "2026-10-16T12:01:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041749",
+    "at": "2026-10-16T13:52:00",
+    "lines": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 26,
+      "unit_cents": 660
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "3",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 17160
+   },
+   "photo": {
+    "seed": 449219953,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 445,
+   "note": "660 cents a unit, 48% above the usual 445."
+  },
+  {
+   "id": "genuine-37",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "candles",
+    "quantity": 30,
+    "unit": "packs",
+    "hold_cents": 3800,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-10-16T09:19:00Z"
+   },
+   "uploaded_at": "2026-10-16T12:18:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027409",
+    "at": "2026-10-16T13:08:00",
+    "lines": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 30,
+      "unit_cents": 115
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "2",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 3450
+   },
+   "photo": {
+    "seed": 976619735,
+    "tilt": null,
+    "light": "warm"
+   },
+   "usual_cents": 115,
+   "note": "30 packs at 115 cents against a usual 115."
+  },
+  {
+   "id": "duplicate-15",
+   "expected": "duplicate",
+   "variant": "same_photo",
+   "request": {
+    "kind": "stock",
+    "item": "candles",
+    "quantity": 30,
+    "unit": "packs",
+    "hold_cents": 3800,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-10-16T13:56:00Z"
+   },
+   "uploaded_at": "2026-10-16T15:05:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027409",
+    "at": "2026-10-16T13:08:00",
+    "lines": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 30,
+      "unit_cents": 115
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "2",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 3450
+   },
+   "photo": {
+    "copy_of": "genuine-37"
+   },
+   "usual_cents": 115,
+   "note": "The receipt already sent for genuine-37."
+  },
+  {
+   "id": "stale-05",
+   "expected": "stale",
+   "variant": "late_upload",
+   "request": {
+    "kind": "stock",
+    "item": "bread",
+    "quantity": 20,
+    "unit": "loaves",
+    "hold_cents": 1900,
+    "payee": "Mbare bakery",
+    "approved_at": "2026-10-05T08:29:00Z"
+   },
+   "uploaded_at": "2026-10-17T07:30:00Z",
+   "receipt": {
+    "payee": "Mbare Bakery",
+    "address": "Stand 3, Ardbennie Road, Mbare",
+    "receipt_no": "No. 8893",
+    "at": "2026-10-07T10:50:00",
+    "lines": [
+     {
+      "name": "WHITE BREAD 700G",
+      "quantity": 20,
+      "unit_cents": 90
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "3",
+    "font": "lucida",
+    "business": "Mbare bakery",
+    "total_cents": 1800
+   },
+   "photo": {
+    "seed": 642655410,
+    "tilt": null,
+    "light": "dim"
+   },
+   "usual_cents": 90,
+   "note": "Sent 12 days after approval."
+  },
+  {
+   "id": "stale-10",
+   "expected": "stale",
+   "variant": "before_approval",
+   "request": {
+    "kind": "stock",
+    "item": "salt",
+    "quantity": 48,
+    "unit": "1 kg packs",
+    "hold_cents": 2600,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-10-17T06:20:00Z"
+   },
+   "uploaded_at": "2026-10-17T08:54:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003737",
+    "at": "2026-10-11T11:58:00",
+    "lines": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 48,
+      "unit_cents": 50
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 2400
+   },
+   "photo": {
+    "seed": 997485586,
+    "tilt": -7.5,
+    "light": ""
+   },
+   "usual_cents": 50,
+   "note": "Printed 6 days before approval."
+  },
+  {
+   "id": "genuine-17",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "salt",
+    "quantity": 51,
+    "unit": "1 kg packs",
+    "hold_cents": 2800,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-10-17T11:44:00Z"
+   },
+   "uploaded_at": "2026-10-17T14:13:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003781",
+    "at": "2026-10-17T15:12:00",
+    "lines": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 51,
+      "unit_cents": 50
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "1",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 2550
+   },
+   "photo": {
+    "seed": 851833295,
+    "tilt": 11.4,
+    "light": ""
+   },
+   "usual_cents": 50,
+   "note": "51 1 kg packs at 50 cents against a usual 50."
+  },
+  {
+   "id": "stale-06",
+   "expected": "stale",
+   "variant": "late_receipt",
+   "request": {
+    "kind": "stock",
+    "item": "sugar",
+    "quantity": 40,
+    "unit": "2 kg packs",
+    "hold_cents": 8300,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-09T11:55:00Z"
+   },
+   "uploaded_at": "2026-10-18T07:39:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041783",
+    "at": "2026-10-18T09:25:00",
+    "lines": [
+     {
+      "name": "WHITE SUGAR 2KG",
+      "quantity": 40,
+      "unit_cents": 175
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "2",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 7000
+   },
+   "photo": {
+    "seed": 335530483,
+    "tilt": -8.0,
+    "light": "dim"
+   },
+   "usual_cents": 187,
+   "note": "Printed 9 days after approval."
+  },
+  {
+   "id": "wrong_payee-16",
+   "expected": "wrong_payee",
+   "variant": "known_supplier",
+   "request": {
+    "kind": "stock",
+    "item": "cooking oil",
+    "quantity": 6,
+    "unit": "2 L bottles",
+    "hold_cents": 2400,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-18T06:01:00Z"
+   },
+   "uploaded_at": "2026-10-18T09:41:00Z",
+   "receipt": {
+    "payee": "Siyaso Traders",
+    "address": "Siyaso Market, Mbare, Harare",
+    "receipt_no": "ST 05303",
+    "at": "2026-10-18T10:39:00",
+    "lines": [
+     {
+      "name": "cooking oil (2 L bottles)",
+      "quantity": 6,
+      "unit_cents": 365
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "",
+    "font": "courier",
+    "business": "Siyaso traders",
+    "total_cents": 2190
+   },
+   "photo": {
+    "seed": 804989802,
+    "tilt": -13.1,
+    "light": ""
+   },
+   "usual_cents": 360,
+   "note": "The request named Mbare wholesale; the receipt is from Siyaso traders."
+  },
+  {
+   "id": "stale-08",
+   "expected": "stale",
+   "variant": "late_receipt",
+   "request": {
+    "kind": "stock",
+    "item": "mealie meal",
+    "quantity": 10,
+    "unit": "10 kg bags",
+    "hold_cents": 7300,
+    "payee": "Siyaso traders",
+    "approved_at": "2026-10-07T08:45:00Z"
+   },
+   "uploaded_at": "2026-10-18T11:55:00Z",
+   "receipt": {
+    "payee": "Siyaso Traders",
+    "address": "Siyaso Market, Mbare, Harare",
+    "receipt_no": "ST 05339",
+    "at": "2026-10-18T13:05:00",
+    "lines": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 10,
+      "unit_cents": 610
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "",
+    "font": "courier",
+    "business": "Siyaso traders",
+    "total_cents": 6100
+   },
+   "photo": {
+    "seed": 311274603,
+    "tilt": null,
+    "light": "shade"
+   },
+   "usual_cents": 645,
+   "note": "Printed 11 days after approval."
+  },
+  {
+   "id": "genuine-09",
+   "expected": "genuine",
+   "variant": "usual",
+   "request": {
+    "kind": "stock",
+    "item": "tomatoes",
+    "quantity": 2,
+    "unit": "crates",
+    "hold_cents": 2600,
+    "payee": "Musika fresh produce",
+    "approved_at": "2026-10-18T10:38:00Z"
+   },
+   "uploaded_at": "2026-10-18T19:05:00Z",
+   "receipt": {
+    "payee": "Musika Fresh Produce",
+    "address": "Mbare Musika, Harare",
+    "receipt_no": "FP-00509",
+    "at": "2026-10-18T15:08:00",
+    "lines": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 2,
+      "unit_cents": 1185
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "2",
+    "font": "liberation",
+    "business": "Musika fresh produce",
+    "total_cents": 2370
+   },
+   "photo": {
+    "seed": 194519951,
+    "tilt": 5.3,
+    "light": ""
+   },
+   "usual_cents": 1177,
+   "note": "2 crates at 1185 cents against a usual 1177."
+  },
+  {
+   "id": "genuine-40",
+   "expected": "genuine",
+   "variant": "extra_line",
+   "request": {
+    "kind": "stock",
+    "item": "tomatoes",
+    "quantity": 2,
+    "unit": "crates",
+    "hold_cents": 2700,
+    "payee": "Musika fresh produce",
+    "approved_at": "2026-10-19T06:17:00Z"
+   },
+   "uploaded_at": "2026-10-19T11:41:00Z",
+   "receipt": {
+    "payee": "Musika Fresh Produce",
+    "address": "Mbare Musika, Harare",
+    "receipt_no": "FP-00543",
+    "at": "2026-10-19T10:34:00",
+    "lines": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 2,
+      "unit_cents": 1190
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 3,
+      "unit_cents": 15
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "",
+    "font": "liberation",
+    "business": "Musika fresh produce",
+    "total_cents": 2425
+   },
+   "photo": {
+    "seed": 92980964,
+    "tilt": 10.7,
+    "light": ""
+   },
+   "usual_cents": 1177,
+   "note": "2 crates at 1190 cents against a usual 1177."
+  },
+  {
+   "id": "stale-13",
+   "expected": "stale",
+   "variant": "before_approval",
+   "request": {
+    "kind": "stock",
+    "item": "tomatoes",
+    "quantity": 2,
+    "unit": "crates",
+    "hold_cents": 2700,
+    "payee": "Musika fresh produce",
+    "approved_at": "2026-10-19T11:26:00Z"
+   },
+   "uploaded_at": "2026-10-19T13:36:00Z",
+   "receipt": {
+    "payee": "Musika Fresh Produce",
+    "address": "Mbare Musika, Harare",
+    "receipt_no": "FP-00390",
+    "at": "2026-10-09T11:30:00",
+    "lines": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 2,
+      "unit_cents": 1135
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "3",
+    "font": "liberation",
+    "business": "Musika fresh produce",
+    "total_cents": 2270
+   },
+   "photo": {
+    "seed": 49382811,
+    "tilt": 5.3,
+    "light": "bright"
+   },
+   "usual_cents": 1177,
+   "note": "Printed 10 days before approval."
+  },
+  {
+   "id": "duplicate-08",
+   "expected": "duplicate",
+   "variant": "photographed_again",
+   "request": {
+    "kind": "stock",
+    "item": "tomatoes",
+    "quantity": 2,
+    "unit": "crates",
+    "hold_cents": 2700,
+    "payee": "Musika fresh produce",
+    "approved_at": "2026-10-19T13:56:00Z"
+   },
+   "uploaded_at": "2026-10-19T14:20:00Z",
+   "receipt": {
+    "payee": "Musika Fresh Produce",
+    "address": "Mbare Musika, Harare",
+    "receipt_no": "FP-00543",
+    "at": "2026-10-19T10:34:00",
+    "lines": [
+     {
+      "name": "TOMATOES CRATE",
+      "quantity": 2,
+      "unit_cents": 1190
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 3,
+      "unit_cents": 15
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "",
+    "font": "liberation",
+    "business": "Musika fresh produce",
+    "total_cents": 2425
+   },
+   "photo": {
+    "seed": 924489345,
+    "tilt": -5.2,
+    "light": "dim",
+    "receipt_of": "genuine-40"
+   },
+   "usual_cents": 1177,
+   "note": "The receipt already sent for genuine-40."
+  },
+  {
+   "id": "genuine-05",
+   "expected": "genuine",
+   "variant": "known_other",
+   "request": {
+    "kind": "stock",
+    "item": "cooking oil",
+    "quantity": 8,
+    "unit": "2 L bottles",
+    "hold_cents": 3500,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-10-19T12:16:00Z"
+   },
+   "uploaded_at": "2026-10-19T19:37:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003816",
+    "at": "2026-10-19T15:44:00",
+    "lines": [
+     {
+      "name": "CKNG OIL 2LT",
+      "quantity": 8,
+      "unit_cents": 380
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 3040
+   },
+   "photo": {
+    "seed": 84812672,
+    "tilt": null,
+    "light": "warm"
+   },
+   "usual_cents": 380,
+   "note": "8 2 L bottles at 380 cents against a usual 380."
+  },
+  {
+   "id": "inflated-16",
+   "expected": "inflated",
+   "variant": "over_hold",
+   "request": {
+    "kind": "stock",
+    "item": "eggs",
+    "quantity": 10,
+    "unit": "trays",
+    "hold_cents": 4700,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-20T12:00:00Z"
+   },
+   "uploaded_at": "2026-10-20T14:15:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041802",
+    "at": "2026-10-20T16:06:00",
+    "lines": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 10,
+      "unit_cents": 570
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "2",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 5700
+   },
+   "photo": {
+    "seed": 216337300,
+    "tilt": 12.8,
+    "light": ""
+   },
+   "usual_cents": 445,
+   "note": "570 cents a unit, 28% above the usual 445."
+  },
+  {
+   "id": "stale-18",
+   "expected": "stale",
+   "variant": "before_approval",
+   "request": {
+    "kind": "stock",
+    "item": "mealie meal",
+    "quantity": 10,
+    "unit": "10 kg bags",
+    "hold_cents": 7400,
+    "payee": "Siyaso traders",
+    "approved_at": "2026-10-21T08:15:00Z"
+   },
+   "uploaded_at": "2026-10-21T09:56:00Z",
+   "receipt": {
+    "payee": "Siyaso Traders",
+    "address": "Siyaso Market, Mbare, Harare",
+    "receipt_no": "ST 05214",
+    "at": "2026-10-02T14:27:00",
+    "lines": [
+     {
+      "name": "ROLLER MEALIE MEAL 10KG",
+      "quantity": 10,
+      "unit_cents": 615
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "3",
+    "font": "courier",
+    "business": "Siyaso traders",
+    "total_cents": 6150
+   },
+   "photo": {
+    "seed": 959807956,
+    "tilt": null,
+    "light": "dim"
+   },
+   "usual_cents": 645,
+   "note": "Printed 19 days before approval."
+  },
+  {
+   "id": "genuine-26",
+   "expected": "genuine",
+   "variant": "split_lines",
+   "request": {
+    "kind": "stock",
+    "item": "bath soap",
+    "quantity": 24,
+    "unit": "bars",
+    "hold_cents": 1500,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-10-21T11:12:00Z"
+   },
+   "uploaded_at": "2026-10-21T14:24:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027448",
+    "at": "2026-10-21T15:51:00",
+    "lines": [
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 12,
+      "unit_cents": 50
+     },
+     {
+      "name": "BATH SOAP BAR 200G",
+      "quantity": 12,
+      "unit_cents": 50
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "3",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 1200
+   },
+   "photo": {
+    "seed": 377970541,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 55,
+   "note": "24 bars at 50 cents against a usual 55."
+  },
+  {
+   "id": "stale-19",
+   "expected": "stale",
+   "variant": "late_upload",
+   "request": {
+    "kind": "stock",
+    "item": "salt",
+    "quantity": 24,
+    "unit": "1 kg packs",
+    "hold_cents": 1400,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-10-09T05:05:00Z"
+   },
+   "uploaded_at": "2026-10-22T06:46:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003717",
+    "at": "2026-10-10T12:58:00",
+    "lines": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 24,
+      "unit_cents": 50
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "3",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 1200
+   },
+   "photo": {
+    "seed": 379868613,
+    "tilt": null,
+    "light": "dim"
+   },
+   "usual_cents": 50,
+   "note": "Sent 13 days after approval."
+  },
+  {
+   "id": "stale-11",
+   "expected": "stale",
+   "variant": "before_approval",
+   "request": {
+    "kind": "stock",
+    "item": "candles",
+    "quantity": 10,
+    "unit": "packs",
+    "hold_cents": 1200,
+    "payee": "Magaba general dealers",
+    "approved_at": "2026-10-22T06:05:00Z"
+   },
+   "uploaded_at": "2026-10-22T07:11:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027295",
+    "at": "2026-10-02T11:11:00",
+    "lines": [
+     {
+      "name": "CANDLES 6S",
+      "quantity": 10,
+      "unit_cents": 105
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "3",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 1050
+   },
+   "photo": {
+    "seed": 344866912,
+    "tilt": null,
+    "light": ""
+   },
+   "usual_cents": 115,
+   "note": "Printed 20 days before approval."
+  },
+  {
+   "id": "stale-09",
+   "expected": "stale",
+   "variant": "before_approval",
+   "request": {
+    "kind": "stock",
+    "item": "salt",
+    "quantity": 48,
+    "unit": "1 kg packs",
+    "hold_cents": 2700,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-10-22T08:21:00Z"
+   },
+   "uploaded_at": "2026-10-22T08:57:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003669",
+    "at": "2026-10-07T09:08:00",
+    "lines": [
+     {
+      "name": "TABLE SALT 1KG",
+      "quantity": 48,
+      "unit_cents": 50
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 2400
+   },
+   "photo": {
+    "seed": 78161038,
+    "tilt": -7.2,
+    "light": ""
+   },
+   "usual_cents": 50,
+   "note": "Printed 15 days before approval."
+  },
+  {
+   "id": "genuine-11",
+   "expected": "genuine",
+   "variant": "extra_line",
+   "request": {
+    "kind": "stock",
+    "item": "eggs",
+    "quantity": 20,
+    "unit": "trays",
+    "hold_cents": 10300,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-22T09:10:00Z"
+   },
+   "uploaded_at": "2026-10-22T11:25:00Z",
+   "receipt": {
+    "payee": "Mbare Wholesale (Pvt) Ltd",
+    "address": "Stand 14, Mbare Musika, Harare",
+    "receipt_no": "MW-041841",
+    "at": "2026-10-22T12:04:00",
+    "lines": [
+     {
+      "name": "EGGS LARGE 30S TRAY",
+      "quantity": 20,
+      "unit_cents": 425
+     },
+     {
+      "name": "CARRIER BAG",
+      "quantity": 3,
+      "unit_cents": 15
+     }
+    ],
+    "footer": "Prices include VAT.",
+    "till": "1",
+    "font": "dejavu",
+    "business": "Mbare wholesale",
+    "total_cents": 8545
+   },
+   "photo": {
+    "seed": 164398132,
+    "tilt": -4.6,
+    "light": "dim"
+   },
+   "usual_cents": 445,
+   "note": "20 trays at 425 cents against a usual 445."
+  },
+  {
+   "id": "genuine-36",
+   "expected": "genuine",
+   "variant": "next_days",
+   "request": {
+    "kind": "stock",
+    "item": "rice",
+    "quantity": 40,
+    "unit": "2 kg packs",
+    "hold_cents": 11200,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-10-20T05:30:00Z"
+   },
+   "uploaded_at": "2026-10-23T13:12:00Z",
+   "receipt": {
+    "payee": "Gulf Cash & Carry",
+    "address": "Gulf Complex, Harare",
+    "receipt_no": "INV1003856",
+    "at": "2026-10-23T14:17:00",
+    "lines": [
+     {
+      "name": "RICE LONG GRAIN 2KG",
+      "quantity": 40,
+      "unit_cents": 255
+     }
+    ],
+    "footer": "Thank you. Come again.",
+    "till": "3",
+    "font": "consolas",
+    "business": "Gulf cash and carry",
+    "total_cents": 10200
+   },
+   "photo": {
+    "seed": 946894825,
+    "tilt": null,
+    "light": "warm"
+   },
+   "usual_cents": 255,
+   "note": "40 2 kg packs at 255 cents against a usual 255."
+  },
+  {
+   "id": "wrong_payee-14",
+   "expected": "wrong_payee",
+   "variant": "unknown",
+   "request": {
+    "kind": "stock",
+    "item": "eggs",
+    "quantity": 20,
+    "unit": "trays",
+    "hold_cents": 10100,
+    "payee": "Mbare wholesale",
+    "approved_at": "2026-10-24T08:28:00Z"
+   },
+   "uploaded_at": "2026-10-24T11:56:00Z",
+   "receipt": {
+    "payee": "Mupedzanhamo Traders",
+    "address": "Mupedzanhamo Market, Mbare",
+    "receipt_no": "MP09136",
+    "at": "2026-10-24T12:29:00",
+    "lines": [
+     {
+      "name": "eggs (trays)",
+      "quantity": 20,
+      "unit_cents": 425
+     }
+    ],
+    "footer": "Goods once sold are not returnable.",
+    "till": "3",
+    "font": "liberation",
+    "business": "Mupedzanhamo traders",
+    "total_cents": 8500
+   },
+   "photo": {
+    "seed": 767771892,
+    "tilt": -9.1,
+    "light": "warm"
+   },
+   "usual_cents": 445,
+   "note": "The request named Mbare wholesale; the receipt is from Mupedzanhamo traders."
+  },
+  {
+   "id": "wrong_payee-01",
+   "expected": "wrong_payee",
+   "variant": "known_supplier",
+   "request": {
+    "kind": "stock",
+    "item": "salt",
+    "quantity": 36,
+    "unit": "1 kg packs",
+    "hold_cents": 2100,
+    "payee": "Gulf cash and carry",
+    "approved_at": "2026-10-24T10:05:00Z"
+   },
+   "uploaded_at": "2026-10-25T06:01:00Z",
+   "receipt": {
+    "payee": "Magaba General Dealers",
+    "address": "Magaba, Mbare, Harare",
+    "receipt_no": "RCPT#027458",
+    "at": "2026-10-24T14:51:00",
+    "lines": [
+     {
+      "name": "salt (1 kg packs)",
+      "quantity": 36,
+      "unit_cents": 50
+     }
+    ],
+    "footer": "Thank you for your support.",
+    "till": "1",
+    "font": "narrow",
+    "business": "Magaba general dealers",
+    "total_cents": 1800
+   },
+   "photo": {
+    "seed": 794229772,
+    "tilt": 6.2,
+    "light": "shade"
+   },
+   "usual_cents": 50,
+   "note": "The request named Gulf cash and carry; the receipt is from Magaba general dealers."
+  }
+ ]
+}

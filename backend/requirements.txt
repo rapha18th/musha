@@ -8,3 +8,4 @@ psycopg[binary]>=3.2
 python-multipart>=0.0.9
 pillow>=11.0
 google-genai>=1.40
+requests>=2.32

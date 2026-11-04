@@ -4,6 +4,8 @@ __pycache__/
 .venv/
 .pytest_cache/
 *.db
+*.db-wal
+*.db-shm
 
 # Node
 node_modules/

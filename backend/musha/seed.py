@@ -5,7 +5,8 @@ history, past receipts and camera stills. The web app calls it once per visitor,
 so every visitor plays a shop of their own.
 
 Run `python -m musha.seed` to reset the local database to one fresh shop, or
-`python -m musha.seed --if-empty` to seed only an empty database.
+`python -m musha.seed --if-empty` to bring an older database up to the models and seed it
+only when it is empty.
 Sandbox emails come from the environment so each judge can use their own sandbox accounts.
 """
 import os
@@ -30,14 +31,14 @@ PRODUCTS = [
 
 def seed(session: Session) -> Shop:
     chipo = Person(role="owner", name="Chipo", city="Leicester", language="en",
-                   email=os.getenv("MUSHA_OWNER_EMAIL", "chipo-owner@example.com"))
+                   email=os.getenv("MUSHA_OWNER_EMAIL") or "chipo-owner@example.com")
     farai = Person(role="manager", name="Farai", city="Harare", language="sn",
                    phone="+263 00 000 0001",
-                   email=os.getenv("MUSHA_MANAGER_EMAIL", "farai-manager@example.com"))
+                   email=os.getenv("MUSHA_MANAGER_EMAIL") or "farai-manager@example.com")
     session.add_all([chipo, farai])
     session.flush()
     shop = Shop(name="Chipo's Tuck Shop", place="Mbare, Harare", currency="USD",
-                owner_id=chipo.id, manager_id=farai.id)
+                owner_id=chipo.id, manager_id=farai.id, demo=True)
     session.add(shop)
     session.flush()
 
@@ -73,19 +74,29 @@ def reset(engine, session_factory) -> Shop:
         return seed(session)
 
 
-if __name__ == "__main__":
+def main(argv: list[str]) -> Shop | None:
+    """`--if-empty` brings an older database up to the models and seeds it only when it holds no
+    shop. Without it, the database is reset to one fresh shop. Visitors get shops of their own,
+    with keys, from the web app."""
     from .config import get_settings
-    from .db import make_engine, make_sessionmaker
+    from .db import make_engine, make_sessionmaker, prepare
 
     engine = make_engine(get_settings().database_url)
     sessions = make_sessionmaker(engine)
-    if "--if-empty" in sys.argv:
-        Base.metadata.create_all(engine)
+    if "--if-empty" in argv:
+        added = prepare(engine)
+        if added:
+            print(f"Database upgraded: added {', '.join(added)}")
         with sessions() as s:
             if s.scalar(select(Shop.id).limit(1)):
                 print("Database already seeded")
-                sys.exit(0)
+                return None
             shop = seed(s)
     else:
         shop = reset(engine, sessions)
     print(f"Seeded {shop.name}, {shop.place} (shop {shop.id})")
+    return shop
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
