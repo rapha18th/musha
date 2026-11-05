@@ -40,6 +40,13 @@ def test_config_serves_the_ag_grid_key_at_runtime(settings, sandbox, model):
     assert TestClient(keyed).get("/api/config").json()["ag_grid_key"] == "trial-key-for-tests"
 
 
+def test_the_key_loses_a_byte_order_mark_from_a_windows_pipe(monkeypatch):
+    from musha.config import get_settings
+
+    monkeypatch.setenv("AG_GRID_KEY", "﻿trial-key-for-tests\r\n")
+    assert get_settings().ag_grid_key == "trial-key-for-tests"
+
+
 def test_the_opening_books_show_released_money_without_paypal_ids(client):
     v = view(client)
     assert v["rows"] and all(r["seeded"] and r["state"] == "released" for r in v["rows"])

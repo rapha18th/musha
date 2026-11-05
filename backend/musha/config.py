@@ -71,5 +71,5 @@ def get_settings() -> Settings:
         gemini_model=os.getenv("MUSHA_GEMINI_MODEL", DEFAULT_MODEL),
         jobs_every_minutes=int(os.getenv("MUSHA_JOBS_EVERY_MINUTES", "30")),
         live_model_override=os.getenv("MUSHA_LIVE_MODEL", "").strip(),
-        ag_grid_key=os.getenv("AG_GRID_KEY", "").strip(),
+        ag_grid_key=os.getenv("AG_GRID_KEY", "").replace("\ufeff", "").strip(),  # a Windows pipe can lead with a BOM
     )

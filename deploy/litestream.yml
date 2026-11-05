@@ -2,7 +2,9 @@
 # deploy/entrypoint.sh restores it at start and runs the web process under
 # `litestream replicate -exec`. ${...} values come from the environment:
 #   MUSHA_DB_PATH           the SQLite file, /data/musha.db in the image
-#   LITESTREAM_REPLICA_URL  gs://<bucket>/musha on Cloud Run; file:///<dir> for a local try
+#   LITESTREAM_REPLICA_URL  this start's own generation, <base>/gen/<UTC start stamp>-<random>;
+#                           entrypoint.sh adds gen/<name> to the base deploy.ps1 sets,
+#                           gs://<bucket>/musha on Cloud Run and file:///<dir> for a local try
 #   LITESTREAM_SOCKET       the control socket, for `litestream sync -wait`
 # Cloud Storage access uses the service's own identity (application default credentials).
 
@@ -12,11 +14,18 @@ dbs:
       url: ${LITESTREAM_REPLICA_URL}
       # A change reaches the bucket within a second while the instance has CPU.
       sync-interval: 1s
-      # Unattended: on an LTX error, take a fresh snapshot and keep replicating.
-      auto-recover: true
+      # Off on purpose. An auto-recovery resets the local state mid-run: the local transaction ids
+      # start again at 1, and once they pass the generation's last one, Litestream uploads changes
+      # whose base never reached the bucket. A later restore splices the two lines of history and
+      # either fails its full integrity check, which stops every start, or serves wrong rows.
+      # Switched off, a replication error leaves the generation whole up to its last good change.
+      # Litestream logs the error, and DurableWrites warns once a minute that writes reply before
+      # the bucket holds them. A restart is the recovery: the next start restores that whole
+      # generation and writes a new one from a full snapshot.
+      auto-recover: false
 
-# A restored database starts behind its replica, so every instance start also writes a full
-# snapshot. Retention keeps a day of history in the bucket.
+# A start writes to an empty generation, so Litestream takes a full snapshot (ltx/9) as soon as it
+# opens the database. Retention keeps a day of history inside a generation that lives that long.
 snapshot:
   interval: 24h
   retention: 24h

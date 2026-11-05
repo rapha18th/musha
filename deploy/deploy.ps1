@@ -7,7 +7,8 @@
     secret to gcloud on stdin. The script prints names only. Each step looks before it acts,
     so a second run updates in place.
 
-     1  Preflight: gcloud, the project, the names in .env, sandbox mode
+     1  Preflight: gcloud, the project, the names in .env, sandbox mode, the serving revision and its
+        traffic, and the database's generations, which decide what the new revision restores
      2  APIs: Cloud Run, Cloud Build, Artifact Registry, Secret Manager, Cloud Storage, Cloud Scheduler
      3  Artifact Registry repository, keeping the two newest images
      4  Cloud Storage bucket for the Litestream replica, soft delete off
@@ -16,16 +17,19 @@
         (an existing Gemini secret is read as it is; a missing one is made from GEMINI_API_KEY),
         and the AG Grid licence for the Money view when its secret exists (deploy/README.md)
      7  PayPal sandbox webhook for the service URL, which is known before the first deploy
-     8  Cloud Build builds the Dockerfile; Cloud Run deploys it, with the CPU on for the instance's life
-     9  Health check
+     8  Cloud Build builds the Dockerfile; Cloud Run deploys it, with the CPU on for the instance's life,
+        and takes all traffic. The new revision's start restores the most recently written generation
+        of the database (deploy/README.md)
+     9  Health check; with -RestoreFrom, the new revision's log confirms its first start used it
     10  Cloud Scheduler job for the hold keeper
-    11  With -SmokeTest: a demo shop outlives its instance
+    11  With -SmokeTest: a canary demo shop outlives the deploy and one more roll
     12  With -Budget: a monthly budget with email alerts for the project
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File deploy\deploy.ps1 -Plan
     powershell -ExecutionPolicy Bypass -File deploy\deploy.ps1 -SmokeTest
     powershell -ExecutionPolicy Bypass -File deploy\deploy.ps1 -Project my-project -GeminiSecret my-gemini-key
+    powershell -ExecutionPolicy Bypass -File deploy\deploy.ps1 -SkipBuild -RestoreFrom gs://<bucket>/musha/gen/<generation>
 #>
 [CmdletBinding()]
 param(
@@ -43,6 +47,10 @@ param(
     # Every 3 hours at minute 17: reauthorize after the honor period, void 12 h before the 29-day limit.
     [string]$Schedule = "17 */3 * * *",
     [string]$BudgetAmount = "5USD",
+    # Recovery: a generation to restore in place of the most recent (gs://<bucket>/musha/gen/<name>, or
+    # the name alone), or fresh to seed a new database on purpose. It serves the new revision's first
+    # start alone. deploy/README.md has the runbook.
+    [string]$RestoreFrom = "",
     [switch]$Plan,
     [switch]$SkipBuild,
     [switch]$SkipWebhook,
@@ -191,6 +199,117 @@ function Retry([scriptblock]$Action, [int]$Tries = 6, [int]$Seconds = 10) {
     }
 }
 
+function Field($Object, [string]$Name) {
+    # A property of parsed JSON, or nothing when it is absent: strict mode stops on a missing one.
+    if ($null -eq $Object) { return }
+    $property = $Object.PSObject.Properties[$Name]
+    if ($property) { return $property.Value }
+}
+
+function Get-Generations {
+    # The database's generations under $Replica/gen, one per instance start (deploy/entrypoint.sh), the
+    # most recently written first: by the newest litestream-timestamp among each one's LTX files, then by
+    # name, the key backend/generations.py ranks by. The lister also puts generations that started after
+    # MUSHA_RESTORE_AFTER first, which differs only until a recovery's line writes past the old one.
+    if (-not (Test-Gcloud @("storage", "ls", "$Replica/gen/", "--project=$Project"))) { return }
+    $listing = Invoke-Gcloud -Arguments @("storage", "objects", "list", "$Replica/gen/**", "--project=$Project",
+        "--format=value(name,custom_fields.litestream-timestamp,update_time)")
+    $last = @{}
+    foreach ($line in ($listing -split "`n")) {
+        $fields = @($line.Trim() -split "`t")
+        if ($fields[0] -match '(^|/)gen/(\d{8}T\d{6}Z-[0-9a-f]+)/ltx/') {
+            $name = $Matches[2]
+            # Litestream's stamp, or the upload time for a file without one; +0000 becomes +00:00 for .NET.
+            $stamp = if ($fields.Count -gt 1 -and $fields[1]) { $fields[1] } elseif ($fields.Count -gt 2) { $fields[2] } else { "" }
+            $time = [DateTimeOffset]::Parse(($stamp -replace '([+-]\d\d)(\d\d)$', '$1:$2'), [Globalization.CultureInfo]::InvariantCulture)
+            if (-not $last.ContainsKey($name) -or $time -gt $last[$name]) { $last[$name] = $time }
+        }
+    }
+    $last.GetEnumerator() |
+        ForEach-Object { [pscustomobject]@{ Name = $_.Key; Url = "$Replica/gen/$($_.Key)"; LastWrite = $_.Value } } |
+        Sort-Object -Property @{ Expression = "LastWrite"; Descending = $true }, @{ Expression = "Name"; Descending = $true }
+}
+
+function Get-NewestStart($Generations) {
+    # The generation that started last, by its name, or none: MUSHA_RESTORE_AFTER for a recovery.
+    [string[]]$names = @($Generations | Where-Object { $_ } | ForEach-Object { $_.Name })
+    if (-not $names.Count) { return "none" }
+    # Ordinal: the names sort by their UTC start stamp, character by character, as the entrypoint compares them.
+    [Array]::Sort($names, [StringComparer]::Ordinal)
+    return $names[-1]
+}
+
+function Get-Serving {
+    # The revision that takes the traffic, and whether the traffic follows the latest revision. Musha
+    # runs one writer at a time, so all traffic must sit on one revision with no tags: a split or a tag
+    # URL keeps two revisions writing. A pinned revision, which a rollback leaves, is fine.
+    $describe = ConvertFrom-Json (Invoke-Gcloud -Arguments @("run", "services", "describe", $Service,
+        "--project=$Project", "--region=$Region", "--format=json(status.traffic)"))
+    $routes = @(Field (Field $describe "status") "traffic" | Where-Object { $_ })
+    # An entry at 0 percent with no tag carries nothing.
+    $live = @($routes | Where-Object { (Field $_ "percent") -or (Field $_ "tag") })
+    if ($live.Count -ne 1 -or (Field $live[0] "percent") -ne 100 -or (Field $live[0] "tag")) {
+        $shown = ($live | ForEach-Object {
+            $name = if (Field $_ "latestRevision") { "latest" } else { Field $_ "revisionName" }
+            $tag = Field $_ "tag"
+            "$name $([int](Field $_ 'percent'))%$(if ($tag) { " tag $tag" })"
+        }) -join ", "
+        throw ("Traffic to $Service is split or tagged ($shown), so two revisions can write the database at once. " +
+            "Send it all to one revision first: gcloud run services update-traffic $Service --to-latest " +
+            "--region=$Region --project=$Project, and --remove-tags=<tag> for each tag.")
+    }
+    return [pscustomobject]@{ Revision = [string](Field $live[0] "revisionName"); Latest = [bool](Field $live[0] "latestRevision") }
+}
+
+function Assert-Recovery([string]$Revision) {
+    # The new revision's first start uses MUSHA_RESTORE_FROM unless a start wrote a generation after this
+    # script listed them, such as the serving revision waking during the build. Its musha: line says which.
+    $filter = "resource.type=cloud_run_revision AND resource.labels.revision_name=$Revision AND textPayload:MUSHA_RESTORE_FROM"
+    for ($n = 1; $n -le 9; $n++) {
+        try {
+            $line = Invoke-Gcloud -Arguments @("logging", "read", $filter, "--project=$Project", "--freshness=1h",
+                "--order=asc", "--limit=1", "--format=value(textPayload)")
+        } catch {
+            Write-Warning "The logs are out of reach, so the recovery is unconfirmed. Read them: gcloud logging read `"$filter`" --freshness=1h"
+            return
+        }
+        if ($line -match "spent") {
+            throw ("FAIL: $Revision restored the most recent generation in place of $RestoreFrom, since a start wrote a " +
+                "generation after this script listed them. The database is as it was. Run the recovery again with -SkipBuild, " +
+                "which keeps that window short.")
+        }
+        if ($line) { Note "PASS: $($line.Trim())"; return }
+        Note "waiting 10s for the first start's line in the logs ($n of 9)"
+        Start-Sleep -Seconds 10
+    }
+    Write-Warning "$Revision logged no MUSHA_RESTORE_FROM line in 90 s, so the recovery is unconfirmed. Read it: gcloud logging read `"$filter`" --freshness=1h"
+}
+
+function New-Canary([string]$Where) {
+    # A demo shop for the smoke test, kept in $web's cookies. Returns its id.
+    $shop = Invoke-RestMethod -Method Post -Uri "$Url/api/demo/shops" -WebSession $web
+    Note "made canary demo shop $($shop.id) $Where"
+    # The new shop's reply waited for the bucket; a few more requests give Litestream a moment to settle.
+    1..4 | ForEach-Object { Invoke-WebRequest -UseBasicParsing -Uri "$Url/api/health" -TimeoutSec 30 | Out-Null; Start-Sleep -Seconds 1 }
+    return [string]$shop.id
+}
+
+function Assert-Canary([string]$When) {
+    # The canary opens while the database the instance restored holds it; anything else stops the script.
+    $status = 0
+    try { $status = [int](Invoke-WebRequest -UseBasicParsing -Uri "$Url/api/shops/$Canary" -WebSession $web -TimeoutSec 60).StatusCode }
+    catch {
+        $response = $_.Exception.PSObject.Properties["Response"]
+        if ($response -and $response.Value) { $status = [int]$response.Value.StatusCode }
+    }
+    if ($status -eq 200) { Note "PASS: canary shop $Canary opens $When" }
+    else {
+        $back = if ($CanaryGeneration) { "The canary went into ${CanaryGeneration}, and deploy.ps1 -SkipBuild -RestoreFrom $CanaryGeneration serves that copy again." }
+                else { "Every generation stays in $Replica/gen; deploy/README.md, Recovery, has the way back." }
+        throw "FAIL: canary shop $Canary answered $status $When. The start restored another generation or seeded a fresh database. $back"
+    }
+}
+
 function Wait-Healthy([string]$Url) {
     for ($n = 1; $n -le 12; $n++) {
         try {
@@ -217,6 +336,46 @@ Note "gcloud account set; project $Project, region $Region"
 $ProjectNumber = Invoke-Gcloud -Arguments @("projects", "describe", $Project, "--format=value(projectNumber)")
 $Url = "https://$Service-$ProjectNumber.$Region.run.app"
 Note "service URL: $Url"
+# -RestoreFrom: fresh, a generation URL, or a generation's name under $Replica/gen. A URL that holds
+# no replica files stops here, before anything changes.
+if ($RestoreFrom -eq "fresh") { $RestoreFrom = "fresh" }
+elseif ($RestoreFrom) {
+    if ($RestoreFrom -match '^\d{8}T\d{6}Z-[0-9a-f]+$') { $RestoreFrom = "$Replica/gen/$RestoreFrom" }
+    $RestoreFrom = $RestoreFrom.TrimEnd("/")
+    if ($RestoreFrom -notmatch '^[a-z0-9]+://[^,=\s]+$') {
+        throw "-RestoreFrom takes a generation URL ($Replica/gen/<name>), a generation name, or fresh."
+    }
+    if ($RestoreFrom.StartsWith("gs://") -and -not (Test-Gcloud @("storage", "ls", "$RestoreFrom/ltx/", "--project=$Project"))) {
+        throw "$RestoreFrom holds no replica files. The generations: gcloud storage ls $Replica/gen/"
+    }
+}
+# The serving revision and the generations decide what the new revision's first start restores.
+$Serving = $null
+if (Test-Gcloud @("run", "services", "describe", $Service, "--project=$Project", "--region=$Region")) {
+    $Serving = Get-Serving
+    if ($Serving.Latest) { Note "serving: $($Serving.Revision), the latest revision, with all traffic" }
+    else { Note "serving: $($Serving.Revision), pinned with all traffic by a rollback; the new revision takes it over" }
+}
+$generations = @(Get-Generations)
+# MUSHA_RESTORE_AFTER: the newest generation now. A generation that starts after it spends the request,
+# and that line ranks first from then on. It stays in the service template after a recovery.
+$RestoreAfter = ""
+if ($RestoreFrom) { $RestoreAfter = Get-NewestStart $generations }
+elseif (-not $generations.Count) {
+    if ($Serving) {
+        throw ("$Replica/gen lists no generations, and $Service serves. A start seeds a fresh database on request " +
+            "alone, so name the database the new revision starts from: -RestoreFrom <generation URL> carries one " +
+            "over, and -RestoreFrom fresh starts over (deploy/README.md, Recovery).")
+    }
+    $RestoreFrom = "fresh"
+    $RestoreAfter = "none"
+    Note "$Replica/gen holds no generations and $Service is new: its first start seeds a fresh database"
+}
+if ($SkipBuild -and -not $Serving) { throw "-SkipBuild redeploys the serving revision's image, and $Service has none. Build without -SkipBuild." }
+if ($SkipBuild -and -not $generations.Count) {
+    throw ("-SkipBuild redeploys the serving revision's image, and no start has written a generation yet, so that " +
+        "image may predate generations and ignore -RestoreFrom. Build once without -SkipBuild.")
+}
 
 if (-not (Test-Path -LiteralPath $EnvFile)) { throw "Missing $EnvFile. Copy .env.example to .env and fill the PayPal sandbox keys." }
 $DotEnv = Read-DotEnv $EnvFile
@@ -399,7 +558,11 @@ $envVars = [ordered]@{
     "MUSHA_CURRENCY"           = "USD"
     "MUSHA_JOBS_EVERY_MINUTES" = "0"
     "DATABASE_URL"             = "sqlite:////data/musha.db"
+    # The base: each start replicates to a generation of its own under $Replica/gen (deploy/entrypoint.sh).
     "LITESTREAM_REPLICA_URL"   = $Replica
+    # Sent on every deploy, empty unless -RestoreFrom names a generation or fresh. A recovery's first
+    # start spends it, and the next deploy clears it from the service template.
+    "MUSHA_RESTORE_FROM"       = $RestoreFrom
     # /data lives in the instance's memory: 30 new demo shops an hour, for every visitor together.
     "MUSHA_SHOPS_PER_HOUR"     = "30"
     # Cloud Run's front end appends the caller's address to X-Forwarded-For: one trusted hop.
@@ -408,6 +571,37 @@ $envVars = [ordered]@{
     "PAYPAL_CLIENT_ID"         = $DotEnv["PAYPAL_CLIENT_ID"]
 }
 if ($WebhookId) { $envVars["PAYPAL_WEBHOOK_ID"] = $WebhookId }
+# Set by a recovery alone. Every other deploy leaves the last recovery's value in the template, where
+# it keeps that recovery's line ranked first (deploy/entrypoint.sh).
+if ($RestoreFrom) { $envVars["MUSHA_RESTORE_AFTER"] = $RestoreAfter }
+$web = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+$Canary = ""
+$CanaryGeneration = ""
+if ($SmokeTest -and -not $RestoreFrom -and $Serving) {
+    # Made before the deploy, the canary proves the new revision restored the generation that holds it.
+    if ($Plan) { Planned "POST $Url/api/demo/shops: a canary demo shop on the serving revision, opened after the deploy" }
+    else {
+        $Canary = New-Canary "on the serving revision"
+        # A cold start for the canary writes a generation of its own, so the listing comes after it.
+        $generations = @(Get-Generations)
+        $CanaryGeneration = $generations[0].Url
+        Note "the canary went into $CanaryGeneration"
+    }
+}
+if ($RestoreFrom -eq "fresh") { Note "the new revision's first start seeds a fresh database; later starts restore the most recent generation" }
+elseif ($RestoreFrom) { Note "the new revision's first start restores $RestoreFrom; later starts restore the most recent generation" }
+else {
+    Note ("the new revision restores the most recently written of $($generations.Count) generations, now " +
+        "$($generations[0].Name), last written $($generations[0].LastWrite.UtcDateTime.ToString('u'))")
+}
+$ServingImage = ""
+if ($SkipBuild) {
+    # The serving revision's own image, by digest: the newest build may be one that failed to start.
+    $ServingImage = Invoke-Gcloud -Arguments @("run", "revisions", "describe", $Serving.Revision, "--project=$Project",
+        "--region=$Region", "--format=value(status.imageDigest)")
+    if (-not $ServingImage) { throw "$($Serving.Revision) reports no image digest. Build without -SkipBuild." }
+    Note "image: $ServingImage, the one $($Serving.Revision) runs"
+}
 $envArg = ($envVars.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ","
 $secretPairs = @($Secrets.Keys | ForEach-Object { "$_=$($Secrets[$_]):latest" })
 if ($UseGemini) { $secretPairs += "GEMINI_API_KEY=$GeminiSecret`:latest" }
@@ -420,7 +614,7 @@ if (-not $SkipBuild) {
     if ($leaked) { throw "The upload would carry $($leaked -join ', '). Add them to .gitignore first." }
     Note "upload: $($upload.Count) files; .env and local databases stay behind"
 }
-$source = if ($SkipBuild) { @("--image=$Image") } else { @("--source=$RepoRoot", "--image=$Image") }
+$source = if ($SkipBuild) { @("--image=$ServingImage") } else { @("--source=$RepoRoot", "--image=$Image") }
 if ($CpuThrottling -and $CpuAlways) { throw "Pick one: -CpuThrottling or -CpuAlways." }
 $throttle = if ($CpuThrottling) { "--cpu-throttling" } else { "--no-cpu-throttling" }
 $deploy = @("run", "deploy", $Service, "--project=$Project", "--region=$Region") + $source + @(
@@ -430,20 +624,34 @@ $deploy = @("run", "deploy", $Service, "--project=$Project", "--region=$Region")
     $throttle, "--cpu-boost", "--min=0", "--max=1",
     "--allow-unauthenticated",
     "--update-env-vars=$envArg",
+    # The per-revision layout's restore pointer, from before generations.
+    "--remove-env-vars=LITESTREAM_RESTORE_URL",
     "--update-secrets=$secretArg",
     "--labels=app=musha")
 $shownEnv = ($envVars.Keys | ForEach-Object { "$_=..." }) -join ","
 Invoke-Gcloud -Mutates -Shown ("gcloud run deploy $Service $($source -join ' ') --service-account=$Account " +
     "--execution-environment=gen2 --cpu=1 --memory=1Gi --concurrency=80 --timeout=600 $throttle " +
-    "--cpu-boost --min=0 --max=1 --allow-unauthenticated --update-env-vars=$shownEnv --update-secrets=$secretArg") `
+    "--cpu-boost --min=0 --max=1 --allow-unauthenticated --update-env-vars=$shownEnv " +
+    "--remove-env-vars=LITESTREAM_RESTORE_URL --update-secrets=$secretArg") `
     -Arguments $deploy | Out-Null
+if ($Serving -and -not $Serving.Latest) {
+    # A rollback pinned the traffic, so the new revision took none of it: it takes all of it now.
+    Invoke-Gcloud -Mutates -Arguments @("run", "services", "update-traffic", $Service, "--project=$Project",
+        "--region=$Region", "--to-latest") | Out-Null
+    Done "all traffic to the latest revision, from $($Serving.Revision)"
+}
+$NewRevision = ""
 if (-not $Plan) {
     $urls = Invoke-Gcloud -Arguments @("run", "services", "describe", $Service, "--project=$Project", "--region=$Region",
         "--format=value(metadata.annotations['run.googleapis.com/urls'])")
     if ($urls -and $urls -notmatch [regex]::Escape($Url)) {
         Write-Warning "The service answers at $urls. Point the webhook and the scheduler at one of those."
     }
-    Note "deployed"
+    # The health check and the canary reach whatever serves, so the new revision must be it.
+    $now = Get-Serving
+    if (-not $now.Latest) { throw "$($now.Revision) still takes the traffic, pinned. Run: gcloud run services update-traffic $Service --to-latest --region=$Region --project=$Project" }
+    $NewRevision = $now.Revision
+    Note "deployed: $NewRevision takes all traffic"
 }
 
 # ---------------------------------------------------------------- 9 health
@@ -452,6 +660,13 @@ Step "9" "Health: $Url/api/health"
 if ($Plan) { Planned "GET $Url/api/health until it answers 200" }
 elseif (Wait-Healthy $Url) { Note "200" }
 else { throw "The service stayed silent on /api/health. Read its logs: gcloud run services logs read $Service --region=$Region --project=$Project" }
+if ($Canary) { Assert-Canary "on the new revision" }
+if ($RestoreFrom) {
+    # The recovery serves one start. Its generation spends MUSHA_RESTORE_FROM for every later start, in
+    # this revision and any other that carries it, so the value can stay in the template.
+    if ($Plan) { Planned "read the new revision's first musha: line and stop if a newer start spent MUSHA_RESTORE_FROM first" }
+    else { Assert-Recovery $NewRevision }
+}
 
 # ---------------------------------------------------------------- 10 scheduler
 
@@ -476,24 +691,36 @@ if (Test-Gcloud @("scheduler", "jobs", "describe", $SchedulerJob, "--location=$R
 # ---------------------------------------------------------------- 11 smoke test
 
 if ($SmokeTest) {
-    Step "11" "Smoke test: a demo shop outlives its instance"
-    if ($Plan) { Planned "make a demo shop, roll a new revision, open the shop again" }
-    else {
-        $web = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-        $shop = Invoke-RestMethod -Method Post -Uri "$Url/api/demo/shops" -WebSession $web
-        Note "made demo shop $($shop.id)"
-        # The new shop's reply waited for the bucket; a few more requests give Litestream a moment to settle.
-        1..4 | ForEach-Object { Invoke-WebRequest -UseBasicParsing -Uri "$Url/api/health" -TimeoutSec 30 | Out-Null; Start-Sleep -Seconds 1 }
-        $files = Invoke-Gcloud -Arguments @("storage", "ls", "--recursive", "$Replica/**", "--project=$Project")
-        Note "replica files in the bucket: $(@($files -split "`n" | Where-Object { $_ }).Count)"
+    Step "11" "Smoke test: a canary demo shop outlives the deploy and one more roll"
+    if ($Plan) {
+        Planned ("make the canary now if none went in before the deploy, roll a new revision, open the canary on it, " +
+            "and check the roll's generation holds a snapshot (ltx/9)")
+    } else {
+        # A deploy that seeded fresh or restored by hand had no canary to carry over: one goes in now.
+        if (-not $Canary) {
+            $Canary = New-Canary "on the new revision"
+            $CanaryGeneration = @(Get-Generations)[0].Url
+            Note "the canary went into $CanaryGeneration"
+        }
+        $before = Get-NewestStart @(Get-Generations)
         $stamp = Get-Date -Format "yyyyMMddHHmmss"
+        # MUSHA_RESTORE_FROM is spent by now; the roll clears it from the template.
         Invoke-Gcloud -Arguments @("run", "services", "update", $Service, "--project=$Project", "--region=$Region",
-            "--update-env-vars=MUSHA_ROLLED=$stamp") | Out-Null
-        Note "rolled a new revision; its instance restores from the bucket"
+            "--update-env-vars=MUSHA_ROLLED=$stamp,MUSHA_RESTORE_FROM=") | Out-Null
+        Note "rolled a new revision; its start restores the most recent generation"
         if (-not (Wait-Healthy $Url)) { throw "The new revision stayed silent on /api/health." }
-        $again = Invoke-WebRequest -UseBasicParsing -Uri "$Url/api/shops/$($shop.id)" -WebSession $web -TimeoutSec 60
-        if ($again.StatusCode -eq 200) { Note "PASS: shop $($shop.id) opens on the new instance" }
-        else { throw "FAIL: shop $($shop.id) answered $($again.StatusCode) after the restore" }
+        Assert-Canary "after the roll"
+        # The roll's start wrote a generation of its own, and Litestream snapshots a new generation as it opens.
+        $newest = Retry -Tries 6 -Seconds 5 -Action {
+            $started = Get-NewestStart @(Get-Generations)
+            if ($started -eq "none") { throw "FAIL: $Replica/gen lists no generations after the roll" }
+            if ($started -eq $before) { throw "FAIL: the roll's start wrote no generation of its own; the newest is still $started" }
+            if (-not (Test-Gcloud @("storage", "ls", "$Replica/gen/$started/ltx/9/", "--project=$Project"))) {
+                throw "FAIL: the newest generation, $started, holds no snapshot (ltx/9)"
+            }
+            $started
+        }
+        Note "PASS: the roll's generation, $newest, holds a snapshot"
     }
 }
 
