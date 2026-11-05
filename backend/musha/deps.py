@@ -1,11 +1,11 @@
 """Shared request plumbing: the database session, PayPal, the model, who may call, and 404 helpers.
 
-Who may call. Each visitor's shop has its own keys (routes/core.py mints them and reads them:
-owner, manager and counter). Every route guards its shop with the role it needs. `access` is the
-net under those guards: api.py adds it to every router, and it holds each id in a path (a shop,
-a request, an attachment, a camera frame, an alert) to the key of the shop that id belongs to,
+Who may call. The owner and the manager sign in (accounts.py), and the counter phone carries the
+shop's counter key; routes/core.py reads both. Every route guards its shop with the role it needs.
+`access` is the net under those guards: api.py adds it to every router, and it holds each id in a
+path (a shop, a request, an attachment, a camera frame, an alert) to the shop that id belongs to,
 at the counter's role at least. So a route that forgets its own guard still opens nothing to a
-stranger. Joining a shop sends its key in the body, so the join route answers for itself.
+stranger. Joining a shop sends the counter key in the body, so the join route answers for itself.
 """
 from fastapi import Depends, HTTPException, Request
 from sqlalchemy import select
@@ -51,9 +51,9 @@ def shop_of(session: Session, name: str, value: int) -> Shop | None:
 
 
 def access(request: Request, session: Session = Depends(db)) -> None:
-    """Every id in the path belongs to a shop the caller holds a key to. An id that names
-    nothing passes, and the route answers its own 404."""
-    from .routes.core import allow  # the one key check; core imports this module
+    """Every id in the path belongs to a shop the caller holds a seat or the counter key in. An id
+    that names nothing passes, and the route answers its own 404."""
+    from .routes.core import allow  # the one check; core imports this module
 
     route = request.scope.get("route")
     if (request.method, getattr(route, "path", "")) in OWN_CHECK:

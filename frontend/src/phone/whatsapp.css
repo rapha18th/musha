@@ -1,6 +1,5 @@
-/* Farai's phone as a WhatsApp-style chat with Musha, simulated in this app.
-   Every colour, glyph and the doodle wallpaper are drawn here for Musha; no WhatsApp asset is used.
-   The WhatsApp Business Platform is the next wire for the live chat. */
+/* Farai's chat with Musha in WhatsApp's look. The same thread runs on WhatsApp when the shop connects it.
+   Every colour, glyph and the doodle wallpaper are drawn here for Musha; no WhatsApp asset is used. */
 
 .ph {
   /* WhatsApp's light palette, tuned so every line of text passes WCAG AA */

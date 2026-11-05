@@ -1,6 +1,6 @@
 # Counter camera: the delivery check
 
-Drawn counter stills, read by gemini-3.8-flash through `camera.read`: the app's own prompt, schema and clean-up. Each still then takes the app's path. It is ingested as a counter sample in a fresh demo shop, and the delivery check is asked about every product the shop sells.
+Drawn counter stills, read by gemini-3.8-flash through `camera.read`: the app's own prompt, schema and clean-up. Each still then takes the app's path. It is ingested as a counter sample in a fresh sandbox shop, and the delivery check is asked about every product the shop sells.
 
 **Held out: 10 of 10 deliveries confirmed, 0 of 10 false alarms.**
 

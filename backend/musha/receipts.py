@@ -1,4 +1,4 @@
-"""Thermal-printer receipts, rendered as phone photos, for the demo and the proof engine's test set.
+"""Thermal-printer receipts, rendered as phone photos, for the sandbox shop and the proof engine's test set.
 
 `render_receipt(spec, seed=...)` is deterministic. The paper (the till's font, print density,
 fading, the torn edge) follows the spec, so it stays the same slip of paper; the seed is the camera:
@@ -88,7 +88,7 @@ def render_receipt(spec: ReceiptSpec, *, seed: int | str = 0, tilt: float | None
     return _render(spec, seed, tilt, light)
 
 
-@functools.lru_cache(maxsize=16)  # the demo seed renders the same history receipt for every new shop
+@functools.lru_cache(maxsize=16)  # the seed renders the same history receipt for every seeded shop
 def _render(spec: ReceiptSpec, seed: int | str, tilt: float | None = None, light: str = "") -> bytes:
     return _photograph(_paper(spec), random.Random(f"camera:{seed}"), tilt=tilt, light=light)
 
@@ -393,7 +393,7 @@ def _solve(a, b):
     return [m[i][n] / m[i][i] for i in range(n)]
 
 
-# Receipts from the shop's own data: last week's history and the demo samples
+# Receipts from the shop's own data: last week's history and the sandbox samples
 
 GOODS = Path(__file__).resolve().parent / "assets" / "goods"
 PACKS = 4  # a regular order: four reorder packs
@@ -412,7 +412,7 @@ def goods_photo(item: str) -> bytes | None:
 @functools.lru_cache(maxsize=16)
 def earlier_goods_photo(item: str) -> bytes | None:
     """Last week's photo of the same goods, for the shop's history: the stock photo seen from the other
-    side, framed tighter and in dimmer light. It reads as another photo, so the demo's own goods photo
+    side, framed tighter and in dimmer light. It reads as another photo, so the sandbox's own goods photo
     passes the reuse check and a reused one is still caught."""
     data = goods_photo(item)
     if data is None:

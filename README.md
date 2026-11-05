@@ -6,7 +6,7 @@ Millions of people abroad fund businesses run by family at home: tuck shops, mar
 
 Musha gives the owner abroad a seat at the table. The manager at home asks for money in their own words, in a chat on their phone. The owner approves with PayPal, and the money is **held**. Musha reads the evidence (the receipt, a photo of the goods, the counter camera) and decides how much to **release**. Unspent money **returns** to the owner. Every step posts to the shop's books.
 
-The demo family: Chipo, a nurse in Leicester, owns a tuck shop in Mbare, Harare. Her sister Farai runs it.
+The sandbox family: Chipo, a nurse in Leicester, owns a tuck shop in Mbare, Harare. Her sister Farai runs it. Each signs in to a dashboard of her own. Chipo's console shows the money, the proof and the books. Farai's dashboard is her chat with Musha, and the same chat runs on her WhatsApp.
 
 ## How it works
 
@@ -90,9 +90,9 @@ A phone propped on the counter becomes a camera for the owner. A pixel gate in t
 
 - **A phone.** The sheet shows a code. Scan it with the phone that stays at the counter: an old Android phone with Chrome is enough. The manager reads the terms and presses **Start the camera**.
 - **An IP camera.** [`counter-bridge/`](counter-bridge/) runs on a computer on the camera's network: a Raspberry Pi, a mini PC or a laptop. It reads the RTSP stream with OpenCV, sends a still when the picture changes and one every three minutes, and answers Look in within five seconds. The sheet fills in the command with the shop's counter link and holds the stream addresses for Hikvision, Dahua and ONVIF cameras. `--agree --name "Farai"` records the manager's agreement. A video file works as a camera too.
-- **A video feed.** Footage of a shop counter loops through the camera's own path, one still every 30 seconds, while the console or a counter page is open. Musha reads each still once, and later loops reuse the reading. The feed stops itself after 30 quiet minutes, and a still from a phone or the bridge takes over from it. Footage counts in a demo shop, the way staged scenes count. The footage comes from Pexels: "Bustling African Market Stall Scene in Daylight" by Khanh Hoang Minh 2 and "Lagos market women trading" by Shedrack Salami ([credits](backend/musha/assets/feed/CREDITS)).
+- **A video feed.** Footage of a shop counter loops through the camera's own path, one still every 30 seconds, while the console or a counter page is open. Musha reads each still once, and later loops reuse the reading. The feed stops itself after 30 quiet minutes, and a still from a phone or the bridge takes over from it. Footage counts in the sandbox shop, the way staged scenes count. The footage comes from Pexels: "Bustling African Market Stall Scene in Daylight" by Khanh Hoang Minh 2 and "Lagos market women trading" by Shedrack Salami ([credits](backend/musha/assets/feed/CREDITS)).
 
-**Disconnect** stops the feed and gives the shop a new counter link. Phones and bridges holding the old link stop, and the owner's key stays as it is.
+**Disconnect** stops the feed and gives the shop a new counter link. Phones and bridges holding the old link stop, and Chipo's and Farai's sign-ins stay as they are.
 
 ## Call your shop
 
@@ -110,11 +110,33 @@ Money moves on the console's buttons. When the owner wants to approve, release o
 
 **The shop calls the owner.** A receipt Musha holds for her, a day closed with a cash gap, or the counter camera seeing the shop close during trading hours rings her console, with the reason in one line and its picture. **Answer** opens the call on that reason. **Later** sends it away, and the alert waits on Today. Each alert rings once, within 15 minutes of arriving, and the shop keeps three quiet minutes after a ring. With the console in a background tab, the ring also reaches the system's notifications once the owner allows them.
 
-The browser holds one WebSocket to Musha's server, and the server holds the Gemini Live session, so every key stays on the server. The owner's key opens the call. A call runs five minutes, and Musha says goodbye 25 seconds before the end. A shop takes 6 calls an hour, one connection 12, and the server 120 a day.
+The browser holds one WebSocket to Musha's server, and the server holds the Gemini Live session, so every key stays on the server. The call opens to the owner's session alone. A call runs five minutes, and Musha says goodbye 25 seconds before the end. A shop takes 6 calls an hour, one connection 12, and the server 120 a day.
 
-## Farai's phone
+## Sign-in
 
-Farai's phone is a chat with Musha, simulated in the page. Farai types or records in Shona or English, sends receipts and goods photos from the attach menu or the camera button, answers Musha's one question with **Reply**, and closes the day. Ticks follow each line: sent, delivered, and blue once Musha replies. Each request sits in the thread as a card with its amount and status, and a held request carries **Send proof**. The WhatsApp Business Platform is the next wire: the same thread, the same messages, on Farai's own phone.
+Chipo and Farai each sign in with an email and a password, and each lands on her own dashboard: Chipo's console at `/owner`, Farai's chat at `/manager`. Each has **Sign out**.
+
+- **Passwords.** scrypt, with a fresh salt for each account, compared in constant time. A wrong email and a wrong password get the same answer and cost the same hash. Sign-in has a budget of tries per client.
+- **Sessions.** A random token in an HttpOnly cookie, Secure on https and SameSite=Lax. The server keeps the token's SHA-256 alone. A session lasts 30 days, and Sign out deletes it on the server.
+- **Seats.** Every route keeps its role. Chipo's session opens every route of her own shop. Farai's opens the manager's and the counter's routes of her own shop. A session opens its own shop alone.
+- **The counter phone.** A device, so it carries the shop's counter key in its link. Chipo hands out that link in Connect your shop and retires it with Disconnect.
+
+**Create your shop.** Sign-up opens a new, empty shop with its owner and its manager, and signs the owner in. The owner sends the manager an invite link. The link sets the manager's own sign-in, works once and lasts 14 days. Until the manager signs in, Today in the console makes a fresh link. Sign-up has two budgets: six new shops an hour for each client, and `MUSHA_SHOPS_PER_HOUR` for every client together.
+
+## Farai's dashboard
+
+Farai's dashboard is her chat with Musha, built phone first in WhatsApp's look. On a phone it fills the screen. On a desktop it sits in a phone frame in the middle of the window. Farai types or records in Shona or English, sends receipts and goods photos from the attach menu or the camera button, answers Musha's one question with **Reply**, and closes the day. Ticks follow each line: sent, delivered, and blue once Musha replies. Each request sits in the thread as a card with its amount and status, and a held request carries **Send proof**. **Counter** opens the counter camera. While the tab sits in the background, Musha's new lines show as a count in its title.
+
+## On WhatsApp
+
+The same thread runs on Farai's WhatsApp through the WhatsApp Business Cloud API. Four settings turn it on: `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_APP_SECRET` and `WHATSAPP_VERIFY_TOKEN`. The manager's number comes from the sign-up form. It goes live once the manager proves it: **Link your WhatsApp** under her chat gives a six-digit code, and she sends it to Musha from that number. **Use another number** fixes a number the owner wrote wrong, and the new one waits for its own code. One shop at most holds a proved number, so a sign-up that names another person's number reaches nobody. The sandbox shop's Farai takes her number from `MUSHA_MANAGER_PHONE`, set by whoever runs Musha, and it counts as proved. The line under the chat says when the thread is live on WhatsApp.
+
+- **Out.** Every line Musha or Chipo writes in Farai's thread also goes to Farai's WhatsApp number, in Farai's language, with Chipo's lines under her name. Each line is kept before it is sent, so it goes out once.
+- **In.** Farai's texts, voice notes, photos and PDFs reach `/api/whatsapp/webhook` and land in the same thread through the handlers the dashboard uses. A text or a voice note goes the way the composer's go. A photo goes to the proof engine like an upload: to the request Musha's line was about, the one its caption names, or the one request waiting for proof. With several waiting, Musha asks which.
+- **Checks.** Musha checks Meta's `X-Hub-Signature-256` over the raw body before it reads anything, answers 200, and hears each message once by its WhatsApp id. Musha hears the proved numbers of its shops' managers, and a link code from the number it belongs to, and drops the rest.
+- **The 24-hour window.** WhatsApp takes free text within 24 hours of Farai's last message to her shop. Past that, a line goes as the approved template `musha_update` while PayPal holds money that waits on Farai's proof, and other lines wait in the dashboard.
+
+With the four settings empty, the dashboard carries the thread alone, and every screen works the same. [Go live on WhatsApp](deploy/README.md#go-live-on-whatsapp) has the steps: the Meta app and its token, Farai's number on the test number's list, the four secrets, the webhook, and the template.
 
 ## The books always agree with the money
 
@@ -151,20 +173,30 @@ Money decisions run in plain code: the score, the decision rule and the mandate 
 
 ## Try it
 
-The hosted app at **https://musha-383490753931.us-central1.run.app** runs on the PayPal sandbox with Gemini on. A local run starts in rehearsal mode, with a stand-in answering for PayPal (see [Run it locally](#run-it-locally)). Chipo's console fills the left of the page and Farai's phone the right. On a narrow screen, the two names at the top switch between them.
+The hosted app at **https://musha-383490753931.us-central1.run.app** runs on the PayPal sandbox with Gemini on. Press **Sign in** there, or go straight to https://musha-383490753931.us-central1.run.app/sign-in. The sandbox shop, Chipo's Tuck Shop, holds two weeks of trading and a sign-in for each sister:
 
-1. Press **Open the shop**. Today opens on eggs running low.
-2. On Farai's phone, press **Ask for money**. Musha fills in a week of eggs at the usual price: 40 trays from Mbare wholesale for US$180.00. Press **Send to Chipo**. With Gemini on, Farai can type the request or hold the mic for a voice note instead, in Shona or English.
+| Who | Email | Password |
+|---|---|---|
+| Chipo, the owner | `chipo@example.com` | In the submission notes |
+| Farai, the manager | `farai@example.com` | In the submission notes |
+
+These are Musha's own sandbox sign-ins, and their passwords sit in the submission notes beside the PayPal sandbox personal account that PayPal's sandbox window asks for. Everyone who signs in shares the sandbox shop, so it shows what others did before you. Once its history is a day old and nobody has used it for three hours, Musha seeds it again under the same sign-ins, and Today opens on eggs running low once more. **Create your shop** gives anyone an empty shop of their own.
+
+Sign in as Chipo in one browser and as Farai in another, or in a private window, and set them side by side. Farai's dashboard is made for a phone, so open it on one for the real feel. A local run starts in rehearsal mode, with a stand-in answering for PayPal (see [Run it locally](#run-it-locally)).
+
+1. Sign in as Chipo. Today opens on eggs running low.
+2. Sign in as Farai and press **Ask for money**. Musha fills in a week of eggs at the usual price: 40 trays from Mbare wholesale for US$180.00. Press **Send to Chipo**. With Gemini on, Farai can type the request or hold the mic for a voice note instead, in Shona or English.
 3. In Chipo's console, approve the US$180.00. On the sandbox, the PayPal button opens PayPal's sandbox window: sign in with a PayPal sandbox personal account, such as the one in the submission notes, and approve. In rehearsal mode, press **Approve US$180.00**. PayPal holds the money.
-4. On the phone, press **Send proof for eggs**, open **Goods photo** and send the **Sample photo**. Press **Send proof for eggs** again and send the **Genuine** receipt.
+4. In Farai's chat, press **Send proof for eggs**, open **Goods photo** and send the **Sample photo**. Press **Send proof for eggs** again and send the **Genuine** receipt.
 5. Musha reads the receipt, scores it, and releases US$172.00 to the shop. The other US$8.00 goes back to Chipo. With the model off, the sample's numbers arrive as typed values, and Chipo presses **Release US$172.00**.
-6. In Chipo's console, press **Connect your shop** beside **Look in**. Under **A video feed**, press **Connect the video feed**. A still of a shop counter arrives every 30 seconds with Musha's reading of it. **A phone** holds the code for a phone at the counter, and **An IP camera** holds the bridge command. On Farai's phone, **Counter** opens the counter camera page, with staged scenes such as **Delivery**.
-7. Press **Call the shop**. Ask how the shop is doing, then what the counter camera sees: the still appears on the call, and a fresh one follows. Ask Musha to tell Farai something, and the line reaches Farai's phone. The call runs on Gemini: a local run needs `GEMINI_API_KEY` or a Vertex AI project.
+6. In Chipo's console, press **Connect your shop** beside **Look in**. Under **A video feed**, press **Connect the video feed**. A still of a shop counter arrives every 30 seconds with Musha's reading of it. **A phone** holds the code for a phone at the counter, and **An IP camera** holds the bridge command. In Farai's dashboard, **Counter** opens the counter camera, with staged scenes such as **Delivery**.
+7. Press **Call the shop**. Ask how the shop is doing, then what the counter camera sees: the still appears on the call, and a fresh one follows. Ask Musha to tell Farai something, and the line reaches Farai's chat. The call runs on Gemini: a local run needs `GEMINI_API_KEY` or a Vertex AI project.
 8. Ask for cooking oil the same way, approve it, and send the **Wrong payee** sample. The receipt names another supplier, so Musha asks Farai one question. Press **Reply** and answer. A wrong payee stays a concern after any answer, so the money waits for Chipo, and the shop calls her. Press **Answer** to hear why, then **Release** or **Return all** on the console.
-9. On the phone, press **Close the day**. Musha fills in what the books expect. Count a few dollars less in **Cash counted** and close. The gap reaches Chipo's Today with a question for Farai, and the shop rings Chipo about it. After any ring, the shop waits three minutes before the next.
+9. In Farai's chat, press **Close the day**. Musha fills in what the books expect. Count a few dollars less in **Cash counted** and close. The gap reaches Chipo's Today with a question for Farai, and the shop rings Chipo about it. After any ring, the shop waits three minutes before the next.
 10. Open **Week**, put an amount in **Wages** and press **Pay Farai**. Approve it on Today the way the eggs were approved. Musha captures the hold and pays Farai by Payouts.
-11. Open **Agent** and press **Save PayPal for Musha**. The agent now approves inside Chipo's terms: stock up to US$200 a request and US$500 a week, from suppliers she has paid before, within 10% of usual prices. Ask for sugar from the phone, and **Recent decisions** shows the approval and why. Outside the terms, Musha asks Chipo.
+11. Open **Agent** and press **Save PayPal for Musha**. The agent now approves inside Chipo's terms: stock up to US$200 a request and US$500 a week, from suppliers she has paid before, within 10% of usual prices. Ask for sugar from Farai's chat, and **Recent decisions** shows the approval and why. Outside the terms, Musha asks Chipo.
 12. Open **Books**. The **By** column names who made each line, and **Farai's record** counts every buy PayPal released on Farai's proof, each with its receipt. Press **Match PayPal to the books**. Musha sets PayPal's transactions beside the ledger, line for line. On the sandbox, PayPal lists a transaction up to three hours after it happens.
+13. Press **Sign out**, then **Create your shop**. Fill in you, your shop and who runs it. The shop opens empty, with an invite link for its manager. Open the link in another browser and set the manager's sign-in. The manager's chat opens, with Musha's first line in it. With WhatsApp on, **Link your WhatsApp** under the chat gives the code that puts the same chat on the manager's WhatsApp. Staged scenes belong to the sandbox shop, so a new shop's **Counter** shows the camera alone.
 
 ## Run it locally
 
@@ -186,7 +218,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5174 and press **Open the shop**. Each browser gets a shop of its own, seeded with two weeks of trading, and keys of its own: the owner's stays in this browser, and the counter link carries the counter phone's.
+Open http://localhost:5174 and press **Sign in**. The API's first start seeds the sandbox shop, with two weeks of trading and the sign-ins `chipo@example.com` and `farai@example.com`. Their passwords come from `MUSHA_OWNER_SIGNIN_PASSWORD` and `MUSHA_MANAGER_SIGNIN_PASSWORD` in `.env`, 10 characters or more. Left empty, the first start makes random ones and prints them once to the API's log. `.venv/Scripts/python -m musha.seed` resets the local database to the sandbox shop and its sign-ins. **Create your shop** makes an empty shop of your own, with an invite link for its manager.
 
 **Rehearsal mode.** With `MUSHA_PAYPAL=standin`, a stand-in answers every PayPal call in memory, so every screen works before you have sandbox keys. `.env.example` starts in rehearsal mode, and a banner says so.
 
@@ -248,7 +280,7 @@ Each run rewrites its `results.json` and `RESULTS.md`. `eval/make_cases.py --ima
 
 ## Run on Google Cloud
 
-The hosted app runs on Cloud Run at https://musha-383490753931.us-central1.run.app. One service, built from the `Dockerfile`, serves the API and the web app. SQLite keeps the shops, with every receipt, photo, voice note and counter still inside it as bytes. [Litestream](https://litestream.io) copies each change to a Cloud Storage bucket within a second, and a request that writes waits for that copy before it replies, for up to three seconds. Each new instance restores the database from the bucket before it serves, so the shops outlive every instance. The first start seeds the demo shop. Cloud Scheduler calls the hold job every three hours. Secret Manager keeps the PayPal secret, the jobs key, the Gemini key and the two sandbox emails.
+The hosted app runs on Cloud Run at https://musha-383490753931.us-central1.run.app. One service, built from the `Dockerfile`, serves the API and the web app. SQLite keeps the shops, with every receipt, photo, voice note and counter still inside it as bytes. [Litestream](https://litestream.io) copies each change to a Cloud Storage bucket within a second, and a request that writes waits for that copy before it replies, for up to three seconds. Each new instance restores the database from the bucket before it serves, so the shops outlive every instance. The first start seeds the sandbox shop and its two sign-ins. Cloud Scheduler calls the hold job every three hours. Secret Manager keeps the PayPal secret, the jobs key, the Gemini key, the two PayPal sandbox emails, the passwords of the two sandbox sign-ins, and the WhatsApp settings once they exist.
 
 ```powershell
 gcloud auth login
@@ -257,13 +289,13 @@ powershell -ExecutionPolicy Bypass -File deploy\deploy.ps1 -Plan        # every 
 powershell -ExecutionPolicy Bypass -File deploy\deploy.ps1 -SmokeTest   # build, deploy, prove the restore
 ```
 
-The script reads `.env` at run time and passes each secret to gcloud on stdin. It turns on the APIs, makes the bucket, the service account and the secrets, registers the PayPal sandbox webhook for the service URL, builds the image with Cloud Build and deploys it. The same command ships the next build. The service runs one instance at most, so the database has one writer. The instance keeps its CPU between requests, because Musha finishes receipt reads and translations after it answers. Its disk lives in memory, so the server makes 30 demo shops an hour (`MUSHA_SHOPS_PER_HOUR`). [deploy/README.md](deploy/README.md) lists every setting.
+The script reads `.env` at run time and passes each secret to gcloud on stdin. It turns on the APIs, makes the bucket, the service account and the secrets, registers the PayPal sandbox webhook for the service URL, builds the image with Cloud Build and deploys it. The same command ships the next build. The service runs one instance at most, so the database has one writer. The instance keeps its CPU between requests, because Musha finishes receipt reads and translations after it answers. Its disk lives in memory, so sign-up makes 30 new shops an hour for every visitor together (`MUSHA_SHOPS_PER_HOUR`). [deploy/README.md](deploy/README.md) lists every setting.
 
-**Cost.** With the CPU kept on, Cloud Run bills an instance for its whole life, and an idle instance stays up to 15 minutes after its last request. The free tier covers 240,000 vCPU-seconds a month: about 66 hours of the 1 vCPU, 1 GiB instance. The hold job's eight wakes a day can use up to 60 of those hours by themselves. Each hour past the free tier costs about US$0.07, so a month with the instance up around the clock costs about US$47. Secret Manager and Cloud Build stay inside their free tiers at demo traffic. The replica fits inside Cloud Storage's free 5 GB, because the database lives in the instance's 1 GiB of memory. Litestream's uploads and listings can pass the 5,000 free Class A operations a month, at US$0.005 per 1,000 after them. Artifact Registry keeps the two newest images, at about US$0.10 a GB a month past the billing account's free 0.5 GB. The Scheduler job is free among a billing account's first three jobs and costs US$0.10 a month after them. `-Budget` adds a US$5 monthly budget with email alerts, and `-CpuThrottling` switches to request-based billing, which bills only while requests run.
+**Cost.** With the CPU kept on, Cloud Run bills an instance for its whole life, and an idle instance stays up to 15 minutes after its last request. The free tier covers 240,000 vCPU-seconds a month: about 66 hours of the 1 vCPU, 1 GiB instance. The hold job's eight wakes a day can use up to 60 of those hours by themselves. Each hour past the free tier costs about US$0.07, so a month with the instance up around the clock costs about US$47. Secret Manager and Cloud Build stay inside their free tiers at Musha's traffic. The replica fits inside Cloud Storage's free 5 GB, because the database lives in the instance's 1 GiB of memory. Litestream's uploads and listings can pass the 5,000 free Class A operations a month, at US$0.005 per 1,000 after them. Artifact Registry keeps the two newest images, at about US$0.10 a GB a month past the billing account's free 0.5 GB. The Scheduler job is free among a billing account's first three jobs and costs US$0.10 a month after them. `-Budget` adds a US$5 monthly budget with email alerts, and `-CpuThrottling` switches to request-based billing, which bills only while requests run.
 
 ## Stack
 
-FastAPI, SQLAlchemy (SQLite with Litestream, or Postgres through `DATABASE_URL`), httpx, Pillow, Google Gen AI SDK with Gemini Live, the PayPal Agent Toolkit; React 19, Vite, AG Grid Enterprise and AG Charts Enterprise, the PayPal JS SDK v6, Web Audio worklets for the call; OpenCV in the counter bridge; Cloud Run, Cloud Storage, Cloud Scheduler and Secret Manager.
+FastAPI, SQLAlchemy (SQLite with Litestream, or Postgres through `DATABASE_URL`), httpx, Pillow, Google Gen AI SDK with Gemini Live, the PayPal Agent Toolkit, the WhatsApp Business Cloud API; React 19, Vite, AG Grid Enterprise and AG Charts Enterprise, the PayPal JS SDK v6, Web Audio worklets for the call; OpenCV in the counter bridge; Cloud Run, Cloud Storage, Cloud Scheduler and Secret Manager.
 
 ## Licence
 

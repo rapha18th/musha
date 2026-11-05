@@ -681,11 +681,11 @@ def decline(session: Session, req: SpendRequest) -> None:
     session.refresh(req)
 
 
-def used_lately(session: Session, at: datetime | None = None) -> set[int]:
-    """The shops someone used in the last day: a line Farai or Chipo wrote, a day close, or a request
-    someone in the shop made. Musha's own lines and asks count for nothing, so a shop left alone stays
-    quiet."""
-    since = flows.utc(at or flows.now()).astimezone(timezone.utc).replace(tzinfo=None) - USED_LATELY
+def used_lately(session: Session, at: datetime | None = None, within: timedelta = USED_LATELY) -> set[int]:
+    """The shops someone used in the last day, or `within`: a line Farai or Chipo wrote, a day close, or
+    a request someone in the shop made. Musha's own lines and asks count for nothing, so a shop left
+    alone stays quiet."""
+    since = flows.utc(at or flows.now()).astimezone(timezone.utc).replace(tzinfo=None) - within
     ids = set(session.scalars(select(Message.shop_id).where(Message.sender.in_(("manager", "owner")),
                                                             Message.at >= since)))
     ids |= set(session.scalars(select(DayClose.shop_id).where(DayClose.at >= since)))

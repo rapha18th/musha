@@ -1,14 +1,14 @@
 """The money loop over HTTP: shops, requests, approval, settlement, wages, books, threads, webhooks, jobs.
 
 Also the guards every route in the app shares:
-- Keys. A visitor's demo shop gets three keys when it is made: the owner's, the manager's and the
-  counter phone's. Each opens the routes of its own role and the ones below it (owner, then manager,
-  then counter). The browser that made the shop keeps the owner key in a cookie, so its pictures and
-  calls carry it; another device joins with a key it was given. A shop made without keys, such as
-  the server's own first shop, stays open, for local runs.
+- Seats. Each route opens to a role and the ones above it: counter, then manager, then owner. The
+  owner's and the manager's sessions (accounts.py, routes/auth.py) reach their own seat in their own
+  shop. The counter phone is a device, so it carries the counter key from its link, in a header or in
+  the cookie a join leaves, and reaches the counter. A shop with no sign-in and no key stays open off
+  the hosted service, for local runs and the tests.
 - Amounts. Money arrives as a decimal string, checked here, and stays inside US$100,000.
 - Rates. Each shop has a budget of calls for the routes that wake the model or PayPal, each
-  client a budget of new shops, and the server a budget of new shops an hour
+  client a budget of sign-ups and sign-ins, and the server a budget of new shops an hour
   (MUSHA_SHOPS_PER_HOUR), so one visitor never fills the database or spends the model. A client is
   the address a trusted proxy wrote (`client_of`), so a header the caller writes leaves its budget as it is.
 - Bodies. `BodyLimit` refuses a body past its size before anything reads it, and
@@ -20,7 +20,6 @@ import json
 import logging
 import os
 import re
-import secrets
 import time
 from typing import Annotated, Callable
 
@@ -30,9 +29,9 @@ from fastapi.requests import HTTPConnection
 from fastapi.responses import JSONResponse
 from pydantic import AfterValidator, BaseModel, Field
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, object_session
 
-from .. import flows, insights, ledger, webhooks
+from .. import accounts, flows, insights, ledger, webhooks
 from ..config import Settings
 from ..deps import db, guarded, model, paypal, request_or_404, settings, shop_or_404
 from ..models import Message, Shop, SpendRequest
@@ -104,37 +103,25 @@ class Join(BaseModel):
     key: str = Field(min_length=16, max_length=64)
 
 
-# Keys
+# Seats
 
 ROLES = ("counter", "manager", "owner")  # each opens what the roles before it open
 KEY_HEADER = "x-shop-key"
 KEY_DAYS = 30
-FORBIDDEN = "This shop opens with its own key, kept by the browser that made it."
+FORBIDDEN = "Sign in to open this shop."
 
 
 def keys_of(shop: Shop) -> dict[str, str]:
-    """The shop's keys by role. Empty strings for a shop made without keys."""
-    return {role: getattr(shop, f"{role}_key", None) or "" for role in ROLES}
-
-
-def issue_keys(shop: Shop) -> dict[str, str]:
-    """Three new keys for a visitor's shop, once the shop table keeps them; {} until then."""
-    if not all(hasattr(Shop, f"{role}_key") for role in ROLES):
-        return {}
-    keys = {role: secrets.token_urlsafe(24) for role in ROLES}
-    for role, value in keys.items():
-        setattr(shop, f"{role}_key", value)
-    return keys
+    """The keys a device can carry into this shop: the counter phone's. Empty for a shop without one."""
+    return {"counter": shop.counter_key or ""}
 
 
 def rotate_counter_key(shop: Shop) -> str:
-    """A new counter key for a shop with keys; the caller commits. Links, phones and bridges that
-    carry the old one open nothing from then on. The owner's and the manager's keys stay as they are.
-    A shop made without keys stays open, and the answer is empty."""
-    if not keys_of(shop)["owner"]:
+    """A new counter key; the caller commits. Links, phones and bridges that carry the old one open
+    nothing from then on. A shop open to every caller stays open, and the answer is empty."""
+    if accounts.is_open(shop):
         return ""
-    shop.counter_key = secrets.token_urlsafe(24)
-    return shop.counter_key
+    return accounts.issue_counter_key(shop, fresh=True)
 
 
 def cookie_name(shop_id: int) -> str:
@@ -146,22 +133,30 @@ def role_of(keys: dict[str, str], offered: str) -> str | None:
     if not offered:
         return None
     for role in reversed(ROLES):
-        if keys[role] and hmac.compare_digest(offered.encode(), keys[role].encode()):
+        key = keys.get(role, "")
+        if key and hmac.compare_digest(offered.encode(), key.encode()):
             return role
     return None
 
 
-def level_of(request: Request, shop: Shop) -> int:
-    """How far the caller reaches into this shop: an index into ROLES, -1 for nowhere."""
+def level_of(conn: HTTPConnection, shop: Shop) -> int:
+    """How far the caller reaches into this shop: an index into ROLES, -1 for nowhere. A session
+    reaches its person's seat in this shop alone, and the counter key the counter."""
+    if accounts.is_open(shop):
+        return len(ROLES) - 1  # no sign-in and no key, off the hosted service: for local runs
+    level = -1
+    person = accounts.person_of(conn, object_session(shop))
+    if person is not None and person == shop.owner_id:
+        return ROLES.index("owner")
+    if person is not None and person == shop.manager_id:
+        level = ROLES.index("manager")
     keys = keys_of(shop)
-    if not keys["owner"]:
-        return len(ROLES) - 1  # a shop without keys is open: the server's own, for local runs
-    found = [role_of(keys, request.headers.get(KEY_HEADER, "")),
-             role_of(keys, request.cookies.get(cookie_name(shop.id), ""))]
-    return max((ROLES.index(r) for r in found if r), default=-1)
+    if role_of(keys, conn.headers.get(KEY_HEADER, "")) or role_of(keys, conn.cookies.get(cookie_name(shop.id), "")):
+        level = max(level, ROLES.index("counter"))
+    return level
 
 
-def allow(request: Request, shop: Shop, role: str):
+def allow(request: HTTPConnection, shop: Shop, role: str):
     if level_of(request, shop) < ROLES.index(role):
         raise HTTPException(403, FORBIDDEN)
 
@@ -185,11 +180,9 @@ def request_for(role: str):
 
 
 def remember(response: Response, request: Request, shop_id: int, key: str):
-    """Keep a shop's key in this browser: sent with every call and every picture, read by no script."""
-    https = request.url.scheme == "https" or \
-        request.headers.get("x-forwarded-proto", "").split(",")[0].strip() == "https"
+    """Keep the counter key on the counter phone: sent with every call and every picture, read by no script."""
     response.set_cookie(cookie_name(shop_id), key, max_age=KEY_DAYS * 86400, path="/api",
-                        httponly=True, samesite="strict", secure=https)
+                        httponly=True, samesite="strict", secure=accounts.https(request))
 
 
 # Rates
@@ -220,11 +213,11 @@ def client_of(request: HTTPConnection) -> str:
     return request.client.host if request.client else "?"
 
 
-SHOPS_PER_HOUR = 200  # new demo shops across every visitor; Cloud Run sets 30, where /data lives in memory
+SHOPS_PER_HOUR = 200  # new shops across every visitor; Cloud Run sets 30, where /data lives in memory
 
 
 def shops_per_hour() -> int:
-    """MUSHA_SHOPS_PER_HOUR: the demo shops the server makes in an hour, for every visitor together."""
+    """MUSHA_SHOPS_PER_HOUR: the shops sign-up makes in an hour, for every visitor together."""
     try:
         return max(1, int(os.getenv("MUSHA_SHOPS_PER_HOUR", str(SHOPS_PER_HOUR))))
     except ValueError:
@@ -279,17 +272,18 @@ class _TooLarge(HTTPException):
 class BodyLimit:
     """ASGI middleware: a multipart upload stops past `multipart` bytes and any other body past
     `other`, before a parser spools it or reads it into memory. A declared Content-Length over the
-    limit is refused unread; a streamed body is counted as it arrives."""
+    limit is refused unread; a streamed body is counted as it arrives. `paths` gives a path a cap of
+    its own, such as Meta's WhatsApp webhook (routes/whatsapp.py)."""
 
-    def __init__(self, app, *, multipart: int = 9_000_000, other: int = 64_000):
-        self.app, self.multipart, self.other = app, multipart, other
+    def __init__(self, app, *, multipart: int = 9_000_000, other: int = 64_000, paths: dict[str, int] | None = None):
+        self.app, self.multipart, self.other, self.paths = app, multipart, other, paths or {}
 
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
         headers = dict(scope.get("headers") or [])
         kind = headers.get(b"content-type", b"").decode("latin-1").lower()
-        cap = self.multipart if kind.startswith("multipart/") else self.other
+        cap = self.multipart if kind.startswith("multipart/") else self.paths.get(scope.get("path", ""), self.other)
         declared = headers.get(b"content-length", b"")
         if declared.isdigit() and int(declared) > cap:
             return await _too_large(send)
@@ -341,39 +335,25 @@ def health(session: Session = Depends(db)):
 
 @router.get("/config")
 def config(s: Settings = Depends(settings), m=Depends(model)):
-    """What the web app needs before it draws: PayPal's client ID, the mode, the model, and the AG Grid
-    licence the Money view sets at runtime, so the key stays out of the built bundle."""
+    """What the web app needs before it draws: PayPal's client ID, the mode, the model, the AG Grid
+    licence the Money view sets at runtime, so the key stays out of the built bundle, and whether the
+    server runs the WhatsApp Cloud API. Each shop's view says whether its manager's thread is live there."""
     return {"paypal_client_id": s.paypal_client_id, "paypal_mode": s.paypal_mode,
             "currency": s.currency, "ai": {"enabled": m.enabled, "model": m.model},
-            "ag_grid_key": s.ag_grid_key}
-
-
-@router.post("/demo/shops", status_code=201, dependencies=[
-    Depends(limit("demo_shop", 6, 3600, by="client")), Depends(limit("demo_shops", shops_per_hour, 3600, by="all"))])
-def new_demo_shop(request: Request, response: Response, session: Session = Depends(db)):
-    """Every visitor gets a shop of their own, seeded with the same family and history. The answer
-    carries the shop's keys: the counter phone's goes in the counter link, the manager's in the
-    manager's. This browser keeps the owner key in a cookie."""
-    from ..seed import seed
-
-    shop = seed(session)
-    keys = issue_keys(shop)
-    if keys:
-        session.commit()
-        remember(response, request, shop.id, keys["owner"])
-    return {**shop_view(session, shop), "keys": keys}
+            "ag_grid_key": s.ag_grid_key, "whatsapp": s.whatsapp_ready}
 
 
 @router.post("/shops/{shop_id}/join", dependencies=[Depends(limit("join", 10, 60))])
-def join(shop_id: ShopId, body: Join, request: Request, response: Response, session: Session = Depends(db)):
-    """Another device opens a shop with a key it was given, from a counter or manager link."""
+def join(shop_id: ShopId, body: Join, request: Request, response: Response, session: Session = Depends(db),
+         s: Settings = Depends(settings)):
+    """The counter phone opens its shop with the counter key from its link, and keeps it in a cookie."""
     shop = shop_or_404(session, shop_id)
     role = role_of(keys_of(shop), body.key.strip())
     if role is None:
         raise HTTPException(403, FORBIDDEN)
-    if level_of(request, shop) < ROLES.index(role):  # a browser holding a wider key keeps it
+    if level_of(request, shop) < ROLES.index(role):  # a signed-in browser needs no key
         remember(response, request, shop.id, body.key.strip())
-    return {"role": role, "shop": shop_view(session, shop)}
+    return {"role": role, "shop": shop_view(session, shop, whatsapp=s.whatsapp_ready)}
 
 
 @router.post("/shops/{shop_id}/counter-key", dependencies=[Depends(limit("counter_key", 10, 60))])
@@ -381,15 +361,16 @@ def new_counter_key(shop: Shop = Depends(shop_for("owner")), session: Session = 
     """The owner retires the counter link: the shop gets a new counter key, and the old one opens nothing."""
     key = rotate_counter_key(shop)
     if not key:
-        raise HTTPException(409, "This shop is open to every caller. A visitor's own shop has keys to change.")
+        raise HTTPException(409, "This shop is open to every caller, so it has no counter link to change.")
     session.commit()
     return {"counter": key}
 
 
 @router.get("/shops/{shop_id}")
-def one_shop(request: Request, shop: Shop = Depends(shop_for("counter")), session: Session = Depends(db)):
-    """The shop, and what the caller's key opens in it: the console needs the owner's."""
-    return {**shop_view(session, shop), "role": ROLES[level_of(request, shop)]}
+def one_shop(request: Request, shop: Shop = Depends(shop_for("counter")), session: Session = Depends(db),
+             s: Settings = Depends(settings)):
+    """The shop, and what the caller's sign-in or key opens in it: the console needs the owner's."""
+    return {**shop_view(session, shop, whatsapp=s.whatsapp_ready), "role": ROLES[level_of(request, shop)]}
 
 
 def _view(req: SpendRequest) -> dict:

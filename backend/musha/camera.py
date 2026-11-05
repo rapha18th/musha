@@ -16,11 +16,11 @@ What a still proves:
   stays with that request.
 - A still counts once. A still whose picture repeats an earlier still of the shop, byte for
   byte or after a re-encode (the same picture at 32 by 24), is a replay and confirms nothing.
-- Staged stills are the app's own scenes, for a demo without a phone on the counter. They
+- Staged stills are the app's own scenes, for the sandbox shop without a phone on the counter. They
   come in through the staged route; a sent still whose picture is a staged scene is stored
-  as staged too. A staged still confirms a delivery in a demo shop alone, each staged still
+  as staged too. A staged still confirms a delivery in the sandbox shop alone, each staged still
   is a visit of its own, and the result says the still was staged.
-- Feed stills are frames of the demo video feed (feed.py), stored with the kind feed. They
+- Feed stills are frames of the sample video feed (feed.py), stored with the kind feed. They
   count the way staged stills count, and a sent still whose picture is a feed still is a feed
   still too.
 
@@ -56,7 +56,7 @@ from .flows import now, utc
 from .models import CameraFrame, JsonText, Product, Proof, Shop, SpendRequest
 
 KINDS = ("sample", "look_in", "staged", "feed")
-STAGED = ("staged", "feed")  # the app's own pictures: they count in a demo shop alone
+STAGED = ("staged", "feed")  # the app's own pictures: they count in the sandbox shop alone
 SOURCES = ("phone", "bridge", "feed")
 SCENES = ("quiet", "busy", "delivery", "shelf_low", "closed", "opening")
 ASSETS = Path(__file__).resolve().parent / "assets" / "counter"
@@ -130,8 +130,8 @@ class CameraError(ValueError):
     pass
 
 
-class NotDemo(CameraError):
-    """Staged scenes belong to demo shops."""
+class NotSandbox(CameraError):
+    """Staged scenes belong to the sandbox shop."""
 
 
 # The pixel gate
@@ -203,7 +203,7 @@ def is_scene(data: bytes, small: list[int] | None = None) -> bool:
 
 @functools.cache
 def feed_stills() -> tuple[Path, ...]:
-    """The demo feed's stills, in the order the loop plays them."""
+    """The sample feed's stills, in the order the loop plays them."""
     return tuple(sorted(FEED_ASSETS.glob("*.jpg")))
 
 
@@ -213,7 +213,7 @@ def _footage() -> frozenset[str]:
 
 
 def is_footage(data: bytes) -> bool:
-    """Is this picture one of the demo feed's stills, as the feed sends it?"""
+    """Is this picture one of the sample feed's stills, as the feed sends it?"""
     return _digest(data) in _footage()
 
 
@@ -331,7 +331,7 @@ async def ingest_frame(session: Session, model, shop: Shop, *, data: bytes, cont
     if kind == "staged" and not scene:
         raise CameraError("A staged still is one of the app's own scenes.")
     if kind == "feed" and not footage:
-        raise CameraError("A feed still is one of the demo feed's own stills.")
+        raise CameraError("A feed still is one of the sample feed's own stills.")
     if kind == "look_in" and not look_in_pending(shop):
         kind = "sample"
     at = now()
@@ -479,8 +479,8 @@ def history(session: Session, shop: Shop, limit: int = 24) -> list[CameraFrame]:
                                 .order_by(CameraFrame.at.desc(), CameraFrame.id.desc()).limit(limit)))
 
 
-def demo_shop(shop: Shop) -> bool:
-    """A shop the seed made: a visitor's own, or the one the server starts with. Shop.demo marks it."""
+def sandbox_shop(shop: Shop) -> bool:
+    """A shop the seed made: the sandbox shop, or the one a laptop starts with. Shop.demo marks it."""
     return bool(shop.demo)
 
 
@@ -509,8 +509,8 @@ async def delivery_check(session: Session, model, shop: Shop, *, item: str, sinc
         d = r["delivery"]
         staged = first.kind in STAGED
         counted = f" It counted about {d['quantity_estimate']:g}." if d["quantity_estimate"] else ""
-        reason = (f"The demo video feed shows {d['goods']} arriving {_when(first.at)}.{counted}" if first.kind == "feed"
-                  else f"A staged demo still shows {d['goods']} arriving {_when(first.at)}.{counted}" if staged
+        reason = (f"The sample video feed shows {d['goods']} arriving {_when(first.at)}.{counted}" if first.kind == "feed"
+                  else f"A staged sample still shows {d['goods']} arriving {_when(first.at)}.{counted}" if staged
                   else f"The counter camera saw {d['goods']} arrive {_when(first.at)}.{counted}")
         return {"seen": True, "frame_ids": [f.id for f, _ in visit][:SHOW], "at": _iso(first.at),
                 "reason": reason, "staged": staged}
@@ -530,12 +530,12 @@ async def delivery_check(session: Session, model, shop: Shop, *, item: str, sinc
                   "A still counts once.")
     elif look["staged"] and look["staged"][0][0].kind == "feed":
         f, r = look["staged"][0]
-        reason = (f"The demo video feed shows {r['delivery']['goods']} arriving {_when(f.at)}. "
-                  "Feed stills count only in a demo shop.")
+        reason = (f"The sample video feed shows {r['delivery']['goods']} arriving {_when(f.at)}. "
+                  "Feed stills count only in the sandbox shop.")
     elif look["staged"]:
         f, r = look["staged"][0]
         reason = (f"A staged still shows {r['delivery']['goods']} arriving {_when(f.at)}. "
-                  "Staged stills count only in a demo shop.")
+                  "Staged stills count only in the sandbox shop.")
     elif not ids:
         reason = f"The counter camera took {count} stills {span}. They are waiting to be read."
     else:
@@ -559,7 +559,7 @@ def _look(session: Session, shop: Shop, item: str, window, extra: set[str], take
             hits.append((f, r))
         elif r["delivery"]["goods"]:
             out["other"].append(r["delivery"]["goods"])
-    demo = demo_shop(shop)
+    demo = sandbox_shop(shop)
     for visit in visits(hits):
         if any(f.id in taken for f, _ in visit):
             out["claimed"].append(visit[0])
@@ -713,7 +713,7 @@ def _unit_words(products: list[Product]) -> set[str]:
     return {w for p in products for w in words(p.unit)}
 
 
-# Staged stills, for a demo without a phone on the counter
+# Staged stills, for the sandbox shop without a phone on the counter
 
 def staged_still(session: Session, shop: Shop, scene: str) -> tuple[Path, dict | None]:
     """The asset for a scene. A delivery shows the goods of the shop's newest held stock request
@@ -744,8 +744,8 @@ def known_readings() -> dict:
 
 
 async def stage(session: Session, model, shop: Shop, scene: str) -> CameraFrame:
-    if not demo_shop(shop):
-        raise NotDemo("Staged scenes belong to demo shops.")
+    if not sandbox_shop(shop):
+        raise NotSandbox("Staged scenes belong to the sandbox shop.")
     path, known = staged_still(session, shop, scene)
     return await ingest_frame(session, model, shop, data=path.read_bytes(), content_type="image/jpeg",
                               kind="staged", known=known)

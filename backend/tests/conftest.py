@@ -1,18 +1,53 @@
+from typing import NamedTuple
+
 import httpx
 import pytest
 import respx
 from fastapi.testclient import TestClient
 
-from musha import flows
+from musha import accounts, flows
 from musha.ai import Scripted
 from musha.api import create_app
 from musha.config import SANDBOX_BASE, Settings
 from musha.models import SpendRequest
 from musha.paypal import PayPal
-from musha.seed import reset
+from musha.seed import reset, seed
 
 AUTH_ID = "AUTH-1"
 ORDER_ID = "ORDER-1"
+
+
+class Signed(NamedTuple):
+    """A shop whose owner and manager hold sign-ins, its counter key, and a browser signed in as each."""
+    id: int
+    counter: str
+    owner: TestClient
+    manager: TestClient
+
+
+def signed_shop(app) -> Signed:
+    """The family's shop as the seed makes it, closed the way the sandbox shop is: a sign-in for the
+    owner and for the manager, and a counter key. Each browser holds a session of its own."""
+    with app.state.sessions() as s:
+        shop = seed(s)
+        for role in ("owner", "manager"):
+            getattr(shop, role).login_email = f"{role}-{shop.id}@example.com"
+        counter = accounts.issue_counter_key(shop)
+        tokens = {role: accounts.open_session(s, getattr(shop, role)) for role in ("owner", "manager")}
+        s.commit()
+        shop_id = shop.id
+    browsers = {}
+    for role, token in tokens.items():
+        browsers[role] = TestClient(app)
+        browsers[role].cookies.set(accounts.COOKIE, token)
+    return Signed(shop_id, counter, browsers["owner"], browsers["manager"])
+
+
+def signing_up(n: int, **extra) -> dict:
+    """A sign-up form for owner number n."""
+    return {"name": f"Owner {n}", "email": f"owner{n}@example.com", "password": "sandbox-pass-1",
+            "shop_name": f"Shop {n}", "place": "Mbare, Harare", "manager_name": f"Manager {n}",
+            "manager_phone": "+263 77 123 4567", **extra}
 
 
 def request_key(app, kind: str, rid: int) -> str:

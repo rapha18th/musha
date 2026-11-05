@@ -1,7 +1,7 @@
-"""Who may call: each visitor's shop answers to its own keys, and to nobody else.
+"""Who may call: each shop answers to its own owner and manager, signed in, and to its counter key.
 
-routes/core.py mints the keys and guards each route with its role; `deps.access` is the net
-under every router that holds each id in a path to its shop's key."""
+routes/core.py reads the session and the counter key and guards each route with its role;
+`deps.access` is the net under every router that holds each id in a path to its shop."""
 import re
 
 from fastapi.testclient import TestClient
@@ -11,18 +11,15 @@ from musha import deps, insights
 from musha.models import Alert, Attachment, CameraFrame, Shop, SpendRequest
 from musha.routes import core
 
+from .conftest import signed_shop
+
 STRANGER = (403, 404)
 
 
-def visitor(app) -> tuple[int, dict, TestClient]:
-    """A visitor's shop, made the way the web app makes one, and the visitor's browser."""
-    browser = TestClient(app)
-    r = browser.post("/api/demo/shops")
-    assert r.status_code == 201
-    shop = r.json()
-    assert set(shop["keys"]) == {"owner", "manager", "counter"}
-    assert core.cookie_name(shop["id"]) in r.headers["set-cookie"] and "HttpOnly" in r.headers["set-cookie"]
-    return shop["id"], shop["keys"], browser
+def visitor(app) -> tuple[int, str, TestClient, TestClient]:
+    """A shop with sign-ins, its counter key, and the owner's and the manager's browsers."""
+    shop = signed_shop(app)
+    return shop.id, shop.counter, shop.owner, shop.manager
 
 
 def ids_of(app, shop_id: int) -> dict:
@@ -53,8 +50,8 @@ def reads(client: TestClient, shop_id: int, rid: int, ids: dict) -> dict[str, in
     return {p: client.get(p).status_code for p in paths}
 
 
-def test_a_stranger_reads_and_moves_nothing_in_a_visitors_shop(app):
-    shop_id, keys, owner = visitor(app)
+def test_a_stranger_reads_and_moves_nothing_in_a_signed_in_shop(app):
+    shop_id, _, owner, _ = visitor(app)
     rid = held_request(owner, shop_id)
     ids = ids_of(app, shop_id)
     assert set(reads(owner, shop_id, rid, ids).values()) == {200}
@@ -76,10 +73,9 @@ def test_a_stranger_reads_and_moves_nothing_in_a_visitors_shop(app):
         assert s.get(Alert, ids["alert"]).dismissed is False
 
 
-def test_the_managers_key_opens_the_phone_and_leaves_the_owners_seat(app, model):
-    shop_id, keys, owner = visitor(app)
+def test_the_managers_session_opens_the_phone_and_leaves_the_owners_seat(app, model):
+    shop_id, _, owner, phone = visitor(app)
     ids = ids_of(app, shop_id)
-    phone = TestClient(app, headers={core.KEY_HEADER: keys["manager"]})
     for path in ("alerts", "week", "products"):
         assert phone.get(f"/api/shops/{shop_id}/{path}").status_code == 200, path
     assert phone.post(f"/api/shops/{shop_id}/phone/messages", json={"text": "Mangwanani"}).status_code == 200
@@ -91,9 +87,9 @@ def test_the_managers_key_opens_the_phone_and_leaves_the_owners_seat(app, model)
 
 
 def test_the_counter_key_opens_the_counter_camera_alone(app):
-    shop_id, keys, _ = visitor(app)
+    shop_id, key, _, _ = visitor(app)
     ids = ids_of(app, shop_id)
-    counter = TestClient(app, headers={core.KEY_HEADER: keys["counter"]})
+    counter = TestClient(app, headers={core.KEY_HEADER: key})
     assert counter.get(f"/api/shops/{shop_id}/camera").status_code == 200
     assert counter.get(f"/api/camera/frames/{ids['frame']}").status_code == 200
     for path in (f"/api/shops/{shop_id}/alerts", f"/api/shops/{shop_id}/week", f"/api/shops/{shop_id}/ledger",
@@ -102,18 +98,20 @@ def test_the_counter_key_opens_the_counter_camera_alone(app):
     assert counter.post(f"/api/shops/{shop_id}/phone/messages", json={"text": "Hi"}).status_code == 403
 
 
-def test_one_shops_key_opens_no_other_shop(app):
-    a, keys_a, browser_a = visitor(app)
-    b, _, _ = visitor(app)
+def test_one_shops_sign_ins_and_key_open_no_other_shop(app):
+    a, key_a, owner_a, manager_a = visitor(app)
+    b, _, _, _ = visitor(app)
     ids_b = ids_of(app, b)
-    other = TestClient(app, headers={core.KEY_HEADER: keys_a["owner"]})
-    assert other.get(f"/api/shops/{b}").status_code == 403
-    assert other.get(f"/api/attachments/{ids_b['attachment']}").status_code == 403
-    assert other.post(f"/api/alerts/{ids_b['alert']}/act", json={"action": "ask"}).status_code == 403
-    assert browser_a.get(f"/api/shops/{b}/ledger").status_code == 403  # the cookie names its own shop
+    for browser in (owner_a, manager_a, TestClient(app, headers={core.KEY_HEADER: key_a})):
+        assert browser.get(f"/api/shops/{b}").status_code == 403
+        assert browser.get(f"/api/shops/{b}/ledger").status_code == 403
+        assert browser.get(f"/api/attachments/{ids_b['attachment']}").status_code == 403
+        assert browser.get(f"/api/camera/frames/{ids_of(app, b)['frame']}").status_code == 403
+        assert browser.post(f"/api/alerts/{ids_b['alert']}/act", json={"action": "ask"}).status_code == 403
+    assert owner_a.get(f"/api/shops/{a}/ledger").status_code == 200
 
 
-def test_a_shop_made_without_keys_stays_open(client):
+def test_a_shop_made_without_keys_or_sign_ins_stays_open(client):
     assert client.get("/api/shops/1").status_code == 200
     assert client.get("/api/shops/1/alerts").status_code == 200
 
@@ -144,7 +142,7 @@ def test_the_net_alone_stops_a_stranger(app):
     added = app.router.routes[before:]
     del app.router.routes[before:]
     app.router.routes[0:0] = added  # ahead of the web app's catch-all
-    shop_id, keys, owner = visitor(app)
+    shop_id, _, owner, _ = visitor(app)
     attachment = ids_of(app, shop_id)["attachment"]
     assert owner.get(f"/api/bare/attachments/{attachment}").status_code == 200
     assert TestClient(app).get(f"/api/bare/attachments/{attachment}").status_code == 403

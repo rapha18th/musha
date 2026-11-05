@@ -6,6 +6,7 @@ import {
 } from "./api";
 import { AskMusha } from "./AskMusha";
 import { Lightbox, Thumbs, evidenceOf } from "./Evidence";
+import { InviteManager } from "./Invite";
 import { LookIn } from "./LookIn";
 import { RecordTile } from "./Record";
 import { settledSignal, useRecord } from "../record";
@@ -147,6 +148,10 @@ export function Today({ shop, requests, alerts, facts, sandbox, refresh }: Props
           {active.length > 0 && <span className="o-count">{active.length} open</span>}
         </div>
         {requests.length === 0 && <p className="o-muted">{shop.manager.name}'s requests appear here.</p>}
+        {/* The invite waits while the manager has no sign-in; a server without the flag offers it to a shop with no requests yet. */}
+        {(shop.manager.signed_in === false || (shop.manager.signed_in === undefined && requests.length === 0)) && (
+          <InviteManager shop={shop} />
+        )}
         <div className="o-stack">
           {active.map((r) => (
             <RequestCard key={r.id} req={r} shop={shop} sandbox={sandbox} refresh={both} highlight={flash === r.id} />

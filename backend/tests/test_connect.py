@@ -9,6 +9,8 @@ from PIL import Image
 from musha import camera, feed
 from musha.routes import core
 
+from .conftest import signed_shop
+
 
 @pytest.fixture(autouse=True)
 def fresh_feed():
@@ -18,15 +20,13 @@ def fresh_feed():
 
 
 def visitor(app) -> tuple[int, dict, TestClient]:
-    """A visitor's shop, made the way the web app makes one, and the owner's browser."""
-    owner = TestClient(app)
-    r = owner.post("/api/demo/shops")
-    assert r.status_code == 201
-    return r.json()["id"], r.json()["keys"], owner
+    """A shop with sign-ins, the counter key and the manager's browser by role, and the owner's browser."""
+    shop = signed_shop(app)
+    return shop.id, {"counter": shop.counter, "manager": shop.manager}, shop.owner
 
 
 def holder(app, key: str) -> TestClient:
-    """A device that holds one key: a counter phone, the bridge, or the manager's phone."""
+    """A device that holds the counter key: a counter phone or the bridge."""
     return TestClient(app, headers={core.KEY_HEADER: key})
 
 
@@ -56,7 +56,7 @@ def test_the_owners_sheet_carries_the_counter_key_and_the_connection(app):
 def test_the_sheet_and_its_buttons_are_the_owners_alone(app):
     shop_id, keys, owner = visitor(app)
     for role in ("counter", "manager"):
-        device = holder(app, keys[role])
+        device = holder(app, keys[role]) if role == "counter" else keys[role]
         assert device.get(f"/api/shops/{shop_id}/camera").status_code == 200
         for method, path in (("get", "camera/connect"), ("post", "camera/feed"), ("post", "camera/disconnect"),
                              ("post", "counter-key")):
@@ -72,7 +72,7 @@ def test_connecting_the_feed_shows_on_the_sheet(app):
 
 # Disconnect and the counter key
 
-def test_disconnect_retires_the_counter_link_and_keeps_the_owners_key(app):
+def test_disconnect_retires_the_counter_link_and_keeps_the_sign_ins(app):
     shop_id, keys, owner = visitor(app)
     old = holder(app, keys["counter"])
     owner.post(f"/api/shops/{shop_id}/camera/consent", json={})
@@ -89,9 +89,9 @@ def test_disconnect_retires_the_counter_link_and_keeps_the_owners_key(app):
     assert send(old, shop_id, jpeg((10, 200, 90))).status_code == 403
     assert old.post(f"/api/shops/{shop_id}/join", json={"key": keys["counter"]}).status_code == 403
     assert holder(app, new).get(f"/api/shops/{shop_id}/camera").status_code == 200
-    assert owner.get(f"/api/shops/{shop_id}/camera/connect").status_code == 200  # the cookie still opens it
-    assert holder(app, keys["owner"]).get(f"/api/shops/{shop_id}/requests").status_code == 200
-    assert holder(app, keys["manager"]).get(f"/api/shops/{shop_id}/requests").status_code == 200
+    assert owner.get(f"/api/shops/{shop_id}/camera/connect").status_code == 200  # the session still opens it
+    assert owner.get(f"/api/shops/{shop_id}/requests").status_code == 200
+    assert keys["manager"].get(f"/api/shops/{shop_id}/requests").status_code == 200
 
 
 def test_the_rotate_route_gives_a_new_counter_key(app):
@@ -100,8 +100,7 @@ def test_the_rotate_route_gives_a_new_counter_key(app):
     assert r.status_code == 200 and r.json()["counter"] not in ("", keys["counter"])
     assert holder(app, keys["counter"]).get(f"/api/shops/{shop_id}/camera").status_code == 403
     assert holder(app, r.json()["counter"]).get(f"/api/shops/{shop_id}/camera").status_code == 200
-    assert holder(app, keys["owner"]).get(f"/api/shops/{shop_id}/camera/connect").json()["counter_key"] \
-        == r.json()["counter"]
+    assert owner.get(f"/api/shops/{shop_id}/camera/connect").json()["counter_key"] == r.json()["counter"]
 
 
 def test_a_shop_made_without_keys_has_no_counter_key_to_change(client):

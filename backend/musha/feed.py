@@ -1,9 +1,9 @@
-"""The demo video feed: footage of a shop counter, looping through the counter camera's own path.
+"""The sample video feed: footage of a shop counter, looping through the counter camera's own path.
 
 The stills in assets/feed are frames of two Pexels videos (Pexels licence: free to use and modify,
 attribution optional; assets/feed/CREDITS names them). A shop connected to the feed gets the next
 still at the counter phone's pace, through camera.ingest_frame, so the readings, Look in and the
-delivery check treat it as a camera. Feed stills count the way staged stills count: in a demo
+delivery check treat it as a camera. Feed stills count the way staged stills count: in the sandbox
 shop alone, each one a visit of its own, and the result says so.
 
 What it costs:

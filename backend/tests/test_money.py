@@ -9,7 +9,7 @@ from musha import flows
 from musha.api import create_app
 from musha.models import Hold, Shop
 from musha.paypal import PayPal
-from musha.routes import core, money
+from musha.routes import money
 from musha.seed import reset
 
 from .conftest import AUTH_ID
@@ -206,9 +206,8 @@ def test_the_money_question_runs_quick_and_says_where_the_money_went():
 
 
 def test_the_money_view_is_the_owners_alone(app):
-    shop_id, keys, owner = visitor(app)
+    shop_id, _, owner, phone = visitor(app)
     assert owner.get(f"/api/shops/{shop_id}/money").status_code == 200
-    phone = TestClient(app, headers={core.KEY_HEADER: keys["manager"]})
     assert phone.get(f"/api/shops/{shop_id}/money").status_code == 403
     assert phone.post(f"/api/shops/{shop_id}/money/ask", json={"question": QUESTION}).status_code == 403
     assert TestClient(app).get(f"/api/shops/{shop_id}/money").status_code in (403, 404)

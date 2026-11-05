@@ -10,7 +10,7 @@ from musha import flows, ledger
 from musha.models import Attachment, CameraFrame, Hold, LedgerEntry, Message, Payout, Shop, SpendRequest
 from musha.money import to_cents, to_value
 
-from .conftest import AUTH_ID, ORDER_ID, _capture, request_key
+from .conftest import AUTH_ID, ORDER_ID, _capture, request_key, signed_shop, signing_up
 
 JOBS = {"X-Jobs-Key": "jobs"}
 
@@ -395,11 +395,15 @@ def test_a_network_error_after_the_capture_still_pays_the_shop(app, client, sand
 # Visitors' shops
 
 def test_idle_visitor_shops_are_deleted_and_busy_ones_stay(app, client, sandbox):
-    ids = [client.post("/api/demo/shops").json()["id"] for _ in range(3)]
-    idle, holding, fresh = ids
+    from musha.models import SignIn
+    from musha.seed import seed
+
+    with app.state.sessions() as s:
+        idle, holding, fresh = [seed(s).id for _ in range(3)]
+    signed = signed_shop(app).id  # a shop with sign-ins, such as the sandbox shop, stays however quiet
     old = datetime.now(timezone.utc) - flows.IDLE_SHOP - timedelta(days=1)
     with app.state.sessions() as s:
-        for sid in (idle, holding):
+        for sid in (idle, holding, signed):
             for m in s.scalars(select(Message).where(Message.shop_id == sid)):
                 m.at = old
             s.get(Shop, sid).created_at = old
@@ -410,6 +414,7 @@ def test_idle_visitor_shops_are_deleted_and_busy_ones_stay(app, client, sandbox)
     assert done == [{"shop": idle, "action": "forget"}]
     with app.state.sessions() as s:
         assert s.get(Shop, idle) is None and s.get(Shop, holding) and s.get(Shop, fresh) and s.get(Shop, 1)
+        assert s.get(Shop, signed) and s.scalars(select(SignIn)).all()
         assert not s.scalars(select(LedgerEntry).where(LedgerEntry.shop_id == idle)).all()
     assert client.get(f"/api/shops/{idle}").status_code == 404
 
@@ -514,22 +519,27 @@ def test_captured_money_the_shop_lacks_goes_out_on_the_next_job(app, client, san
         assert asyncio.run(flows.run_due(s, app.state.paypal, later)) == []
 
 
-# The guards every route shares: keys, amounts, rates and bodies
-
-KEYS = {"owner": "o" * 32, "manager": "m" * 32, "counter": "c" * 32}
-NONE = {"owner": "", "manager": "", "counter": ""}
-
+# The guards every route shares: seats, amounts, rates and bodies
 
 @pytest.fixture
-def locked(monkeypatch):
-    """Shop 1 with keys, the way every visitor's shop is made once the shops table keeps them."""
-    from musha.routes import core
+def locked(app):
+    """Shop 1 closed the way the sandbox shop is: a sign-in for the owner and the manager, and a
+    counter key. Each role's headers carry its session or its key."""
+    from musha import accounts
 
-    monkeypatch.setattr(core, "keys_of", lambda shop: dict(KEYS) if shop.id == 1 else dict(NONE))
-    return {role: {"X-Shop-Key": key} for role, key in KEYS.items()}
+    with app.state.sessions() as s:
+        shop = s.get(Shop, 1)
+        headers = {}
+        for role in ("owner", "manager"):
+            person = getattr(shop, role)
+            person.login_email = f"{role}@example.com"
+            headers[role] = {"Cookie": f"{accounts.COOKIE}={accounts.open_session(s, person)}"}
+        headers["counter"] = {"X-Shop-Key": accounts.issue_counter_key(shop)}
+        s.commit()
+    return headers
 
 
-def test_a_stranger_moves_no_money_in_a_keyed_shop(app, client, sandbox, locked):
+def test_a_stranger_moves_no_money_in_a_closed_shop(app, client, sandbox, locked):
     owner, manager, counter = locked["owner"], locked["manager"], locked["counter"]
     r = client.post("/api/shops/1/requests", headers=manager, json={
         "item": "eggs", "quantity": 40, "unit": "trays", "amount": "180.00", "payee": "Mbare wholesale"})
@@ -553,7 +563,7 @@ def test_a_stranger_moves_no_money_in_a_keyed_shop(app, client, sandbox, locked)
     ]
     assert [x.status_code for x in stranger] == [403] * len(stranger), [x.request.url.path for x in stranger]
     assert not [c for c in sandbox.calls if c.request.url.path.endswith("/capture")]
-    # the manager's key opens the manager's side and stops at the money
+    # the manager's session opens the manager's side and stops at the money
     assert client.post(f"/api/requests/{rid}/settle", headers=manager, json={"spent": "180.00"}).status_code == 403
     assert client.get("/api/shops/1/messages", headers=manager).status_code == 200
     assert client.get("/api/shops/1/messages?thread=owner", headers=manager).status_code == 403
@@ -562,12 +572,12 @@ def test_a_stranger_moves_no_money_in_a_keyed_shop(app, client, sandbox, locked)
     assert client.get("/api/shops/1", headers=counter).status_code == 200
     assert client.get(f"/api/requests/{rid}", headers=counter).status_code == 403
     assert client.post("/api/shops/1/look-in", headers=counter).status_code == 403
-    # the owner's key opens everything
+    # the owner's session opens everything
     assert client.post(f"/api/requests/{rid}/settle", headers=owner, json={"spent": "171.00"}).json()[
         "captured_cents"] == 17100
 
 
-def test_pictures_and_evidence_open_only_with_a_key(app, client, locked):
+def test_pictures_and_evidence_open_only_to_the_shop(app, client, locked):
     with app.state.sessions() as s:
         frame = s.scalar(select(CameraFrame.id).where(CameraFrame.shop_id == 1))
         receipt = s.scalar(select(Attachment.id).where(Attachment.shop_id == 1))
@@ -578,45 +588,38 @@ def test_pictures_and_evidence_open_only_with_a_key(app, client, locked):
     assert client.get(f"/api/attachments/{receipt}", headers=locked["manager"]).status_code == 200
 
 
-def test_the_browser_that_made_a_shop_keeps_its_key(app, monkeypatch):
-    """The owner key rides in a cookie the page's scripts never read, so every call and every picture
-    carries it. A counter link brings the counter key to another device, which joins with it."""
+def test_the_counter_phone_joins_with_its_key_and_keeps_it(app):
+    """The counter link brings the counter key to the phone, which joins with it. The key rides in a
+    cookie the page's scripts never read, so every call and every picture carries it."""
     from fastapi.testclient import TestClient
-    from musha.routes import core
 
-    issued = {}
-    monkeypatch.setattr(core, "issue_keys", lambda shop: issued.setdefault(shop.id, dict(KEYS)))
-    monkeypatch.setattr(core, "keys_of", lambda shop: issued.get(shop.id, dict(NONE)))
-    mine = TestClient(app)
-    made = mine.post("/api/demo/shops")
-    sid = made.json()["id"]
-    assert made.json()["keys"] == KEYS
-    cookie = made.headers["set-cookie"]
-    assert f"musha_shop_{sid}={KEYS['owner']}" in cookie and "HttpOnly" in cookie
-    assert "samesite=strict" in cookie.lower() and "Path=/api" in cookie
-    assert mine.get(f"/api/shops/{sid}").status_code == 200
-    assert mine.get(f"/api/shops/{sid}/ledger").status_code == 200
+    shop = signed_shop(app)
+    sid = shop.id
     phone = TestClient(app)
     assert phone.get(f"/api/shops/{sid}").status_code == 403
     assert phone.post(f"/api/shops/{sid}/join", json={"key": "x" * 32}).status_code == 403
-    joined = phone.post(f"/api/shops/{sid}/join", json={"key": KEYS["counter"]})
+    joined = phone.post(f"/api/shops/{sid}/join", json={"key": shop.counter})
     assert joined.json()["role"] == "counter"
+    cookie = joined.headers["set-cookie"]
+    assert f"musha_shop_{sid}={shop.counter}" in cookie and "HttpOnly" in cookie
+    assert "samesite=strict" in cookie.lower() and "Path=/api" in cookie
     assert phone.post(f"/api/shops/{sid}/camera/heartbeat").status_code == 200
+    assert phone.get(f"/api/shops/{sid}").json()["role"] == "counter"
     assert phone.get(f"/api/shops/{sid}/ledger").status_code == 403
-    # the owner's browser joining with a narrower key keeps its own
-    mine.post(f"/api/shops/{sid}/join", json={"key": KEYS["counter"]})
-    assert mine.get(f"/api/shops/{sid}/ledger").status_code == 200
+    # the owner's browser joining with the counter key keeps her seat, and takes no key cookie
+    mine = shop.owner.post(f"/api/shops/{sid}/join", json={"key": shop.counter})
+    assert mine.json()["role"] == "counter" and "set-cookie" not in mine.headers
+    assert shop.owner.get(f"/api/shops/{sid}/ledger").status_code == 200
+    assert shop.owner.get(f"/api/shops/{sid}").json()["role"] == "owner"
 
 
-@pytest.mark.skipif(not hasattr(Shop, "owner_key"), reason="the shops table keeps keys once it has the columns")
-def test_a_visitor_shop_is_made_with_keys_of_its_own(app):
+def test_a_signed_in_shop_opens_to_its_own_people(app):
     from fastapi.testclient import TestClient
 
-    mine, stranger = TestClient(app), TestClient(app)
-    made = mine.post("/api/demo/shops").json()
-    assert set(made["keys"]) == {"owner", "manager", "counter"} and len(set(made["keys"].values())) == 3
-    assert mine.get(f"/api/shops/{made['id']}").status_code == 200
-    assert stranger.get(f"/api/shops/{made['id']}").status_code == 403
+    shop, stranger = signed_shop(app), TestClient(app)
+    assert shop.owner.get(f"/api/shops/{shop.id}").json()["role"] == "owner"
+    assert shop.manager.get(f"/api/shops/{shop.id}").json()["role"] == "manager"
+    assert stranger.get(f"/api/shops/{shop.id}").status_code == 403
     assert stranger.get("/api/shops/1").status_code == 200  # the server's own shop stays open
 
 
@@ -640,10 +643,12 @@ def test_numbers_and_ids_out_of_range_are_refused(client):
 
 
 def test_new_shops_have_a_budget_per_visitor(client):
-    made = [client.post("/api/demo/shops", headers={"X-Forwarded-For": "203.0.113.9"}) for _ in range(7)]
+    made = [client.post("/api/auth/sign-up", json=signing_up(n), headers={"X-Forwarded-For": "203.0.113.9"})
+            for n in range(7)]
     assert [r.status_code for r in made] == [201] * 6 + [429]
     assert int(made[-1].headers["Retry-After"]) > 0
-    assert client.post("/api/demo/shops", headers={"X-Forwarded-For": "203.0.113.10"}).status_code == 201
+    assert client.post("/api/auth/sign-up", json=signing_up(7), headers={"X-Forwarded-For": "203.0.113.10"}
+                       ).status_code == 201
 
 
 class SmallWages(__import__("pydantic").BaseModel):

@@ -14,13 +14,14 @@ import logging
 from datetime import datetime, timedelta, timezone
 
 import httpx
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, or_, select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from . import ledger
-from .models import (Alert, Attachment, CameraFrame, DayClose, Heard, Hold, LedgerEntry, Mandate, Message,
-                     Payout, Person, PricePoint, Product, Proof, Ring, Shop, SpendRequest)
+from .models import (Alert, Attachment, CameraFrame, DayClose, Heard, Hold, Invite, LedgerEntry, Mandate, Message,
+                     Payout, Person, PricePoint, Product, Proof, Ring, Shop, SignIn, SpendRequest,
+                     WhatsAppMessage)
 from .money import to_cents, to_value
 from .paypal import PayPal, PayPalError, first_authorization, request_key
 from .words import qty
@@ -37,9 +38,10 @@ MUSHA = "musha"  # SpendRequest.origin of stock Musha asked for itself (insights
 WAGE_LIMIT = 50_000  # US$500 a payment
 PAYOUT_PURPOSES = ("release", WAGES)
 LIVE_ORDERS = ("CREATED", "SAVED", "APPROVED", "PAYER_ACTION_REQUIRED")
-IDLE_SHOP = timedelta(days=7)  # a visitor's demo shop with nothing new for a week is deleted
+IDLE_SHOP = timedelta(days=7)  # a seeded shop with no sign-in and nothing new for a week is deleted
 IDLE_BATCH = 20  # shops one run of the job deletes at most
 SLOW = "PayPal is slow to answer."
+OUTGOING = "whatsapp_outgoing"  # session.info: (shop, line) pairs for the manager's WhatsApp
 
 
 class FlowError(Exception):
@@ -58,12 +60,15 @@ def say(session: Session, shop_id: int, text: str, *, request_id: int | None = N
         sender: str = "musha", thread: str = "manager", language: str = "en",
         text_en: str | None = None, attachment_id: int | None = None) -> Message:
     """Add a line to a thread. Musha writes in English; the language bridge
-    translates lines for a manager who reads another language."""
+    translates lines for a manager who reads another language. A line from Musha or the owner in
+    the manager's thread also goes to the manager's WhatsApp once the session commits (whatsapp.py)."""
     m = Message(shop_id=shop_id, sender=sender, text=text, thread=thread, language=language,
                 text_en=text if text_en is None else text_en, request_id=request_id,
                 attachment_id=attachment_id)
     session.add(m)
     session.flush()
+    if thread == "manager" and sender != "manager":
+        session.info.setdefault(OUTGOING, []).append((shop_id, m.id))
     return m
 
 
@@ -583,6 +588,13 @@ async def run_due(session: Session, pp: PayPal, at: datetime | None = None) -> l
     camera.forget_old(session, at)  # frames go after 30 days with the counter phone off too
     session.commit()
     done += forget_idle_shops(session, at)
+    from . import seed  # seed imports flows
+    try:
+        done += await seed.refresh(session, pp, at)  # the sandbox shop, a day old and left alone, starts fresh
+    except SQLAlchemyError as e:
+        session.rollback()
+        log.warning("hold job, refresh: %r", e)
+        done.append({"action": "refresh", "error": str(e) or type(e).__name__})
     return done
 
 
@@ -645,20 +657,24 @@ def ask_wages(session: Session, shop: Shop, *, cents: int, note: str = "") -> Sp
     return req
 
 
-# Visitors' demo shops
+# Seeded shops left idle
 
 def forget_idle_shops(session: Session, at: datetime | None = None) -> list[dict]:
-    """Delete visitors' demo shops that saw nothing new for a week and hold no money. The server's
-    own first shop stays. Each shop goes in its own transaction, children first."""
+    """Delete visitors' seeded shops that saw nothing new for a week and hold no money. The server's
+    own first shop stays, and so does a shop whose owner or manager has a sign-in, such as the sandbox
+    shop. Each shop goes in its own transaction, children first."""
     at = at or now()
     first = session.scalar(select(func.min(Shop.id)))
+    signed = select(Shop.id).join(Person, or_(Person.id == Shop.owner_id, Person.id == Shop.manager_id)).where(
+        Person.login_email.is_not(None))
     last_word = (select(Message.shop_id, func.max(Message.at).label("at")).group_by(Message.shop_id)
                  .subquery())
     open_money = select(SpendRequest.shop_id).where(SpendRequest.status.in_(
         ("approving", "reviewing", "held", "asking", "flagged", "capturing", "agent_pending")))
     rows = session.execute(
         select(Shop.id, Shop.created_at, last_word.c.at).outerjoin(last_word, last_word.c.shop_id == Shop.id)
-        .where(Shop.demo.is_(True), Shop.id != first, Shop.id.not_in(open_money)).order_by(Shop.id)).all()
+        .where(Shop.demo.is_(True), Shop.id != first, Shop.id.not_in(open_money), Shop.id.not_in(signed))
+        .order_by(Shop.id)).all()
     cutoff = at - IDLE_SHOP
     done = []
     for shop_id, made, said in rows:
@@ -677,26 +693,36 @@ def forget_idle_shops(session: Session, at: datetime | None = None) -> list[dict
     return done
 
 
+def _drop(session: Session, model, *where):
+    session.execute(delete(model).where(*where).execution_options(synchronize_session=False))
+
+
+def clear_shop(session: Session, shop_id: int):
+    """Everything a shop holds, children first: the shop, its people and their sign-ins stay. So does
+    the record of the manager's own WhatsApp messages, which keeps her 24-hour window as Meta keeps it.
+    The caller commits."""
+    requests = select(SpendRequest.id).where(SpendRequest.shop_id == shop_id)
+    _drop(session, Proof, Proof.request_id.in_(requests))
+    _drop(session, Hold, Hold.request_id.in_(requests))
+    for model in (Message, Alert, LedgerEntry, Payout, Attachment):
+        _drop(session, model, model.shop_id == shop_id)
+    _drop(session, SpendRequest, SpendRequest.shop_id == shop_id)
+    for model in (Product, PricePoint, DayClose, Mandate, CameraFrame, Heard, Ring, Invite):
+        _drop(session, model, model.shop_id == shop_id)
+    _drop(session, WhatsAppMessage, WhatsAppMessage.shop_id == shop_id, WhatsAppMessage.direction == "out")
+
+
 def _delete_shop(session: Session, shop_id: int):
     shop = session.get(Shop, shop_id)
     if shop is None:
         return
     people = [shop.owner_id, shop.manager_id]
-    requests = select(SpendRequest.id).where(SpendRequest.shop_id == shop_id)
-
-    def drop(model, *where):
-        session.execute(delete(model).where(*where).execution_options(synchronize_session=False))
-
-    drop(Proof, Proof.request_id.in_(requests))
-    drop(Hold, Hold.request_id.in_(requests))
-    for model in (Message, Alert, LedgerEntry, Payout, Attachment):
-        drop(model, model.shop_id == shop_id)
-    drop(SpendRequest, SpendRequest.shop_id == shop_id)
-    for model in (Product, PricePoint, DayClose, Mandate, CameraFrame, Heard, Ring):
-        drop(model, model.shop_id == shop_id)
+    clear_shop(session, shop_id)
+    _drop(session, WhatsAppMessage, WhatsAppMessage.shop_id == shop_id)
+    _drop(session, SignIn, SignIn.person_id.in_(people))
     session.expunge(shop)
-    drop(Shop, Shop.id == shop_id)
-    drop(Person, Person.id.in_(people))
+    _drop(session, Shop, Shop.id == shop_id)
+    _drop(session, Person, Person.id.in_(people))
 
 
 def _issue(e: PayPalError, *issues: str) -> bool:

@@ -38,6 +38,40 @@ class Person(Base):
     phone: Mapped[str] = mapped_column(String(32), default="")
     language: Mapped[str] = mapped_column(String(8), default="en")  # en | sn | nd | zu
     city: Mapped[str] = mapped_column(String(80), default="")
+    # A sign-in (accounts.py): the login email, lower-cased and unique, and the password's scrypt hash
+    # with its own salt. None until the person signs up or takes the owner's invite.
+    login_email: Mapped[str | None] = mapped_column(String(160), default=None, unique=True, index=True)
+    password_hash: Mapped[str] = mapped_column(String(200), default="")
+    # The manager's WhatsApp (whatsapp.py): Musha routes her number once she proves it is hers by sending
+    # the code her dashboard shows from it, and one manager at most holds a proved number. The code's
+    # sha256 and its expiry wait here until then.
+    phone_proved_at: Mapped[datetime | None] = mapped_column(default=None)
+    link_code_hash: Mapped[str] = mapped_column(String(64), default="")
+    link_code_expires_at: Mapped[datetime | None] = mapped_column(default=None)
+
+
+class SignIn(Base):
+    """A signed-in browser. The cookie carries a random token; the row keeps its sha256 alone,
+    so a copy of the database opens no browser's session. Signing out deletes the row."""
+    __tablename__ = "sign_ins"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    person_id: Mapped[int] = mapped_column(ForeignKey("people.id"), index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    created_at: Mapped[datetime] = mapped_column(default=now)
+    expires_at: Mapped[datetime]
+
+
+class Invite(Base):
+    """The owner's link for the manager: it gives the manager a sign-in, once, within 14 days.
+    The row keeps the token's sha256 alone, as with SignIn."""
+    __tablename__ = "invites"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    shop_id: Mapped[int] = mapped_column(ForeignKey("shops.id"), index=True)
+    person_id: Mapped[int] = mapped_column(ForeignKey("people.id"))
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    created_at: Mapped[datetime] = mapped_column(default=now)
+    expires_at: Mapped[datetime]
+    used_at: Mapped[datetime | None] = mapped_column(default=None)
 
 
 class Shop(Base):
@@ -52,10 +86,13 @@ class Shop(Base):
     # Chitoro lite: when the counter phone last checked in, and when the owner last asked to look in
     camera_seen_at: Mapped[datetime | None] = mapped_column(default=None)
     look_in_requested_at: Mapped[datetime | None] = mapped_column(default=None)
-    # a shop the seed made, for a visitor or the server's first: staged camera scenes count here alone
+    # a shop the seed made, such as the sandbox shop: staged camera scenes count here alone, and its
+    # manager's WhatsApp number comes from the operator (seed.sandbox)
     demo: Mapped[bool] = mapped_column(default=False)
-    # A visitor's shop opens with its keys, one per role (routes/core.py mints and checks them).
-    # Empty on a shop made without keys, such as the server's own first one: that shop is open.
+    # The counter phone's key (routes/core.py checks it): a device, so a key in its link, not a sign-in.
+    # The owner's and the manager's keys are retired: people sign in. Shops from before sign-in keep
+    # theirs, and a shop holding any key stays closed. A shop with no key and no sign-in is open, for
+    # local runs and the tests.
     owner_key: Mapped[str] = mapped_column(String(64), default="")
     manager_key: Mapped[str] = mapped_column(String(64), default="")
     counter_key: Mapped[str] = mapped_column(String(64), default="")
@@ -343,3 +380,23 @@ class Ring(Base):
     state: Mapped[str] = mapped_column(String(12), default="ringing")  # ringing | answered | later | missed
     at: Mapped[datetime] = mapped_column(default=now)
     answered_at: Mapped[datetime | None] = mapped_column(default=None)
+
+
+class WhatsAppMessage(Base):
+    """One message on the manager's WhatsApp (whatsapp.py). In: the manager's message, kept by its
+    WhatsApp id before it is heard, so Meta's retries are heard once; its time opens the 24-hour
+    window. Out: a line of the manager's thread, kept before it is sent, so it goes out once.
+    The shop id carries no foreign key, as with Heard."""
+    __tablename__ = "whatsapp_messages"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    shop_id: Mapped[int] = mapped_column(index=True)
+    direction: Mapped[str] = mapped_column(String(4))  # in | out
+    wamid: Mapped[str | None] = mapped_column(String(160), default=None, unique=True)  # WhatsApp's id
+    line_id: Mapped[int | None] = mapped_column(default=None, unique=True)  # out: the Message sent
+    phone: Mapped[str] = mapped_column(String(20), index=True)  # the manager's number, E.164
+    # in: text | image | audio | document | ... | link (the manager proving her number); out: text | template
+    kind: Mapped[str] = mapped_column(String(12))
+    # in: heard | done; out: sending | sent | delivered | read | failed | waiting (the window is closed)
+    state: Mapped[str] = mapped_column(String(12))
+    detail: Mapped[str] = mapped_column(String(200), default="")  # why a send failed or waits
+    at: Mapped[datetime] = mapped_column(default=now)  # in: when the manager sent it

@@ -9,14 +9,14 @@ import asyncio
 import json
 import sys
 
-from live import demo_shop, gemini, patiently
+from live import gemini, patiently, sandbox_shop
 
 from musha import camera
 
 
 async def main(names: list[str]):
     model = gemini()
-    session, shop = demo_shop()
+    session, shop = sandbox_shop()
     target = camera.ASSETS / "readings.json"
     out = json.loads(target.read_text(encoding="utf-8")) if target.exists() else {}
     for path in sorted(camera.ASSETS.glob("*.jpg")):

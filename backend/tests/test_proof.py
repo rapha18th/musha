@@ -876,7 +876,7 @@ async def test_a_goods_photo_sent_before_scores_nothing(world):
     assert checks(second)["photo"]["points"] == 0 and second.decision == "hold"
 
 
-async def test_the_demo_goods_photo_is_new_to_the_shop(world):
+async def test_the_sample_goods_photo_is_new_to_the_shop(world):
     req = await held(world)
     world.model.answers[proof.GOODS_TASK] = GOODS_OK
     served = world.client.get("/api/samples/goods/eggs").content

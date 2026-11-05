@@ -3,6 +3,8 @@ export type Config = {
   paypal_mode: "sandbox" | "standin";
   currency: string;
   ai: { enabled: boolean; model: string };
+  /** The server holds the WhatsApp Cloud API's settings. Each shop says whether its thread is live there. */
+  whatsapp?: boolean;
 };
 
 export type Books = {
@@ -23,16 +25,37 @@ export type Shop = {
   place: string;
   currency: string;
   owner: { name: string; city: string; language: string };
-  manager: { name: string; city: string; language: string };
+  /** `signed_in`: the manager has set her sign-in from the owner's invite. */
+  manager: { name: string; city: string; language: string; signed_in?: boolean };
   camera_seen_at: string | null;
   books: Books;
-  /** A new visitor's shop comes with its keys: the owner's, the manager's and the counter phone's. */
-  keys?: Keys;
-  /** What the caller's key opens in this shop: owner, manager or counter. */
+  /** The seeded sandbox shop: the counter camera's staged scenes run here alone. */
+  sandbox?: boolean;
+  /** Where the manager's thread runs: also on her proved WhatsApp number, waiting for her to link it, or in the dashboard alone. */
+  whatsapp?: "live" | "link" | "off";
+  /** What the caller's sign-in or key opens in this shop: owner, manager or counter. */
   role?: "owner" | "manager" | "counter";
 };
 
-export type Keys = { owner: string; manager: string; counter: string };
+/** The code that proves the manager's WhatsApp number: she sends it to Musha's number `to` from `phone`. */
+export type LinkCode = { phone: string; code: string; minutes: number; to: string; url: string };
+
+/** A person with a sign-in, and the shop they hold it for. */
+export type Person = { id: number; name: string; role: "owner" | "manager" };
+export type Session = { person: Person; shop: { id: number; name: string } };
+
+export type SignUp = {
+  name: string;
+  email: string;
+  password: string;
+  shop_name: string;
+  place: string;
+  manager_name: string;
+  manager_phone: string;
+  manager_email?: string;
+};
+
+export type Invite = { shop: { name: string; place: string }; owner: { name: string }; manager: { name: string } };
 
 export type Hold = {
   authorization_id: string;
@@ -171,8 +194,8 @@ export function failure(status: number, body: unknown): string {
 }
 
 /**
- * The key this page holds for its shop. The browser's cookie carries it already; the header is the
- * same key for a browser that keeps no cookies.
+ * The counter key the counter page holds for its shop. The browser's cookie carries it already; the header
+ * is the same key for a browser that keeps no cookies. A signed-in person's session cookie needs no header.
  */
 let shopKey = "";
 
@@ -208,9 +231,20 @@ export const post = <T,>(path: string, body?: unknown) =>
     body: body === undefined ? undefined : body instanceof FormData ? body : JSON.stringify(body),
   });
 
+export const auth = {
+  me: () => call<Session>("/api/auth/me"),
+  signIn: (email: string, password: string) => post<Session>("/api/auth/sign-in", { email, password }),
+  signOut: () => post<void>("/api/auth/sign-out"),
+  signUp: (body: SignUp) => post<Session & { invite: { url: string } }>("/api/auth/sign-up", body),
+  invite: (token: string) => call<Invite>(`/api/invites/${encodeURIComponent(token)}`),
+  accept: (token: string, email: string, password: string) =>
+    post<Session>(`/api/invites/${encodeURIComponent(token)}`, { email, password }),
+  /** The owner's new invite for a manager still without a sign-in. Earlier links stop working. */
+  newInvite: (shopId: number) => post<{ invite: { url: string } }>(`/api/shops/${shopId}/invite`),
+};
+
 export const api = {
   config: () => call<Config>("/api/config"),
-  newShop: () => post<Shop>("/api/demo/shops"),
   join: (id: number, key: string) => post<{ role: string; shop: Shop }>(`/api/shops/${id}/join`, { key }),
   shop: (id: number) => call<Shop>(`/api/shops/${id}`),
   requests: (id: number) => call<SpendRequest[]>(`/api/shops/${id}/requests`),
@@ -223,6 +257,8 @@ export const api = {
   settle: (requestId: number, spent: string, reason = "") =>
     post<unknown>(`/api/requests/${requestId}/settle`, { spent, reason }),
   wages: (id: number, amount: string, note: string) => post<unknown>(`/api/shops/${id}/wages`, { amount, note }),
+  /** A fresh code for the manager's WhatsApp, for the number she gives or the one the shop holds. */
+  linkWhatsApp: (id: number, phone = "") => post<LinkCode>(`/api/shops/${id}/whatsapp/link`, phone ? { phone } : {}),
 };
 
 /** The last word on the request was the busy reader's note: Musha waits for the same receipt again. */

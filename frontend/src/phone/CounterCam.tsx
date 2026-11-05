@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, ApiError, type Shop } from "../api";
-import { counterLink } from "../shell";
+import { hasCounterKey, useCounterLink } from "../shell";
 import { phone, SCENES, type CameraStatus, type Frame } from "./api";
 import { Camera, Link } from "./icons";
 import { clock } from "./util";
@@ -334,7 +334,10 @@ export function CounterCam({ shopId, embedded = false }: { shopId: number; embed
     setStaging("");
   };
 
-  const link = counterLink(shopId);
+  // The counter key is the owner's to hand out. A page that holds it offers the link to another phone;
+  // the manager's dashboard points to the owner's Connect your shop.
+  const link = useCounterLink(shopId, false);
+  const keyed = hasCounterKey(shopId);
   const copy = () => {
     navigator.clipboard?.writeText(link).then(() => {
       setCopied(true);
@@ -374,8 +377,8 @@ export function CounterCam({ shopId, embedded = false }: { shopId: number; embed
           <p className="cc-fine">Musha sends a still when the picture changes, and one every few minutes. {owner} can look in any time.</p>
           {error && <p className="cc-error">{error}</p>}
         </div>
-        <Scenes stage={stage} staging={staging} />
-        {embedded && <OpenOnPhone link={link} copy={copy} copied={copied} />}
+        {shop?.sandbox && <Scenes stage={stage} staging={staging} />}
+        {embedded && <OpenOnPhone link={keyed ? link : ""} owner={owner} copy={copy} copied={copied} />}
       </div>
     );
   }
@@ -410,8 +413,8 @@ export function CounterCam({ shopId, embedded = false }: { shopId: number; embed
           </button>
         )}
       </div>
-      <Scenes stage={stage} staging={staging} />
-      {embedded && <OpenOnPhone link={link} copy={copy} copied={copied} />}
+      {shop?.sandbox && <Scenes stage={stage} staging={staging} />}
+      {embedded && <OpenOnPhone link={keyed ? link : ""} owner={owner} copy={copy} copied={copied} />}
     </div>
   );
 }
@@ -435,6 +438,7 @@ function Facts({ frame }: { frame: Frame }) {
   );
 }
 
+/** Staged scenes: stills the sandbox shop's counter can send without a camera. The server takes them there alone. */
 function Scenes({ stage, staging }: { stage: (scene: string) => void; staging: string }) {
   return (
     <div className="cc-scenes">
@@ -450,7 +454,11 @@ function Scenes({ stage, staging }: { stage: (scene: string) => void; staging: s
   );
 }
 
-function OpenOnPhone({ link, copy, copied }: { link: string; copy: () => void; copied: boolean }) {
+/** The counter link for a phone that stays at the counter. Without the key, the owner's sheet has it. */
+function OpenOnPhone({ link, owner, copy, copied }: { link: string; owner: string; copy: () => void; copied: boolean }) {
+  if (!link) {
+    return <p className="cc-open cc-open-line">{owner} gives the counter phone its own link in Connect your shop.</p>;
+  }
   return (
     <div className="cc-open">
       <a href={link} target="_blank" rel="noreferrer"><Link /> Open the counter page on a phone</a>

@@ -127,7 +127,7 @@ def connect_view(shop: Shop = Depends(shop_for("owner")), session: Session = Dep
 
 @router.post("/shops/{shop_id}/camera/feed", dependencies=[Depends(limit("feed", 10, 60))])
 def connect_feed(shop: Shop = Depends(shop_for("owner")), session: Session = Depends(db)):
-    """Connect the demo video feed: shop footage, one still at the counter phone's pace while a page is open."""
+    """Connect the sample video feed: shop footage, one still at the counter phone's pace while a page is open."""
     if not camera.feed_stills():
         raise HTTPException(503, "The feed's stills are missing from the assets.")
     feed.connect(session, shop)
@@ -137,7 +137,7 @@ def connect_feed(shop: Shop = Depends(shop_for("owner")), session: Session = Dep
 @router.post("/shops/{shop_id}/camera/disconnect", dependencies=[Depends(limit("disconnect", 10, 60))])
 def disconnect(shop: Shop = Depends(shop_for("owner")), session: Session = Depends(db)):
     """Disconnect the camera: the feed stops, and the shop gets a new counter key, so the old phone link
-    and any bridge carrying it stop. The owner's key stays as it is. The stills stay in the record."""
+    and any bridge carrying it stop. The owner's sign-in stays as it is. The stills stay in the record."""
     if shop.camera_feed_at:
         feed.stop(session, shop)
     rotate_counter_key(shop)
@@ -178,10 +178,10 @@ def frame_image(request: Request, frame_id: Annotated[int, Path(ge=1, le=MAX_ID)
 @router.post("/shops/{shop_id}/camera/staged", status_code=201, dependencies=[Depends(limit("staged", 20, 60))])
 async def staged(body: Staged, shop: Shop = Depends(shop_for("counter")), session: Session = Depends(db),
                  m=Depends(model)):
-    """A staged still from the assets, for a demo without a phone on the counter. Demo shops alone."""
+    """A staged still from the assets, for the sandbox shop without a phone on the counter. The sandbox shop alone."""
     try:
         frame = await camera.stage(session, m, shop, body.scene)
-    except camera.NotDemo as e:
+    except camera.NotSandbox as e:
         raise HTTPException(403, str(e))
     except camera.CameraError as e:
         raise HTTPException(422, str(e))

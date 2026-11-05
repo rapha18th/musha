@@ -1,6 +1,6 @@
 """Evidence over HTTP: receipts and photos in, the proof engine's verdicts, the owner's decision,
-attachments out, and demo receipts and goods photos for the manager's phone. The manager key opens
-evidence and answers; the owner key opens decisions and a second scoring."""
+attachments out, and sample receipts and goods photos for the manager's dashboard. The manager's sign-in
+opens evidence and answers; the owner's opens decisions and a second scoring."""
 import unicodedata
 from typing import Annotated
 
@@ -68,8 +68,22 @@ async def add_evidence(request: Request, background: BackgroundTasks,
         content_type = file.content_type or ""
     finally:
         await form.close()
-    kind, caption, total = fields["kind"] or "receipt", fields["caption"], fields["total"]
-    receipt_no, date, payee = fields["receipt_no"], fields["date"], fields["payee"]
+    a, msg, p, look = await receive(session, pp, m, req, kind=fields["kind"] or "receipt", data=data,
+                                    content_type=content_type, caption=fields["caption"],
+                                    printed={name: fields[name] for name in ("total", "receipt_no", "date", "payee")})
+    if look:
+        background.add_task(proof.read_photo_soon, request.app.state.sessions, m, a.id)
+    return _verdict(req, p, attachment=attachment_view(a), message=message_view(msg))
+
+
+async def receive(session: Session, pp, m, req: SpendRequest, *, kind: str, data: bytes, content_type: str,
+                  caption: str = "", printed: dict | None = None):
+    """One piece of evidence against a request, from the dashboard's upload or the manager's WhatsApp
+    (routes/whatsapp.py): kept, put in the thread as the manager's line, then proved, kept for the owner,
+    or taken as the answer to Musha's question for a photo. `printed` is a receipt typed by hand.
+    Returns the attachment, the manager's line, the proof, and whether the photo waits to be read."""
+    printed = printed or {}
+    total = printed.get("total", "")
     try:
         a = evidence.store_attachment(session, req.shop, kind=kind, data=data,
                                       content_type=content_type, request_id=req.id)
@@ -78,7 +92,8 @@ async def add_evidence(request: Request, background: BackgroundTasks,
     if kind == "receipt":
         if total and not proof._cents(total):
             raise HTTPException(422, "Type the total as a number, for example 171.00.")
-        typed = proof.typed_reading(total=total, receipt_no=receipt_no, day=date, payee=payee)
+        typed = proof.typed_reading(total=total, receipt_no=printed.get("receipt_no", ""),
+                                    day=printed.get("date", ""), payee=printed.get("payee", ""))
         if typed:
             a.reading = JsonText.dump(typed)
     manager = req.shop.manager
@@ -87,7 +102,7 @@ async def add_evidence(request: Request, background: BackgroundTasks,
                     language=manager.language if caption.strip() else "en",
                     text_en=None if not caption.strip() or manager.language == "en" else "")
     session.commit()
-    p = None
+    p, look = None, False
     if kind == "receipt" and req.status in ("held", "asking"):
         p = await guarded(proof.prove(session, pp, m, req))
     elif kind == "receipt" and req.status == "flagged":
@@ -98,8 +113,8 @@ async def add_evidence(request: Request, background: BackgroundTasks,
     elif kind in PHOTO_KINDS and req.status == "asking" and _asked_for_photo(req):
         p = await guarded(proof.answer(session, pp, m, req, text))
     elif kind in PHOTO_KINDS and req.status not in ("captured", "part_captured", "voided"):
-        background.add_task(proof.read_photo_soon, request.app.state.sessions, m, a.id)
-    return _verdict(req, p, attachment=attachment_view(a), message=message_view(msg))
+        look = True
+    return a, msg, p, look
 
 
 def _asked_for_photo(req) -> bool:
@@ -157,7 +172,7 @@ def attachment(request: Request, attachment_id: Annotated[int, Path(ge=1, le=MAX
 
 @router.post("/requests/{request_id}/samples", dependencies=[Depends(limit("samples", 20, 60))])
 def sample(body: Sample, req: SpendRequest = Depends(request_for("manager")), session: Session = Depends(db)):
-    """A demo receipt photo for this request, to send from the manager's phone like any photo.
+    """A sample receipt photo for this request, to send from the manager's dashboard like any photo.
     `reused` is last week's receipt, byte for byte. Headers carry what is printed, for typing
     it in when Musha runs without the model."""
     if body.variant not in receipts.VARIANTS:
@@ -178,10 +193,10 @@ def sample(body: Sample, req: SpendRequest = Depends(request_for("manager")), se
 
 @router.get("/samples/goods/{item}")
 def goods(item: str):
-    """A photo of the goods for the demo, one per product."""
+    """A sample photo of the goods, one per product of the sandbox shop."""
     data = receipts.goods_photo(item)
     if data is None:
-        raise HTTPException(404, "Goods photos cover the demo shop's own products.")
+        raise HTTPException(404, "Goods photos cover the sandbox shop's own products.")
     return Response(data, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=86400"})
 
 

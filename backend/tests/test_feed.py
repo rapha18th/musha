@@ -1,4 +1,4 @@
-"""The demo video feed: footage stills looping through the counter camera's own path, at the phone's
+"""The sample video feed: footage stills looping through the counter camera's own path, at the phone's
 pace, while a page watches, and free of the model after the first pass. The model is scripted."""
 import io
 from datetime import timedelta
@@ -188,24 +188,24 @@ async def test_the_app_loop_ticks_every_shop_with_the_feed(app, db, shop, model)
 
 # Footage counts the way staged stills count
 
-async def test_footage_that_saw_a_delivery_counts_in_a_demo_shop_and_says_so(db, shop, model):
+async def test_footage_that_saw_a_delivery_counts_in_the_sandbox_shop_and_says_so(db, shop, model):
     model.answers["camera.read"] = reading("Open, oil cartons arriving", "cartons of cooking oil", seen=True)
     feed.connect(db, shop)
     frame = await feed.tick(db, model, shop)
     seen = await camera.delivery_check(db, model, shop, item="cooking oil", since=now() - timedelta(hours=1),
                                        until=now())
     assert seen["seen"] is True and seen["staged"] is True and seen["frame_ids"] == [frame.id]
-    assert seen["reason"].startswith("The demo video feed shows cartons of cooking oil arriving at ")
+    assert seen["reason"].startswith("The sample video feed shows cartons of cooking oil arriving at ")
 
 
-async def test_footage_confirms_nothing_outside_a_demo_shop(db, shop, model, monkeypatch):
+async def test_footage_confirms_nothing_outside_the_sandbox_shop(db, shop, model, monkeypatch):
     model.answers["camera.read"] = reading("Open, oil cartons arriving", "cartons of cooking oil", seen=True)
     feed.connect(db, shop)
     await feed.tick(db, model, shop)
-    monkeypatch.setattr(camera, "demo_shop", lambda s: False)
+    monkeypatch.setattr(camera, "sandbox_shop", lambda s: False)
     seen = await camera.delivery_check(db, model, shop, item="cooking oil", since=now() - timedelta(hours=1),
                                        until=now())
-    assert seen["seen"] is False and seen["reason"].endswith("Feed stills count only in a demo shop.")
+    assert seen["seen"] is False and seen["reason"].endswith("Feed stills count only in the sandbox shop.")
 
 
 async def test_each_feed_still_is_a_visit_of_its_own(db, shop, model):

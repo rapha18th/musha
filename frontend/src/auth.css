@@ -1,0 +1,47 @@
+/* Sign in, Create your shop and the invite: one card on cream, the roofline above the title. Tokens from styles.css. */
+
+.au { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: 64px 16px 40px; background: var(--cream); }
+.au-card { width: min(420px, 100%); background: var(--paper); border: 1px solid var(--line); border-radius: 24px; padding: 28px 28px 26px; box-shadow: var(--shadow); }
+.au-wide { width: min(520px, 100%); }
+.au-home { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); border-radius: 8px; }
+.au-home:focus-visible { outline: 2px solid var(--clay); outline-offset: 4px; }
+.au-roof { width: 46px; height: 18px; }
+.au-roof path { fill: none; stroke: var(--clay); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+.au-roof rect { fill: none; stroke: var(--ink); stroke-width: 8; }
+.au-mark { font-family: var(--display); font-weight: 600; font-size: 20px; letter-spacing: -.3px; color: var(--clay-ink); }
+.au-title { font-family: var(--display); font-weight: 600; font-size: 30px; line-height: 1.15; letter-spacing: -.5px; margin: 22px 0 0; text-wrap: balance; }
+.au-lede { margin: 8px 0 0; color: var(--muted); font-size: 15px; line-height: 1.5; text-wrap: pretty; }
+.au-lede strong { color: var(--ink); font-weight: 600; }
+
+.au-form { display: flex; flex-direction: column; gap: 14px; margin-top: 22px; }
+.au-group { display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.au-group + .au-group { margin-top: 8px; padding-top: 18px; border-top: 1px solid var(--line); }
+.au-group legend { padding: 0; margin-bottom: 12px; font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.au-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.au-field label { font-size: 14px; font-weight: 500; color: var(--ink); }
+.au-field input, .au-invite input { width: 100%; min-width: 0; border: 1px solid var(--field-line); background: var(--paper); color: var(--ink); border-radius: 12px; padding: 11px 14px; font-size: 16px; }
+.au-field input:focus-visible, .au-invite input:focus-visible { outline: 2px solid var(--clay); outline-offset: 1px; border-color: var(--clay); }
+.au-hint { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.4; }
+.au-pass { position: relative; display: flex; }
+.au-pass input { padding-right: 72px; }
+.au-show { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; color: var(--clay-ink); font-size: 14px; font-weight: 600; padding: 6px 10px; border-radius: 8px; }
+.au-show:focus-visible, .au-copy:focus-visible, .au-go:focus-visible, .au-alt a:focus-visible, .au-fine a:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+
+.au-error { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--danger-soft); color: var(--danger); font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; }
+.au-go { margin-top: 4px; width: 100%; border: 0; background: var(--clay); color: var(--paper); border-radius: 999px; padding: 13px 22px; font-size: 16px; font-weight: 600; box-shadow: var(--shadow); }
+.au-go:hover:not(:disabled) { filter: brightness(1.05); }
+.au-alt { margin: 18px 0 0; text-align: center; color: var(--muted); font-size: 14px; }
+.au-alt a, .au-fine a { color: var(--clay-ink); font-weight: 600; text-underline-offset: 3px; }
+.au-fine { margin: 10px 0 0; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+.au-invite { display: flex; gap: 8px; margin-top: 20px; }
+.au-invite input { font-size: 14px; background: var(--cream); }
+.au-copy { flex: none; border: 1px solid var(--clay); background: transparent; color: var(--clay-ink); border-radius: 12px; padding: 0 18px; font-weight: 600; }
+.au-copy:hover { background: var(--clay-soft); }
+.au-status { min-height: 20px; margin: 6px 0 10px; font-size: 13px; color: var(--leaf); }
+
+@media (max-width: 480px) {
+  .au { padding: 60px 12px 28px; align-items: start; }
+  .au-card { padding: 22px 18px 22px; border-radius: 20px; }
+  .au-title { font-size: 26px; }
+}

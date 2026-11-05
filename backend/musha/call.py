@@ -73,7 +73,7 @@ UNAVAILABLE = "Gemini Live is unavailable right now. Try again in a minute."
 DROPPED = "The line to the shop dropped. Call again."
 BUSY = "The shop is on another call. Try again when it ends."
 CROWDED = "Musha is on many calls right now. Try again in a minute."
-OWNER_ONLY = "Calls to the shop open for its owner, in the browser that made the shop."
+OWNER_ONLY = "Calls to the shop open for its owner, signed in."
 TIME_UP = "Calls run five minutes. Call again any time."
 
 STATUS = {
@@ -197,7 +197,7 @@ def camera_facts(session: Session, shop: Shop, at: datetime | None = None) -> di
         out["counter_phone_seen"] = f"{clock(seen)}, {ago(seen, at)}"
     if f is not None:
         out["last_still"] = {"line": f.line or "unread", "taken": f"{clock(f.at)}, {ago(f.at, at)}",
-                             "staged": f.kind in camera.STAGED, "demo_video_feed": f.kind == "feed"}
+                             "staged": f.kind in camera.STAGED, "sample_video_feed": f.kind == "feed"}
     return out
 
 
@@ -910,7 +910,7 @@ class Call:
             if f is not None and f.id is not None:
                 reading = camera.reading_of(f)
                 facts["still"] = {"line": f.line or "unread", "taken": f"{clock(f.at)}, {ago(f.at)}",
-                                  "staged_demo_scene": f.kind == "staged", "demo_video_feed": f.kind == "feed"}
+                                  "staged_scene": f.kind == "staged", "sample_video_feed": f.kind == "feed"}
                 if reading:
                     facts["still"]["reading"] = reading
                 facts["on_screen"] = "The still is on the owner's screen."

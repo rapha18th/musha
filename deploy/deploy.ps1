@@ -13,16 +13,18 @@
      3  Artifact Registry repository, keeping the two newest images
      4  Cloud Storage bucket for the Litestream replica, soft delete off
      5  Service account for the service, with object access on that bucket
-     6  Secrets: the PayPal secret, the jobs key, the two sandbox emails, and the Gemini key
+     6  Secrets: the PayPal secret, the jobs key, the two sandbox emails, the Gemini key
         (an existing Gemini secret is read as it is; a missing one is made from GEMINI_API_KEY),
-        and the AG Grid licence for the Money view when its secret exists (deploy/README.md)
+        the two sandbox sign-ins' passwords (the same way: read as they are, or made from .env),
+        and the AG Grid licence for the Money view when its secret exists, and the WhatsApp Cloud API's
+        four secrets and Farai's number when they exist (deploy/README.md)
      7  PayPal sandbox webhook for the service URL, which is known before the first deploy
      8  Cloud Build builds the Dockerfile; Cloud Run deploys it, with the CPU on for the instance's life,
         and takes all traffic. The new revision's start restores the most recently written generation
         of the database (deploy/README.md)
      9  Health check; with -RestoreFrom, the new revision's log confirms its first start used it
     10  Cloud Scheduler job for the hold keeper
-    11  With -SmokeTest: a canary demo shop outlives the deploy and one more roll
+    11  With -SmokeTest: a canary shop, made through sign-up, outlives the deploy and one more roll
     12  With -Budget: a monthly budget with email alerts for the project
 
 .EXAMPLE
@@ -80,6 +82,24 @@ $Secrets = [ordered]@{
     "MUSHA_OWNER_EMAIL"    = "musha-owner-email"
     "MUSHA_MANAGER_EMAIL"  = "musha-manager-email"
 }
+
+# Musha's own sandbox sign-ins, chipo@example.com and farai@example.com (README, Sandbox sign-ins). The
+# hosted start refuses to run without both. An existing secret is read as it is; a missing one is made
+# from .env. MUSHA_OWNER_PASSWORD and MUSHA_MANAGER_PASSWORD are PayPal's, and this script leaves them be.
+$SignInSecrets = [ordered]@{
+    "MUSHA_OWNER_SIGNIN_PASSWORD"   = "musha-owner-signin-password"
+    "MUSHA_MANAGER_SIGNIN_PASSWORD" = "musha-manager-signin-password"
+}
+
+# The WhatsApp Business Cloud API (deploy/README.md, Go live on WhatsApp): mapped when all four exist.
+$WhatsAppSecrets = [ordered]@{
+    "WHATSAPP_TOKEN"           = "musha-whatsapp-token"
+    "WHATSAPP_PHONE_NUMBER_ID" = "musha-whatsapp-phone-number-id"
+    "WHATSAPP_APP_SECRET"      = "musha-whatsapp-app-secret"
+    "WHATSAPP_VERIFY_TOKEN"    = "musha-whatsapp-verify-token"
+}
+# Farai's WhatsApp number in the sandbox shop (MUSHA_MANAGER_PHONE), given to her on each start; mapped when it exists.
+$ManagerPhoneSecret = "musha-manager-phone"
 
 # The events Musha books (README, Webhooks).
 $WebhookEvents = @(
@@ -286,12 +306,17 @@ function Assert-Recovery([string]$Revision) {
 }
 
 function New-Canary([string]$Where) {
-    # A demo shop for the smoke test, kept in $web's cookies. Returns its id.
-    $shop = Invoke-RestMethod -Method Post -Uri "$Url/api/demo/shops" -WebSession $web
-    Note "made canary demo shop $($shop.id) $Where"
+    # A shop for the smoke test, made through sign-up; its owner's session stays in $web's cookies.
+    # The manager's number is a fictional one (555-0100), so WhatsApp has no one to reach. Returns its id.
+    $tag = [guid]::NewGuid().ToString("N").Substring(0, 12)
+    $form = @{ name = "Canary"; email = "canary-$tag@example.com"; password = [guid]::NewGuid().ToString("N")
+               shop_name = "Canary $tag"; place = "Cloud Run"; manager_name = "Canary"; manager_phone = "+15555550100" }
+    $made = Invoke-RestMethod -Method Post -Uri "$Url/api/auth/sign-up" -WebSession $web -ContentType "application/json" `
+        -Body ($form | ConvertTo-Json -Compress)
+    Note "made canary shop $($made.shop.id) $Where"
     # The new shop's reply waited for the bucket; a few more requests give Litestream a moment to settle.
     1..4 | ForEach-Object { Invoke-WebRequest -UseBasicParsing -Uri "$Url/api/health" -TimeoutSec 30 | Out-Null; Start-Sleep -Seconds 1 }
-    return [string]$shop.id
+    return [string]$made.shop.id
 }
 
 function Assert-Canary([string]$When) {
@@ -493,6 +518,24 @@ if (Test-Gcloud @("secrets", "describe", $GeminiSecret, "--project=$Project")) {
     $UseGemini = $false
     Note "GEMINI_API_KEY: absent from .env and Secret Manager; Musha runs on its plain rules"
 }
+# The sandbox sign-ins' passwords: read as they are, or made from .env. Without them the new revision
+# would refuse to start, so the deploy stops here first.
+foreach ($name in $SignInSecrets.Keys) {
+    $secret = $SignInSecrets[$name]
+    if (Test-Gcloud @("secrets", "describe", $secret, "--project=$Project")) {
+        Note "$secret`: exists; Musha reads it as it is"
+    } elseif ($DotEnv.ContainsKey($name) -and $DotEnv[$name]) {
+        if ($DotEnv[$name].Length -lt 10) { throw "$name in .env needs 10 characters or more." }
+        Invoke-GcloudStdin -Mutates -Text $DotEnv[$name] -Shown "gcloud secrets create $secret --data-file=-  ($name from .env)" -Arguments @(
+            "secrets", "create", $secret, "--replication-policy=automatic", "--data-file=-",
+            "--labels=app=musha", "--project=$Project") | Out-Null
+        Done "$secret`: created from $name"
+    } elseif ($Plan) {
+        Write-Warning "$secret is missing and .env leaves $name empty: the deploy stops here until one holds it."
+    } else {
+        throw "Set $name in .env, or make the secret $secret (deploy/README.md, Sandbox sign-ins). The hosted start refuses to run without it."
+    }
+}
 # The AG Grid licence is mapped when its secret exists; deploy/README.md says how to make it.
 $UseAgGrid = Test-Gcloud @("secrets", "describe", $AgGridSecret, "--project=$Project")
 if ($UseAgGrid) {
@@ -500,8 +543,23 @@ if ($UseAgGrid) {
 } else {
     Note "$AgGridSecret`: absent; the Money view runs with the AG Grid trial watermark"
 }
-$readable = @($Secrets.Values) + $(if ($UseGemini) { @($GeminiSecret) } else { @() }) +
-    $(if ($UseAgGrid) { @($AgGridSecret) } else { @() })
+# WhatsApp is mapped when its four secrets exist, the same way; deploy/README.md says how to make them.
+$whatsAppHeld = @($WhatsAppSecrets.Values | Where-Object { Test-Gcloud @("secrets", "describe", $_, "--project=$Project") })
+$UseWhatsApp = $whatsAppHeld.Count -eq $WhatsAppSecrets.Count
+if ($UseWhatsApp) {
+    Note "WhatsApp: its four secrets exist; Musha's lines reach each manager's WhatsApp"
+} elseif ($whatsAppHeld.Count) {
+    $lacking = @($WhatsAppSecrets.Values | Where-Object { $whatsAppHeld -notcontains $_ })
+    Write-Warning "WhatsApp needs all four secrets; $($lacking -join ', ') is missing. The dashboard carries the manager's thread alone."
+} else {
+    Note "WhatsApp: its secrets are absent; the dashboard carries the manager's thread alone"
+}
+$UseManagerPhone = Test-Gcloud @("secrets", "describe", $ManagerPhoneSecret, "--project=$Project")
+if ($UseManagerPhone) { Note "$ManagerPhoneSecret`: exists; each start gives its number to the sandbox shop's Farai" }
+$readable = @($Secrets.Values) + @($SignInSecrets.Values) + $(if ($UseGemini) { @($GeminiSecret) } else { @() }) +
+    $(if ($UseAgGrid) { @($AgGridSecret) } else { @() }) +
+    $(if ($UseWhatsApp) { @($WhatsAppSecrets.Values) } else { @() }) +
+    $(if ($UseManagerPhone) { @($ManagerPhoneSecret) } else { @() })
 foreach ($secret in $readable) {
     Retry {
         Invoke-Gcloud -Mutates -Arguments @("secrets", "add-iam-policy-binding", $secret,
@@ -563,7 +621,7 @@ $envVars = [ordered]@{
     # Sent on every deploy, empty unless -RestoreFrom names a generation or fresh. A recovery's first
     # start spends it, and the next deploy clears it from the service template.
     "MUSHA_RESTORE_FROM"       = $RestoreFrom
-    # /data lives in the instance's memory: 30 new demo shops an hour, for every visitor together.
+    # /data lives in the instance's memory: sign-up makes 30 new shops an hour, for every visitor together.
     "MUSHA_SHOPS_PER_HOUR"     = "30"
     # Cloud Run's front end appends the caller's address to X-Forwarded-For: one trusted hop.
     "MUSHA_PROXY_HOPS"         = "1"
@@ -579,7 +637,7 @@ $Canary = ""
 $CanaryGeneration = ""
 if ($SmokeTest -and -not $RestoreFrom -and $Serving) {
     # Made before the deploy, the canary proves the new revision restored the generation that holds it.
-    if ($Plan) { Planned "POST $Url/api/demo/shops: a canary demo shop on the serving revision, opened after the deploy" }
+    if ($Plan) { Planned "POST $Url/api/auth/sign-up: a canary shop on the serving revision, opened after the deploy" }
     else {
         $Canary = New-Canary "on the serving revision"
         # A cold start for the canary writes a generation of its own, so the listing comes after it.
@@ -604,8 +662,11 @@ if ($SkipBuild) {
 }
 $envArg = ($envVars.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ","
 $secretPairs = @($Secrets.Keys | ForEach-Object { "$_=$($Secrets[$_]):latest" })
+$secretPairs += @($SignInSecrets.Keys | ForEach-Object { "$_=$($SignInSecrets[$_]):latest" })
 if ($UseGemini) { $secretPairs += "GEMINI_API_KEY=$GeminiSecret`:latest" }
 if ($UseAgGrid) { $secretPairs += "AG_GRID_KEY=$AgGridSecret`:latest" }
+if ($UseWhatsApp) { $secretPairs += @($WhatsAppSecrets.Keys | ForEach-Object { "$_=$($WhatsAppSecrets[$_]):latest" }) }
+if ($UseManagerPhone) { $secretPairs += "MUSHA_MANAGER_PHONE=$ManagerPhoneSecret`:latest" }
 $secretArg = $secretPairs -join ","
 if (-not $SkipBuild) {
     # Cloud Build uploads what .gitignore leaves in. The secrets file must stay behind.
@@ -691,7 +752,7 @@ if (Test-Gcloud @("scheduler", "jobs", "describe", $SchedulerJob, "--location=$R
 # ---------------------------------------------------------------- 11 smoke test
 
 if ($SmokeTest) {
-    Step "11" "Smoke test: a canary demo shop outlives the deploy and one more roll"
+    Step "11" "Smoke test: a canary shop, made through sign-up, outlives the deploy and one more roll"
     if ($Plan) {
         Planned ("make the canary now if none went in before the deploy, roll a new revision, open the canary on it, " +
             "and check the roll's generation holds a snapshot (ltx/9)")
@@ -744,4 +805,7 @@ if ($Budget) {
 $DotEnv = $null
 Write-Host ""
 if ($Plan) { Write-Host "Plan complete. Drop -Plan to apply it." -ForegroundColor Green }
-else { Write-Host "Musha runs at $Url" -ForegroundColor Green }
+else {
+    Write-Host "Musha runs at $Url" -ForegroundColor Green
+    if ($UseWhatsApp) { Write-Host "WhatsApp webhook: $Url/api/whatsapp/webhook, field messages" -ForegroundColor Green }
+}

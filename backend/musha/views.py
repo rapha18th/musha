@@ -11,14 +11,30 @@ def iso(dt) -> str | None:
     return flows.utc(dt).isoformat() if dt else None
 
 
-def shop_view(session: Session, shop: Shop) -> dict:
+def whatsapp_state(shop: Shop, on: bool) -> str:
+    """Where the manager's thread runs: "live" on her proved WhatsApp number too, "link" while the
+    server runs WhatsApp and she has yet to prove hers, "off" in the dashboard alone. The sandbox
+    shop's number comes from the operator, so it is live or off."""
+    from . import whatsapp  # whatsapp reaches this module through bridge
+
+    if not on:
+        return "off"
+    if whatsapp.number_of(shop.manager):
+        return "live"
+    return "off" if shop.demo else "link"
+
+
+def shop_view(session: Session, shop: Shop, *, whatsapp: bool = False) -> dict:
+    """`whatsapp`: the server runs the WhatsApp Cloud API (Settings.whatsapp_ready)."""
     return {
         "id": shop.id, "name": shop.name, "place": shop.place, "currency": shop.currency,
         "owner": {"name": shop.owner.name, "city": shop.owner.city, "language": shop.owner.language},
         "manager": {"name": shop.manager.name, "city": shop.manager.city,
-                    "language": shop.manager.language},
+                    "language": shop.manager.language, "signed_in": bool(shop.manager.login_email)},
         "camera_seen_at": iso(shop.camera_seen_at),
         "books": ledger.summary(session, shop.id),
+        "sandbox": bool(shop.demo),  # the seeded sandbox shop: staged camera scenes run here alone
+        "whatsapp": whatsapp_state(shop, whatsapp),
     }
 
 

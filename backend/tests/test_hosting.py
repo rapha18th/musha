@@ -1,4 +1,4 @@
-"""Musha on Cloud Run: the caller's address behind the front end, the demo-shop budget, the feed's
+"""Musha on Cloud Run: the caller's address behind the front end, the sign-up budget, the feed's
 share of the database, writes that reply once the bucket holds them, and payouts the hold job
 closes when no webhook arrives."""
 import asyncio
@@ -21,6 +21,7 @@ from musha.routes import core
 from musha.seed import reset
 from musha.standin import StandInPayPal
 
+from .conftest import signing_up
 from .test_money_loop import wages_paid
 
 JOBS = {"X-Jobs-Key": "jobs"}
@@ -61,19 +62,41 @@ def test_the_caller_is_the_entry_the_front_end_appended(monkeypatch):
 
 
 def test_a_header_the_caller_writes_leaves_its_shop_budget_as_it_is(client):
-    made = [client.post("/api/demo/shops", headers={"X-Forwarded-For": f"198.51.100.{n}, 203.0.113.9"})
-            for n in range(7)]
+    made = [client.post("/api/auth/sign-up", json=signing_up(n),
+                        headers={"X-Forwarded-For": f"198.51.100.{n}, 203.0.113.9"}) for n in range(7)]
     assert [r.status_code for r in made] == [201] * 6 + [429]
-    assert client.post("/api/demo/shops", headers={"X-Forwarded-For": "198.51.100.1, 203.0.113.10"}
-                       ).status_code == 201
+    assert client.post("/api/auth/sign-up", json=signing_up(7),
+                       headers={"X-Forwarded-For": "198.51.100.1, 203.0.113.10"}).status_code == 201
 
 
-# The demo-shop budget
+# The web app's pages
+
+def test_each_page_of_the_web_app_opens_its_index(tmp_path):
+    """A link to /owner, /manager or an invite opens on a fresh tab: the built app's index answers each
+    of its own pages, its files answer as they are, and any other path stays a 404."""
+    from musha.api import Web
+
+    (tmp_path / "index.html").write_text("<div id=root></div>")
+    (tmp_path / "assets").mkdir()
+    (tmp_path / "assets" / "app.js").write_text("app()")
+    web = FastAPI()
+    web.mount("/", Web(directory=tmp_path, html=True))
+    browser = TestClient(web)
+    for page in ("/", "/sign-in", "/sign-up", "/owner", "/manager", "/counter", "/invite/Ab-3_x9"):
+        r = browser.get(page)
+        assert r.status_code == 200 and r.text == "<div id=root></div>", page
+    assert browser.get("/assets/app.js").text == "app()"
+    for other in ("/invite/", "/invite/a/b", "/owner/x", "/api/nothing", "/elsewhere"):
+        assert browser.get(other).status_code == 404, other
+
+
+# The sign-up budget
 
 def test_the_server_makes_its_hourly_shops_and_then_waits(client, monkeypatch):
     assert core.shops_per_hour() == 200
     monkeypatch.setenv("MUSHA_SHOPS_PER_HOUR", "2")
-    made = [client.post("/api/demo/shops", headers={"X-Forwarded-For": f"203.0.113.{n}"}) for n in range(3)]
+    made = [client.post("/api/auth/sign-up", json=signing_up(n), headers={"X-Forwarded-For": f"203.0.113.{n}"})
+            for n in range(3)]
     assert [r.status_code for r in made] == [201, 201, 429]
     assert int(made[-1].headers["Retry-After"]) > 0
     monkeypatch.setenv("MUSHA_SHOPS_PER_HOUR", "thirty")

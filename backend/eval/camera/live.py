@@ -1,4 +1,4 @@
-"""Shared setup for the live camera scripts: Gemini and a seeded demo shop in memory.
+"""Shared setup for the live camera scripts: Gemini and a seeded sandbox shop in memory.
 
 The model is Gemini on Vertex AI for the project in GOOGLE_CLOUD_PROJECT (application default
 credentials), or the Gemini API with GEMINI_API_KEY. A run from the cache needs neither.
@@ -36,8 +36,8 @@ def gemini() -> Gemini:
     return Gemini(settings())
 
 
-def demo_shop(database_url: str = "sqlite://"):
-    """A fresh session and the seeded demo shop."""
+def sandbox_shop(database_url: str = "sqlite://"):
+    """A fresh session and the seeded sandbox shop."""
     engine = make_engine(database_url)
     Base.metadata.create_all(engine)
     session = make_sessionmaker(engine)()

@@ -6,7 +6,6 @@
 // a `type`; the shop's voice arrives as {type: "reply.audio", data: base64 PCM16 at 24 kHz}.
 
 import { call, post } from "../api";
-import { keysOf } from "../shell";
 
 export type Ring = {
   id: number;
@@ -265,8 +264,8 @@ export class ShopCall {
 
     const scheme = window.location.protocol === "https:" ? "wss" : "ws";
     const url = `${scheme}://${window.location.host}/api/shops/${this.shopId}/call${this.ringId ? `?ring=${this.ringId}` : ""}`;
-    const key = keysOf(this.shopId)?.owner;
-    const ws = (this.ws = new WebSocket(url, key ? ["musha", `key.${key}`] : ["musha"]));
+    // The owner's session cookie goes with the handshake: the call opens to her sign-in.
+    const ws = (this.ws = new WebSocket(url, ["musha"]));
     ws.binaryType = "arraybuffer";
     ws.onmessage = (e) => {
       if (typeof e.data !== "string") return;

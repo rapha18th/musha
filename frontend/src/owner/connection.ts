@@ -31,28 +31,6 @@ export const connectApi = {
   disconnect: (shopId: number) => post<Connection>(`/api/shops/${shopId}/camera/disconnect`),
 };
 
-/** The counter page for a phone at the counter, carrying the shop's counter key. */
-export function counterUrl(shopId: number, key: string): string {
-  const hash = `#/counter?shop=${shopId}${key ? `&key=${encodeURIComponent(key)}` : ""}`;
-  return `${window.location.origin}${window.location.pathname}${hash}`;
-}
-
-/**
- * After Disconnect the shop has a new counter key. The browser that made the shop keeps its keys
- * where shell.ts reads them (musha.keys.<id>), so every "Copy the link" carries the new one.
- */
-export function keepCounterKey(shopId: number, key: string) {
-  try {
-    const name = `musha.keys.${shopId}`;
-    const keys = JSON.parse(window.localStorage.getItem(name) || "null");
-    if (keys && typeof keys === "object" && key) {
-      window.localStorage.setItem(name, JSON.stringify({ ...keys, counter: key }));
-    }
-  } catch {
-    // a private window keeps the keys for this visit
-  }
-}
-
 export const BRIDGE_GUIDE = "https://github.com/rapha18th/musha/tree/main/counter-bridge";
 
 export type CameraKind = { key: string; label: string; rtsp: string };

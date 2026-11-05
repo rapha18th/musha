@@ -44,7 +44,7 @@ function lineOf(p: Pending, out: Answer): Message | undefined {
 }
 
 /** Farai's phone: a WhatsApp-style chat with Musha in her own language, and the counter camera.
- *  Simulated here; the WhatsApp Business Platform is the next wire for the live chat. */
+ *  Once she proves her WhatsApp number, the same thread reaches it and her replies land here (shop.whatsapp). */
 export function Phone({ shop, requests, messages, loading = false, refresh }: {
   shop: Shop;
   requests: SpendRequest[];
@@ -519,7 +519,11 @@ export function Phone({ shop, requests, messages, loading = false, refresh }: {
           </div>
         )}
       </div>
-      <p className="ph-under">Musha's chat, simulated here.</p>
+      <p className="ph-under">
+        {shop.whatsapp === "live" ? `This chat also runs on ${shop.manager.name}'s WhatsApp.`
+          : shop.whatsapp === "link" ? `Link ${shop.manager.name}'s WhatsApp below, and this chat runs there too.`
+          : "The same chat runs on WhatsApp when the shop connects it."}
+      </p>
     </>
   );
 }

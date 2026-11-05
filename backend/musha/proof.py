@@ -1143,7 +1143,7 @@ async def _conclude(session: Session, pp, model, req: SpendRequest, receipt: Att
     return proof
 
 
-# The demo shop's history
+# The sandbox shop's history
 
 HISTORY_STEP = 3  # receipts a supplier's till prints between two of the shop's buys on one morning
 HISTORY_WEEK = 211  # receipts a supplier's till prints in a week

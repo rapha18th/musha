@@ -217,7 +217,7 @@ export const phone = {
     return send<Verdict>(`/api/requests/${requestId}/evidence`, { method: "POST", body: form });
   },
 
-  /** A demo receipt for this request, with what it has printed on it. */
+  /** A sample receipt for this request, with what it has printed on it. */
   sample: async (requestId: number, variant: Variant) => {
     const r = await blob(`/api/requests/${requestId}/samples`, {
       method: "POST",
@@ -233,7 +233,7 @@ export const phone = {
     return { image: await r.blob(), printed };
   },
 
-  /** A demo photo of the goods. */
+  /** A sample photo of the goods. */
   goods: async (item: string) => (await blob(`/api/samples/goods/${encodeURIComponent(item)}`)).blob(),
 
   closeDay: (shopId: number, body: {

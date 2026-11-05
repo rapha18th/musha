@@ -15,6 +15,8 @@ from musha.models import Alert, Attachment, CameraFrame, Hold, JsonText, Message
 from musha.money import to_value
 from musha.routes import call as call_routes
 
+from .conftest import signed_shop
+
 pytestmark = pytest.mark.anyio
 
 ASSETS = Path(call.__file__).resolve().parent / "assets"
@@ -315,22 +317,19 @@ def test_a_call_opens_on_the_briefing_and_relays_both_ways(app, client, live):
 
 
 def test_the_call_belongs_to_the_owner(app, live):
-    owner = TestClient(app)
-    shop = owner.post("/api/demo/shops").json()
+    shop = signed_shop(app)
+    path = f"/api/shops/{shop.id}/call"
     stranger = TestClient(app)
-    with stranger.websocket_connect(f"/api/shops/{shop['id']}/call") as ws:
+    with stranger.websocket_connect(path) as ws:
         assert ws.receive_json() == {"type": "session.error", "message": call.OWNER_ONLY}
-    manager = TestClient(app)
-    with manager.websocket_connect(f"/api/shops/{shop['id']}/call", headers={"x-shop-key": shop["keys"]["manager"]}) as ws:
+    with shop.manager.websocket_connect(path) as ws:
         assert ws.receive_json()["message"] == call.OWNER_ONLY
-    with stranger.websocket_connect(f"/api/shops/{shop['id']}/call",
-                                    subprotocols=["musha", f"key.{shop['keys']['owner']}"]) as ws:
-        assert until(ws, "session.ready")[-1]["type"] == "session.ready"
-        ws.send_json({"type": "end"})
-        until(ws, "session.ended")
-    with owner.websocket_connect(f"/api/shops/{shop['id']}/call", headers={"origin": "https://elsewhere.example"}) as ws:
+    with stranger.websocket_connect(path, headers={"x-shop-key": shop.counter},
+                                    subprotocols=["musha", f"key.{shop.counter}"]) as ws:
+        assert ws.receive_json()["message"] == call.OWNER_ONLY  # a key opens the counter, never the call
+    with shop.owner.websocket_connect(path, headers={"origin": "https://elsewhere.example"}) as ws:
         assert ws.receive_json()["message"] == call.OWNER_ONLY
-    with owner.websocket_connect(f"/api/shops/{shop['id']}/call") as ws:  # the owner cookie opens it
+    with shop.owner.websocket_connect(path, headers={"origin": "http://testserver"}) as ws:  # her session opens it
         until(ws, "session.ready")
         ws.send_json({"type": "end"})
         until(ws, "session.ended")

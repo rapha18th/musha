@@ -53,6 +53,13 @@
 .o-textbtn:hover { text-decoration-color: var(--clay); }
 .o-textbtn.o-danger { color: var(--danger); }
 .o-link { color: var(--clay-ink); font-weight: 500; text-underline-offset: 3px; }
+
+/* The manager's invite link, on Today while she has no sign-in */
+.o-invite { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 10px; }
+.o-invite p { margin: 0; font-size: 14px; }
+.o-invite-link { display: flex; gap: 8px; width: min(560px, 100%); }
+.o-invite-link input { flex: 1; min-width: 0; border: 1px solid var(--field-line); background: var(--cream); color: var(--ink); border-radius: 12px; padding: 8px 12px; font-size: 13px; }
+.o-invite-link input:focus-visible { outline: 2px solid var(--clay); outline-offset: 1px; }
 .o-console :focus-visible, .o-lightbox :focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
 .o-spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; display: inline-block; animation: o-turn .8s linear infinite; flex: none; }
 

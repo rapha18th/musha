@@ -4,6 +4,8 @@
   --paper: #fffdf9;
   --sand: #f4ece0;
   --line: #e8ddcd;
+  /* A field's edge: 3:1 or better on paper and cream, so an empty box still reads as a box. */
+  --field-line: #8f8273;
   --ink: #211d18;
   --muted: #6b6054;
   --clay: #b4532a;
@@ -31,6 +33,7 @@
   --paper: #1e1a16;
   --sand: #29231d;
   --line: #3a322a;
+  --field-line: #7a6d5f;
   --ink: #f3ece2;
   --muted: #a99c8c;
   --clay: #e5865a;
@@ -66,15 +69,12 @@ input { font: inherit; }
 .top-right { display: flex; gap: 10px; align-items: center; }
 .theme { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; padding: 6px 12px; font-size: 13px; }
 .theme.corner { position: fixed; top: 20px; right: 20px; }
+.theme:hover { color: var(--ink); border-color: var(--muted); }
+.theme:focus-visible, .brand:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+.who { color: var(--muted); font-size: 14px; font-weight: 500; white-space: nowrap; }
 .rehearsal { margin: -12px 0 20px; padding: 8px 14px; border-radius: 10px; background: var(--warn-soft); color: var(--warn); font-size: 13px; }
 .mark { font-family: var(--display); font-weight: 600; font-size: 30px; color: var(--clay); letter-spacing: -0.5px; }
 .tag { color: var(--muted); }
-.switch { display: none; background: var(--sand); border-radius: 999px; padding: 4px; }
-.switch button { border: 0; background: transparent; padding: 8px 14px; border-radius: 999px; color: var(--muted); }
-.switch button[aria-pressed="true"] { background: var(--paper); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
-
-.stage { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 32px; align-items: start; }
-.owner-pane, .phone-pane { min-width: 0; }
 
 /* Owner */
 .shop-head h1 { font-family: var(--display); font-weight: 600; font-size: 34px; margin: 0; letter-spacing: -0.5px; }
@@ -115,7 +115,6 @@ button:disabled { opacity: .5; cursor: default; }
 .grid { width: 100%; }
 
 /* Phone */
-.phone-pane { position: sticky; top: 24px; }
 .phone { background: var(--thread); border-radius: 36px; border: 10px solid var(--ink); height: min(780px, calc(100vh - 48px)); display: flex; flex-direction: column; overflow: hidden; }
 .phone-head { display: flex; gap: 10px; align-items: center; padding: 14px 16px; background: var(--paper); border-bottom: 1px solid var(--line); }
 .phone-head div { display: flex; flex-direction: column; line-height: 1.2; }
@@ -136,17 +135,12 @@ button:disabled { opacity: .5; cursor: default; }
 .sheet .row button[type="submit"] { flex: 1; background: var(--clay); }
 
 @media (max-width: 960px) {
-  .stage { grid-template-columns: minmax(0, 1fr); }
   .tag { display: none; }
-  .switch { display: flex; }
-  .app[data-view="owner"] .phone-pane { display: none; }
-  .app[data-view="phone"] .owner-pane { display: none; }
-  .phone-pane { position: static; }
   .phone { border-width: 0; border-radius: var(--radius); height: calc(100vh - 140px); }
   .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-/* Landing: one line, one door */
+/* Landing: one line, two doors */
 .landing { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; background: var(--cream); }
 .landing-center { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .roof { width: 180px; height: 68px; margin-bottom: 8px; }
@@ -154,6 +148,50 @@ button:disabled { opacity: .5; cursor: default; }
 .roof rect { fill: none; stroke: var(--ink); stroke-width: 2.5; }
 .landing-mark { font-family: var(--display); font-weight: 600; font-size: clamp(56px, 12vw, 104px); letter-spacing: -2px; margin: 0; line-height: 1; color: var(--ink); }
 .landing-line { font-size: clamp(17px, 2.4vw, 21px); color: var(--muted); margin: 6px 0 24px; }
-.landing-go { border: 0; background: var(--clay); color: var(--paper); border-radius: 999px; padding: 14px 28px; font-size: 16px; font-weight: 600; box-shadow: var(--shadow); }
+.landing-doors { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.landing-go, .landing-in { display: inline-flex; align-items: center; justify-content: center; min-width: 168px; border-radius: 999px; padding: 13px 28px; font-size: 16px; font-weight: 600; text-decoration: none; }
+.landing-go { border: 1px solid var(--clay); background: var(--clay); color: var(--paper); box-shadow: var(--shadow); }
+.landing-in { border: 1px solid var(--clay-ink); background: transparent; color: var(--clay-ink); }
 .landing-go:hover { filter: brightness(1.05); }
+.landing-in:hover { background: var(--clay-soft); }
+.landing-go:focus-visible, .landing-in:focus-visible { outline: 2px solid var(--clay); outline-offset: 3px; }
 .landing-fine { color: var(--muted); font-size: 13px; margin-top: 18px; }
+@media (max-width: 420px) {
+  .landing-doors { flex-direction: column; align-items: stretch; width: min(260px, 100%); }
+}
+
+/* The manager's page: her chat with Musha, phone first, one column centred on a wide screen */
+.mg { min-height: 100vh; min-height: 100dvh; background: var(--cream); }
+.mg-top { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 448px; margin: 0 auto; padding: 16px 16px 12px; }
+.mg-brand { flex: none; font-family: var(--display); font-weight: 600; font-size: 24px; letter-spacing: -.4px; color: var(--clay-ink); text-decoration: none; border-radius: 6px; }
+.mg-brand:focus-visible { outline: 2px solid var(--clay); outline-offset: 3px; }
+.mg-shop { flex: 1; min-width: 0; color: var(--muted); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mg-actions { flex: none; display: flex; gap: 8px; }
+.mg-main { width: 100%; max-width: 448px; margin: 0 auto; padding: 0 16px 24px; }
+.mg-title { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* Linking the manager's WhatsApp: a card under the chat until her number is proved */
+.mg-wa { margin-top: 16px; padding: 18px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.mg-wa h2 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 19px; letter-spacing: -.2px; }
+.mg-wa p { margin: 6px 0 0; color: var(--muted); font-size: 14px; line-height: 1.45; text-wrap: pretty; overflow-wrap: anywhere; }
+.mg-wa strong { color: var(--ink); font-weight: 600; }
+.mg-wa .mg-wa-code { margin-top: 12px; font-family: var(--display); font-weight: 600; font-size: 32px; letter-spacing: 3px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.mg-wa .mg-wa-error { color: var(--danger); }
+.mg-wa-go { display: inline-flex; justify-content: center; margin-top: 12px; border: 0; background: var(--clay); color: var(--paper); border-radius: 999px; padding: 10px 20px; font-size: 15px; font-weight: 600; text-decoration: none; }
+.mg-wa-go:hover:not(:disabled) { filter: brightness(1.05); }
+.mg-wa-quiet { border: 0; background: transparent; color: var(--clay-ink); font-size: 14px; font-weight: 600; padding: 2px 0; text-decoration: underline; text-underline-offset: 3px; }
+.mg-wa-row { display: flex; gap: 8px; margin-top: 12px; }
+.mg-wa-row input { flex: 1; min-width: 0; border: 1px solid var(--field-line); background: var(--paper); color: var(--ink); border-radius: 12px; padding: 9px 12px; font-size: 16px; }
+.mg-wa-row button { flex: none; border: 1px solid var(--clay); background: transparent; color: var(--clay-ink); border-radius: 12px; padding: 0 16px; font-weight: 600; }
+.mg-wa-go:focus-visible, .mg-wa-quiet:focus-visible, .mg-wa-row button:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+.mg-wa-row input:focus-visible { outline: 2px solid var(--clay); outline-offset: 1px; border-color: var(--clay); }
+
+/* On a wide screen the phone stands as tall as the window allows; narrower, Phone.tsx fits it below the header. */
+@media (min-width: 961px) {
+  .mg .ph { height: clamp(540px, calc(100dvh - 140px), 860px); }
+}
+
+@media (max-width: 480px) {
+  .mg-top { padding: 12px 12px 10px; gap: 10px; }
+  .mg-main { padding: 0 8px 12px; }
+}

@@ -1,10 +1,9 @@
 """The shop call: the owner's WebSocket to her shop, and the shop's ring for the owner.
 
 The call is a WebSocket at /api/shops/{shop_id}/call, and the owner alone opens it. A browser's
-socket carries no custom headers, so the owner's key comes the way a browser sends it: the owner
-cookie the console already holds, or the subprotocol "key.<owner key>" offered beside "musha" by a
-page that holds the key in its own storage. `?ring=<id>` answers a ring, and the call then opens
-on the reason the shop rang. The server holds the Gemini Live session; musha/call.py relays it.
+socket carries no custom headers, so the owner's session cookie goes with the handshake, as with
+every other call the console makes. `?ring=<id>` answers a ring, and the call then opens on the
+reason the shop rang. The server holds the Gemini Live session; musha/call.py relays it.
 
 The console polls GET ring for an incoming call, and Later sends a ring away.
 """
@@ -17,10 +16,10 @@ from sqlalchemy.orm import Session
 from .. import call
 from ..deps import db
 from ..models import Ring, Shop
-from .core import MAX_ID, ROLES, keys_of, level_of, limit, role_of, shop_for
+from .core import MAX_ID, ROLES, level_of, limit, shop_for
 
 router = APIRouter(prefix="/api")  # HTTP routes, behind the access net every router shares
-live_router = APIRouter(prefix="/api")  # the socket, which checks its own key
+live_router = APIRouter(prefix="/api")  # the socket, which checks the owner's session itself
 
 MAX_CALLS = 8  # calls the server holds at once, across every shop
 PER_SHOP = (6, 3600)  # calls a shop takes an hour
@@ -79,13 +78,7 @@ def _same_origin(ws: WebSocket) -> bool:
 
 
 def _owner(ws: WebSocket, shop: Shop) -> bool:
-    if level_of(ws, shop) >= ROLES.index("owner"):
-        return True
-    keys = keys_of(shop)
-    for offered in ws.scope.get("subprotocols") or []:
-        if offered.startswith("key.") and role_of(keys, offered[4:]) == "owner":
-            return True
-    return False
+    return level_of(ws, shop) >= ROLES.index("owner")
 
 
 async def _refuse(ws: WebSocket, message: str, code: int):

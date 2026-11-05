@@ -8,11 +8,6 @@
 
 /* The sheet over the console */
 .c-scrim { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 24px; background: rgba(20, 16, 12, .62); backdrop-filter: blur(6px); animation: c-fade .2s ease both; }
-/* Wide screens set the console and the manager's phone side by side (.stage in styles.css: 1240 px wide,
-   a 380 px phone column, a 32 px gap). The call covers the console, and the phone stays in view and in reach. */
-@media (min-width: 961px) {
-  .c-scrim { right: calc((100vw - min(100vw, 1240px)) / 2 + 412px); }
-}
 .c-sheet { position: relative; width: min(560px, 100%); max-height: calc(100dvh - 48px); overflow-y: auto; background: var(--paper); color: var(--ink); border-radius: 26px; padding: 24px 28px 26px; box-shadow: 0 24px 80px rgba(0, 0, 0, .35); animation: c-rise .28s ease both; }
 .c-sheet :focus-visible { outline: 2px solid var(--clay); outline-offset: 3px; }
 .c-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }

@@ -593,13 +593,13 @@ async def test_the_camera_check_records_a_staged_still(db, shop, model):
     assert c.points == proof.WEIGHTS["camera"] and c.data.get("staged") is True
 
 
-def test_the_seed_makes_demo_shops(app):
+def test_the_seed_makes_sandbox_shops(app):
     with app.state.sessions() as s:
-        assert camera.demo_shop(s.get(Shop, 1))
+        assert camera.sandbox_shop(s.get(Shop, 1))
         other = Shop(name="A shop", place="Harare", owner_id=1, manager_id=2)  # a shop made another way
         s.add(other)
         s.flush()
-        assert other.demo is False and not camera.demo_shop(other)
+        assert other.demo is False and not camera.sandbox_shop(other)
         s.rollback()
 
 
@@ -638,26 +638,26 @@ def test_a_staged_delivery_brings_the_held_goods(app, client, model):
         assert path.name == "delivery-eggs.jpg"
 
 
-async def test_a_staged_delivery_counts_in_a_demo_shop_and_says_so(db, shop, model):
+async def test_a_staged_delivery_counts_in_the_sandbox_shop_and_says_so(db, shop, model):
     model.answers["camera.read"] = lambda parts: None  # the model is off; the still's own reading stands
     req = held(db, ago=timedelta(minutes=1))
     await camera.stage(db, model, shop, "delivery")
     check = await camera.delivery_check(db, model, shop, item="eggs", **window())
     assert check["seen"] is True and check["staged"] is True
-    assert check["reason"].startswith("A staged demo still shows")
+    assert check["reason"].startswith("A staged sample still shows")
 
     c = await proof.camera_check(db, model, req)
     assert c.applies and c.points == proof.WEIGHTS["camera"] and "staged" in c.reason
 
 
-async def test_a_staged_still_confirms_nothing_outside_a_demo_shop(db, shop, model):
+async def test_a_staged_still_confirms_nothing_outside_the_sandbox_shop(db, shop, model):
     req = held(db, ago=timedelta(minutes=1))
     await camera.stage(db, model, shop, "delivery")
     shop.demo = False  # a shop the seed did not make
-    with pytest.raises(camera.NotDemo):
+    with pytest.raises(camera.NotSandbox):
         await camera.stage(db, model, shop, "delivery")
     check = await camera.delivery_check(db, model, shop, item="eggs", **window())
-    assert check["seen"] is False and "Staged stills count only in a demo shop" in check["reason"]
+    assert check["seen"] is False and "Staged stills count only in the sandbox shop" in check["reason"]
     c = await proof.camera_check(db, model, req)
     assert c.applies is False and c.points == 0
 
@@ -687,10 +687,10 @@ async def test_a_sent_copy_of_a_staged_scene_is_stored_as_staged(db, shop, model
         await camera.ingest_frame(db, model, shop, data=still(), kind="staged")
 
 
-def test_staged_scenes_belong_to_demo_shops(client, monkeypatch):
-    monkeypatch.setattr(camera, "demo_shop", lambda shop: False)
+def test_staged_scenes_belong_to_the_sandbox_shop(client, monkeypatch):
+    monkeypatch.setattr(camera, "sandbox_shop", lambda shop: False)
     r = client.post("/api/shops/1/camera/staged", json={"scene": "delivery"})
-    assert r.status_code == 403 and r.json()["detail"] == "Staged scenes belong to demo shops."
+    assert r.status_code == 403 and r.json()["detail"] == "Staged scenes belong to the sandbox shop."
 
 
 # Look in, over HTTP

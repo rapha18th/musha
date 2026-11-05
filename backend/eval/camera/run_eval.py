@@ -3,7 +3,7 @@
 Each still in stills/ is read with the engine's own reading code, camera.read: the app's system
 prompt, schema, thinking level and clean-up. Readings are cached in readings.json by the still's
 sha256 and the prompt, so a rerun reads only what changed. Then every still goes through the
-app's path: a fresh demo shop, the still ingested as a counter sample, and the delivery check
+app's path: a fresh sandbox shop, the still ingested as a counter sample, and the delivery check
 asked about every product the shop sells.
 
     backend/.venv/Scripts/python backend/eval/camera/run_eval.py           # reads what the cache lacks
@@ -28,7 +28,7 @@ import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from live import MODEL, demo_shop
+from live import MODEL, sandbox_shop
 
 from musha import ai, camera
 from musha.ai import Blob
@@ -107,8 +107,8 @@ def stills(sets: list[str] | None = None) -> list[tuple[str, dict, bytes]]:
 
 
 async def read_all(model: Cached, rows) -> None:
-    """Read every still the cache lacks, a few at a time, against one demo shop."""
-    session, shop = demo_shop()
+    """Read every still the cache lacks, a few at a time, against one sandbox shop."""
+    session, shop = sandbox_shop()
     gate = asyncio.Semaphore(AT_ONCE)
 
     async def one(name, data):
@@ -122,7 +122,7 @@ async def read_all(model: Cached, rows) -> None:
 
 async def through_the_app(model: Cached, label: dict, data: bytes) -> dict:
     """The app's path for one still: ingest as a counter sample, then the delivery check per product."""
-    session, shop = demo_shop()
+    session, shop = sandbox_shop()
     products = list(session.query(Product).filter_by(shop_id=shop.id).order_by(Product.id))
     since = now() - timedelta(seconds=1)
     frame = await camera.ingest_frame(session, model, shop, data=data, content_type="image/jpeg")
@@ -307,7 +307,7 @@ def report(result: dict) -> str:
         "",
         f"Drawn counter stills, read by {result['model']} through `camera.read`: the app's own prompt, schema "
         "and clean-up. Each still then takes the app's path. It is ingested as a counter sample in a fresh "
-        "demo shop, and the delivery check is asked about every product the shop sells.",
+        "sandbox shop, and the delivery check is asked about every product the shop sells.",
         "",
     ]
     for k, what in (("test", "Held out"), ("main", "The 60-still main set")):
@@ -418,7 +418,7 @@ async def main(cached: bool, sets: list[str] | None = None):
         await read_all(model, named)
     model.live = None  # the app's path below runs on the cache alone
 
-    session, shop = demo_shop()
+    session, shop = sandbox_shop()
     current = version(camera.system_for(session, shop))
     units = {w for p in session.query(Product).filter_by(shop_id=shop.id) for w in camera.words(p.unit)}
     session.close()

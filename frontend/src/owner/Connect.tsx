@@ -3,8 +3,9 @@ import { createPortal } from "react-dom";
 import type { Shop } from "../api";
 import { ErrorLine, Spinner } from "./parts";
 import { cap, clock, usePoll, when } from "./lib";
+import { counterUrl, setCounterKey } from "../shell";
 import {
-  BRIDGE_GUIDE, CAMERAS, bridgeCommand, connectApi, counterUrl, keepCounterKey, qrPath,
+  BRIDGE_GUIDE, CAMERAS, bridgeCommand, connectApi, qrPath,
   type Connection, type Source,
 } from "./connection";
 import "./connect.css";
@@ -20,7 +21,7 @@ const WAYS: { key: Way; label: string }[] = [
 const SOURCE_NAME: Record<Source, string> = {
   phone: "The counter phone",
   bridge: "An IP camera, through the bridge",
-  feed: "The demo video feed",
+  feed: "The sample video feed",
 };
 
 /** Connect your shop: three ways to give the counter its camera, the connection now, and Disconnect. */
@@ -61,7 +62,6 @@ export function Connect({ shop, onClose, onChange }: { shop: Shop; onClose: () =
     setError("");
     try {
       const v = what === "feed" ? await connectApi.feed(shop.id) : await connectApi.disconnect(shop.id);
-      if (what === "disconnect") keepCounterKey(shop.id, v.counter_key);
       setView(v);
       setConfirming(false);
       changed.current?.();
@@ -70,6 +70,11 @@ export function Connect({ shop, onClose, onChange }: { shop: Shop; onClose: () =
     }
     setBusy("");
   };
+
+  // After Disconnect the shop has a new counter key: every "Copy the link" in the console carries it.
+  useEffect(() => {
+    if (view?.counter_key) setCounterKey(shop.id, view.counter_key);
+  }, [view?.counter_key, shop.id]);
 
   const link = view ? counterUrl(shop.id, view.counter_key) : "";
 
@@ -252,7 +257,7 @@ function Feed({ view, busy, connect }: { view: Connection; busy: boolean; connec
         <li>{view.feed.stills} stills, one every {view.feed.pace_seconds} seconds, looping.</li>
         <li>It runs while this console or a counter page is open, and stops itself after {view.feed.idle_minutes} quiet minutes.</li>
         <li>Each still is read once. Later loops reuse the reading.</li>
-        <li>Footage counts in a demo shop alone, the way staged scenes count.</li>
+        <li>Footage counts in the sandbox shop alone, the way staged scenes count.</li>
       </ul>
       {on ? (
         <p className="cn-on-line"><span className="cn-dot cn-on" aria-hidden="true" /> The feed is on since {clock(view.feed.since)}. Still {view.feed.next} of {view.feed.stills} is next.</p>

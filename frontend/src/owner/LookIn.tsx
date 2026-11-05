@@ -4,7 +4,7 @@ import { ownerApi, type CameraStatus, type Evidence } from "./api";
 import { Lightbox } from "./Evidence";
 import { ErrorLine, Spinner } from "./parts";
 import { cap, clock, usePoll, when } from "./lib";
-import { counterLink } from "../shell";
+import { useCounterLink } from "../shell";
 import { Connect } from "./Connect";
 import type { Source } from "./connection";
 
@@ -64,7 +64,7 @@ export function LookIn({ shop, onStatus }: { shop: Shop; onStatus?: (s: CameraSt
 
   const closeConnect = useCallback(() => setConnecting(false), []);
 
-  const link = counterLink(shop.id);
+  const link = useCounterLink(shop.id);
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(link);
@@ -113,7 +113,7 @@ export function LookIn({ shop, onStatus }: { shop: Shop; onStatus?: (s: CameraSt
           <p className="o-fine">The counter phone was last seen at {clock(status?.seen_at)}. It sends a still as soon as it is open.</p>
         )}
         <p className="o-fine o-lookin-link">
-          <a className="o-link" href={counterLink(shop.id, false)} target="_blank" rel="noreferrer">Open the counter camera</a>
+          <a className="o-link" href={link} target="_blank" rel="noreferrer">Open the counter camera</a>
           {" "}on the phone at the counter.{" "}
           <button className="o-textbtn" onClick={copy}>{copied ? "Link copied" : "Copy the link"}</button>
         </p>
