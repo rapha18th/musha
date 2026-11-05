@@ -20,7 +20,7 @@ from types import SimpleNamespace
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from . import flows, ledger
+from . import agent, flows, ledger
 from .models import Hold, LedgerEntry, Payout, Shop, SpendRequest
 from .money import to_cents
 from .paypal import rfc3339, utc_seconds
@@ -42,6 +42,11 @@ BOOK_KINDS = {ledger.FUNDS_HELD: "held", ledger.FUNDS_CAPTURED: "captured",
               ledger.FUNDS_RELEASED: "returned"}
 AUTHORIZATION, REAUTHORIZATION, VOID = "T1300", "T1301", "T1302"
 PAYOUT_CODES = ("T0001", "T0000")
+# PayPal's own movements around a payment the books already carry: a hold on the balance before a
+# payout (T15nn) and its release (T1105), the sweep of a capture's proceeds (T20nn), reserves
+# (T21nn), display-only rows (T98nn) and what PayPal files as other, such as a void's return (T99nn).
+PAYPAL_OWN = ("T15", "T20", "T21", "T98", "T99")
+HOLD_RELEASE = "T1105"
 CODE_NAMES = {"T1300": "authorization", "T1301": "reauthorization", "T1302": "void",
               "T0006": "payment", "T0000": "payment", "T0001": "payout",
               "T1106": "reversal", "T1107": "refund"}
@@ -52,12 +57,12 @@ async def weekly(session: Session, pp, model, shop: Shop, *, at: datetime | None
     """PayPal's last seven days, ending three hours ago, against the books. With `agent` off the
     exact match comes back at once, for a page that shows the tiles first and the summary after."""
     start, end = window(pp, at)
-    rows = await paypal_rows(pp, start, end)
-    report = compare(book_lines(session, shop.id), rows, start, end, owners(session), shop.id)
+    rows, known = await paypal_rows(pp, start, end), owners(session)
+    report = compare(book_lines(session, shop.id), rows, start, end, known, shop.id)
     report = {"window": {"start": rfc3339(start), "end": rfc3339(end)}, **report,
               "summary": template(report, start, end), "by": "rules", "agent": None}
     if model.enabled and agent:
-        found = await _agent(pp, model, shop, report, rows)
+        found = await _agent(pp, model, shop, report, own_rows(rows, known, shop.id))
         summary = house_style(found.pop("summary"), report)
         report["agent"] = found
         if summary:
@@ -105,7 +110,8 @@ def _row(info: dict) -> dict:
             "code": info.get("transaction_event_code", ""),
             "amount_cents": abs(to_cents(value)) if value else 0,
             "status": info.get("transaction_status", ""),
-            "at": info.get("transaction_initiation_date", ""), "invoice_id": info.get("invoice_id", "")}
+            "at": info.get("transaction_initiation_date", ""), "invoice_id": info.get("invoice_id", ""),
+            "custom": info.get("custom_field", ""), "updated": info.get("transaction_updated_date", "")}
 
 
 # The books' side
@@ -134,16 +140,24 @@ def book_lines(session: Session, shop_id: int) -> list[dict]:
     for p in session.scalars(select(Payout).where(Payout.shop_id == shop_id, Payout.status != "failed")):
         req = p.request_id and session.get(SpendRequest, p.request_id)
         lines.append({"kind": p.purpose, "ref": f"payout:{p.batch_id}", "paypal_id": p.paypal_batch_id,
-                      "ids": {p.paypal_batch_id} - {""},
+                      "ids": {p.paypal_batch_id, flows.payout_item(p.batch_id)} - {""},
                       "amount_cents": p.amount_cents, "item": req.item if req else p.purpose,
                       "request_id": p.request_id, "at": flows.utc(p.created_at)})
     return lines
 
 
 def owners(session: Session) -> dict[str, int]:
-    """Every PayPal id Musha knows, and the shop it belongs to. One PayPal account serves
-    every shop, so each shop's report leaves out the others' rows."""
+    """Every PayPal id Musha knows, and the shop it belongs to: PayPal's own ids, the invoice on
+    each capture, and the custom id on each hold and payout item. One PayPal account serves every
+    shop, and a sandbox serves other databases too, so each shop's report keeps the rows these ids
+    name for it and leaves out the rest. The custom ids come from the request alone, so a hold or
+    payout whose answer never reached the books still finds its shop."""
     ids: dict[str, int] = {}
+    for req in session.scalars(select(SpendRequest)):
+        for x in (flows.order_custom(req), agent.paypal_key(req),
+                  flows.payout_item(flows.release_batch(req)), req.order_id):
+            if x:
+                ids[x] = req.shop_id
     for auth, first, order, shop_id in session.execute(
             select(Hold.authorization_id, Hold.first_authorization_id, SpendRequest.order_id,
                    SpendRequest.shop_id).join(SpendRequest, Hold.request_id == SpendRequest.id)):
@@ -153,19 +167,38 @@ def owners(session: Session) -> dict[str, int]:
     for ref, shop_id in session.execute(select(LedgerEntry.ref, LedgerEntry.shop_id)
                                         .where(LedgerEntry.ref.like("capture:%"))):
         ids[ref.partition(":")[2]] = shop_id
-    for batch, shop_id in session.execute(select(Payout.paypal_batch_id, Payout.shop_id)):
+    for batch, ours, shop_id in session.execute(select(Payout.paypal_batch_id, Payout.batch_id, Payout.shop_id)):
+        ids[flows.payout_item(ours)] = shop_id
         if batch:
             ids[batch] = shop_id
     return ids
+
+
+def own_rows(rows: list[dict], known: dict[str, int], shop_id: int) -> list[dict]:
+    """The rows that belong to this shop, less PayPal's own movements around them, one row a
+    transaction: PayPal lists a transaction again when its state changes, as an authorization
+    shows pending and then completed once it is captured. The latest row stands."""
+    latest: dict[tuple, dict] = {}
+    for i, r in enumerate(rows):
+        if _owner(r, known) == shop_id and not _paypal_own(r["code"]):
+            key = (r["paypal_id"] or i, r["code"])
+            if key not in latest or r.get("updated", "") >= latest[key].get("updated", ""):
+                latest[key] = r
+    return list(latest.values())
+
+
+def _paypal_own(code: str) -> bool:
+    return code == HOLD_RELEASE or code.startswith(PAYPAL_OWN)
 
 
 # Matching, in plain code
 
 def compare(lines: list[dict], rows: list[dict], start: datetime, end: datetime,
             known: dict[str, int], shop_id: int) -> dict:
-    """PayPal's rows against the books. Every row no line claims is a gap, unless its ids
-    belong to another shop on the same PayPal account: a second capture, a reversal or a
-    refund on this shop's own money shows here."""
+    """PayPal's rows against the books. Every row of this shop's that no line claims is a gap:
+    a second capture, a reversal or a refund on the shop's own money shows here. Rows no id ties
+    to this shop stay out: another shop's, or another database's on the same sandbox."""
+    rows = own_rows(rows, known, shop_id)
     used: set[int] = set()
     captured = {line["request_id"] for line in lines if line["kind"] == "captured"}
     matched, missing_in_paypal, mismatched = [], [], []
@@ -182,8 +215,7 @@ def compare(lines: list[dict], rows: list[dict], start: datetime, end: datetime,
                                "reason": reason})
         else:
             matched.append({**_book(line, note=note), "paypal_id": row["paypal_id"], "code": row["code"]})
-    missing_in_books = [_paypal(r) for i, r in enumerate(rows)
-                        if i not in used and _owner(r, known) in (None, shop_id)]
+    missing_in_books = [_paypal(r) for i, r in enumerate(rows) if i not in used]
     return {"matched": matched, "missing_in_books": missing_in_books,
             "missing_in_paypal": missing_in_paypal, "mismatched": mismatched}
 
@@ -218,7 +250,7 @@ def _match(line: dict, rows: list[dict], used: set[int], captured: set) -> tuple
             return None, "closed by the final capture"
         return None, ""
     when = line["at"]
-    return first(lambda r: pid and pid in (r["paypal_id"], r["reference"]),
+    return first(lambda r: ids & {r["paypal_id"], r["reference"], r.get("custom")},
                  lambda r: (r["code"] in PAYOUT_CODES and r["amount_cents"] == line["amount_cents"]
                             and _near(r["at"], when))), ""
 
@@ -232,7 +264,7 @@ def _differs(line: dict, row: dict) -> str | None:
 
 
 def _owner(row: dict, known: dict[str, int]) -> int | None:
-    for key in (row["paypal_id"], row["reference"], row["invoice_id"]):
+    for key in (row["paypal_id"], row["reference"], row["invoice_id"], row.get("custom")):
         if key and key in known:
             return known[key]
     return None

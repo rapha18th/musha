@@ -92,14 +92,16 @@ class PayPal:
     # Orders v2
 
     async def create_authorize_order(self, *, reference_id: str, cents: int, currency: str,
-                                     description: str, request_id: str) -> dict:
+                                     description: str, request_id: str, custom_id: str = "") -> dict:
+        """`custom_id` rides on the authorization, and Transaction Search lists it as custom_field,
+        so the reconciliation finds a hold whose answer never reached the books."""
+        unit = {"reference_id": reference_id, "description": description[:127],
+                "amount": amount(cents, currency)}
+        if custom_id:
+            unit["custom_id"] = custom_id[:127]
         return await self._call("POST", "/v2/checkout/orders", request_id=request_id, json={
             "intent": "AUTHORIZE",
-            "purchase_units": [{
-                "reference_id": reference_id,
-                "description": description[:127],
-                "amount": amount(cents, currency),
-            }],
+            "purchase_units": [unit],
         })
 
     async def authorize_order(self, order_id: str, request_id: str) -> dict:

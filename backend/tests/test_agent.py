@@ -10,7 +10,7 @@ from types import SimpleNamespace
 import httpx
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import select
+from sqlalchemy import delete, select
 
 from musha import agent, flows, reconcile
 from musha.ai import NoModel
@@ -512,7 +512,15 @@ PAYPAL_ROWS = [
     {"transaction_id": "CAP-1", "transaction_event_code": "T0006", "value": "171.00", "reference": AUTH_ID,
      "invoice_id": f"musha-{AUTH_ID}"},
     {"transaction_id": "ITEM-1", "transaction_event_code": "T0001", "value": "-171.00", "reference": "PB-1"},
-    {"transaction_id": "STRANGER-1", "transaction_event_code": "T0006", "value": "12.00"},
+    # a second capture on the shop's hold, never booked
+    {"transaction_id": "CAP-2", "transaction_event_code": "T0006", "value": "12.00", "reference": AUTH_ID},
+    # PayPal's own sweep of the capture's proceeds
+    {"transaction_id": "SWEEP-1", "transaction_event_code": "T2002", "value": "-164.53", "reference": "CAP-1",
+     "invoice_id": f"musha-{AUTH_ID}"},
+    # another database's rows on the same sandbox: a payment, and a payout of the same amount
+    {"transaction_id": "ELSEWHERE-1", "transaction_event_code": "T0006", "value": "12.00"},
+    {"transaction_id": "ELSEWHERE-2", "transaction_event_code": "T0001", "value": "-171.00",
+     "custom_field": "musha-release-1-0123456789-1"},
 ]
 
 
@@ -527,6 +535,8 @@ def paypal_week(sandbox, rows=PAYPAL_ROWS):
             info["paypal_reference_id"] = r["reference"]
         if r.get("invoice_id"):
             info["invoice_id"] = r["invoice_id"]
+        if r.get("custom_field"):
+            info["custom_field"] = r["custom_field"]
         details.append({"transaction_info": info})
     sandbox.get("/v1/reporting/transactions").respond(200, json={
         "transaction_details": details, "page": 1, "total_items": len(details), "total_pages": 1})
@@ -562,7 +572,7 @@ def test_reconcile_in_plain_code(app, client, sandbox):
         ("held", AUTH_ID), ("captured", "CAP-1"), ("returned", AUTH_ID), ("release", "ITEM-1")]
     assert report["matched"][2]["note"] == "closed by the final capture"
     assert all(m["request_id"] == rid for m in report["matched"])
-    assert [r["paypal_id"] for r in report["missing_in_books"]] == ["STRANGER-1"]
+    assert [r["paypal_id"] for r in report["missing_in_books"]] == ["CAP-2"]
     assert report["missing_in_books"][0]["what"] == "payment"
     assert report["missing_in_paypal"] == [] and report["mismatched"] == []
     assert report["by"] == "rules" and report["agent"] is None
@@ -582,7 +592,7 @@ def test_reconcile_in_plain_code(app, client, sandbox):
 def test_reconcile_names_each_gap(app, client, sandbox):
     app.state.model = NoModel()
     released_yesterday(app, client)
-    rows = [dict(r) for r in PAYPAL_ROWS if r["transaction_id"] not in (AUTH_ID, "STRANGER-1")]
+    rows = [dict(r) for r in PAYPAL_ROWS if r["transaction_id"] not in (AUTH_ID, "CAP-2")]
     rows[0]["value"] = "170.00"
     paypal_week(sandbox, rows)
     report = client.post("/api/shops/1/reconcile").json()
@@ -596,21 +606,112 @@ def test_reconcile_names_each_gap(app, client, sandbox):
 
 def test_reconcile_shows_the_shops_own_rows_the_books_lack():
     now = datetime.now(timezone.utc)
-    known = {AUTH_ID: 1, "CAP-1": 1, "AUTH-9": 2}
+    known = {AUTH_ID: 1, "CAP-1": 1, "AUTH-9": 2, "musha-release-7-abc-1": 1, "musha-order-5-abc": 1}
 
-    def row(pid, reference, code, cents):
+    def row(pid, reference, code, cents, custom=""):
         return {"paypal_id": pid, "reference": reference, "code": code, "amount_cents": cents, "status": "S",
-                "at": "", "invoice_id": ""}
+                "at": "", "invoice_id": "", "custom": custom}
 
     rows = [row("CAP-2", AUTH_ID, "T0006", 5000),  # a second capture on this shop's hold, never booked
             row("REV-1", "CAP-1", "T1106", 17100),  # PayPal reversed this shop's capture
             row("X-1", "AUTH-9", "T0006", 100),  # another shop's row on the same PayPal account
-            row("NEW-1", "", "T0006", 1200)]  # a row nobody knows
+            row("NEW-1", "", "T0006", 1200),  # another database's row on the same sandbox
+            row("PAY-9", "HOLD-9", "T0001", 17100, "musha-release-7-abc-1"),  # a payout the books lack
+            # PayPal's own movements: the sweep of a capture, the hold and release around a payout,
+            # and a void's return
+            row("SWEEP-1", "CAP-1", "T2002", 16453),
+            row("HOLD-9", "", "T1503", 17442),
+            row("FREE-9", "HOLD-9", "T1105", 17442, "musha-release-7-abc-1"),
+            row("BACK-1", "VOID-1", "T9900", 1800, "musha-release-7-abc-1"),
+            # a hold the books lack, listed pending and again completed: only its custom id is known
+            {**row("AUTH-5", "REF-5", "T1300", 900, "musha-order-5-abc"), "status": "P",
+             "updated": "2026-11-04T20:30:08Z"},
+            {**row("AUTH-5", "REF-5", "T1300", 900, "musha-order-5-abc"), "updated": "2026-11-04T20:31:08Z"}]
     report = reconcile.compare([], rows, now - timedelta(days=7), now, known, 1)
     assert [(r["paypal_id"], r["what"]) for r in report["missing_in_books"]] == [
-        ("CAP-2", "payment"), ("REV-1", "reversal"), ("NEW-1", "payment")]
+        ("CAP-2", "payment"), ("REV-1", "reversal"), ("PAY-9", "payout"), ("AUTH-5", "authorization")]
+    assert report["missing_in_books"][-1]["status"] == "S"
     assert [r["paypal_id"] for r in reconcile.compare([], rows, now - timedelta(days=7), now, known, 2)[
-        "missing_in_books"]] == ["X-1", "NEW-1"]
+        "missing_in_books"]] == ["X-1"]
+
+
+def test_reconcile_finds_a_payout_by_its_item_as_paypal_lists_it(app, client, sandbox):
+    """PayPal lists a payout under its own hold, with the payout item's sender_item_id as
+    custom_field. Musha matches it by that id, leaves out another database's payout of the same
+    amount the same day, which no id ties to this shop, and leaves PayPal's hold and its release
+    out. A hold PayPal lists twice, pending and then completed, is one line. A payout the books
+    lose still finds its shop by the item id its request gives it."""
+    app.state.model = NoModel()
+    rid = released_yesterday(app, client)
+    with app.state.sessions() as s:
+        req = s.get(SpendRequest, rid)
+        item = flows.payout_item(flows.release_batch(req))
+        known = reconcile.owners(s)
+        assert known[item] == 1 and known[agent.paypal_key(req)] == 1
+    paypal_week(sandbox, [
+        {"transaction_id": "ELSEWHERE-2", "transaction_event_code": "T0001", "value": "-171.00",
+         "reference": "HOLD-8", "custom_field": "musha-release-1-0123456789-1"},
+        # the hold, listed pending and again completed once captured
+        {"transaction_id": AUTH_ID, "transaction_event_code": "T1300", "value": "180.00", "status": "P"},
+        {"transaction_id": AUTH_ID, "transaction_event_code": "T1300", "value": "180.00", "status": "S"},
+        {"transaction_id": "CAP-1", "transaction_event_code": "T0006", "value": "171.00", "reference": AUTH_ID,
+         "invoice_id": f"musha-{AUTH_ID}"},
+        {"transaction_id": "HOLD-9", "transaction_event_code": "T1503", "value": "-174.42"},
+        {"transaction_id": "FREE-9", "transaction_event_code": "T1105", "value": "174.42", "reference": "HOLD-9",
+         "custom_field": item},
+        {"transaction_id": "ITEM-9", "transaction_event_code": "T0001", "value": "-171.00", "reference": "HOLD-9",
+         "custom_field": item},
+    ])
+    report = client.post("/api/shops/1/reconcile").json()
+    assert [(m["kind"], m["paypal_id"]) for m in report["matched"]] == [
+        ("held", AUTH_ID), ("captured", "CAP-1"), ("returned", AUTH_ID), ("release", "ITEM-9")]
+    assert not (report["missing_in_books"] or report["missing_in_paypal"] or report["mismatched"])
+
+    with app.state.sessions() as s:  # a restore that predates the payout
+        s.execute(delete(Payout).where(Payout.request_id == rid))
+        s.commit()
+    report = client.post("/api/shops/1/reconcile").json()
+    assert [(r["paypal_id"], r["what"]) for r in report["missing_in_books"]] == [("ITEM-9", "payout")]
+
+
+def test_reconcile_pairs_same_amount_payouts_by_their_items():
+    """Two releases of US$172.00 the same day: each takes the payout PayPal lists under its own
+    item, whichever PayPal lists first."""
+    now = datetime.now(timezone.utc)
+    at = (now - timedelta(hours=4)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    items = {n: flows.payout_item(f"musha-release-{n}-abc") for n in (1, 2)}
+
+    def line(n):
+        return {"kind": "release", "ref": f"payout:musha-release-{n}-abc", "paypal_id": f"PB-{n}",
+                "ids": {f"PB-{n}", items[n]}, "amount_cents": 17200, "item": "eggs", "request_id": n,
+                "at": now - timedelta(hours=5, minutes=-n)}
+
+    def row(n):
+        return {"paypal_id": f"ITEM-{n}", "reference": f"HOLD-{n}", "code": "T0001", "amount_cents": 17200,
+                "status": "S", "at": at, "invoice_id": "", "custom": items[n]}
+
+    report = reconcile.compare([line(1), line(2)], [row(2), row(1)], now - timedelta(days=7), now,
+                               {items[1]: 1, items[2]: 1}, 1)
+    assert [(m["request_id"], m["paypal_id"]) for m in report["matched"]] == [(1, "ITEM-1"), (2, "ITEM-2")]
+
+
+def test_reconcile_shows_an_owners_hold_whose_answer_never_came(settings):
+    """The owner approves and PayPal holds the money, but its answer never reaches the books. The
+    order's custom id, which PayPal lists on the authorization, ties the hold to the shop."""
+    pp = StandInPayPal()
+    app = standin_app(settings, pp)
+    client = TestClient(app)
+    req = ask(client)
+    assert req["status"] == "requested"
+    order_id = client.post(f"/api/requests/{req['id']}/order").json()["order_id"]
+    with app.state.sessions() as s:
+        custom = flows.order_custom(s.get(SpendRequest, req["id"]))
+        assert reconcile.owners(s)[custom] == 1  # PayPal's sandbox gives the row no other id Musha keeps
+    assert pp.orders[order_id]["purchase_units"][0]["custom_id"] == custom
+    asyncio.run(pp.authorize_order(order_id, request_id="lost-answer"))
+    report = client.post("/api/shops/1/reconcile").json()
+    assert [(r["code"], r["amount_cents"], r["custom"]) for r in report["missing_in_books"]] == [
+        ("T1300", 18000, custom)]
 
 
 def test_reconcile_matches_a_reauthorized_hold_on_the_standin(settings):
@@ -654,11 +755,13 @@ def test_reconcile_agent_reads_paypal_through_read_only_tools(app, client, sandb
     tools = json.loads(seen[0][1].split("\n", 1)[1])
     assert {t["name"] for t in tools} == TOOLS
     results = seen[1][-1]
-    assert "STRANGER-1" in results and "pay_order is outside Musha's read-only tools" in results
+    assert "CAP-2" in results and "pay_order is outside Musha's read-only tools" in results
+    # the agent reads this shop's rows alone: another database's and PayPal's own sweep stay out
+    assert not {"ELSEWHERE-1", "ELSEWHERE-2", "SWEEP-1"} & set(re.findall(r"[A-Z]+-\d+", results))
     # Musha's own client read PayPal once; the agent's call reused it
     assert len([c for c in sandbox.calls if c.request.url.path == "/v1/reporting/transactions"]) == 1
     # the structured lists come from plain code either way
-    assert [r["paypal_id"] for r in report["missing_in_books"]] == ["STRANGER-1"]
+    assert [r["paypal_id"] for r in report["missing_in_books"]] == ["CAP-2"]
 
 
 def test_reconcile_agent_stops_after_four_rounds(app, client, sandbox, model, monkeypatch):
@@ -709,7 +812,7 @@ def test_reconcile_agent_uses_gemini_function_calling(app, client, sandbox):
 
     gemini = FakeGemini([
         reply(types.Part(function_call=types.FunctionCall(id="call-1", name="list_transactions",
-                                                          args={"transaction_id": "STRANGER-1"}))),
+                                                          args={"transaction_id": "CAP-2"}))),
         reply(types.Part(text="Four lines match. US$12.00 came in that the books lack.")),
     ])
     app.state.model = gemini
@@ -724,7 +827,7 @@ def test_reconcile_agent_uses_gemini_function_calling(app, client, sandbox):
     assert {d.name for d in first.tools[0].function_declarations} == TOOLS
     answer = gemini.contents[1][-1].parts[0].function_response
     assert (answer.id, answer.name) == ("call-1", "list_transactions")
-    assert [r["paypal_id"] for r in answer.response["transactions"]] == ["STRANGER-1"]
+    assert [r["paypal_id"] for r in answer.response["transactions"]] == ["CAP-2"]
 
 
 def test_tools_come_from_the_toolkit_or_by_hand(monkeypatch, settings):

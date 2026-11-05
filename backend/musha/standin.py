@@ -53,7 +53,7 @@ class StandInPayPal:
         return result
 
     def _log(self, code: str, value: str, currency: str, transaction_id: str, *, status: str = "S",
-             reference: str = "", invoice_id: str = ""):
+             reference: str = "", invoice_id: str = "", custom: str = ""):
         """One Transaction Search row, shaped like PayPal's `transaction_details[]`."""
         at = rfc3339(_now())
         info = {
@@ -66,18 +66,20 @@ class StandInPayPal:
             info.update(paypal_reference_id=reference, paypal_reference_id_type="TXN")
         if invoice_id:
             info["invoice_id"] = invoice_id
+        if custom:
+            info["custom_field"] = custom
         self.transactions.append({"transaction_info": info})
 
     # Orders v2
 
     async def create_authorize_order(self, *, reference_id: str, cents: int, currency: str,
-                                     description: str, request_id: str) -> dict:
+                                     description: str, request_id: str, custom_id: str = "") -> dict:
         def make():
             oid = self._id("ORDER")
-            self.orders[oid] = {"id": oid, "status": "CREATED", "intent": "AUTHORIZE",
-                                "purchase_units": [{"reference_id": reference_id,
-                                                    "description": description,
-                                                    "amount": amount(cents, currency)}]}
+            unit = {"reference_id": reference_id, "description": description, "amount": amount(cents, currency)}
+            if custom_id:
+                unit["custom_id"] = custom_id
+            self.orders[oid] = {"id": oid, "status": "CREATED", "intent": "AUTHORIZE", "purchase_units": [unit]}
             return self.orders[oid]
         return self._once(request_id, make)
 
@@ -88,7 +90,9 @@ class StandInPayPal:
 
         def make():
             unit = order["purchase_units"][0]
-            auth = self._new_authorization(unit["amount"], order_id=order_id)
+            auth = self._new_authorization(unit["amount"], order_id=order_id, custom=unit.get("custom_id", ""))
+            if unit.get("custom_id"):
+                auth["custom_id"] = unit["custom_id"]
             order["status"] = "COMPLETED"
             unit["payments"] = {"authorizations": [auth]}
             return order
@@ -104,7 +108,7 @@ class StandInPayPal:
 
         def make():
             oid = self._id("ORDER")
-            auth = self._new_authorization(amount(cents, currency), order_id=oid)
+            auth = self._new_authorization(amount(cents, currency), order_id=oid, custom=custom_id)
             unit = {"reference_id": reference_id, "description": description,
                     "amount": amount(cents, currency), "payments": {"authorizations": [auth]}}
             if custom_id:
@@ -121,7 +125,7 @@ class StandInPayPal:
             raise PayPalError(404, {"name": "RESOURCE_NOT_FOUND"})
         return self.orders[order_id]
 
-    def _new_authorization(self, amt: dict, *, order_id: str = "", parent: str = "") -> dict:
+    def _new_authorization(self, amt: dict, *, order_id: str = "", parent: str = "", custom: str = "") -> dict:
         aid = self._id("AUTH")
         auth = {"id": aid, "status": "CREATED", "amount": dict(amt),
                 "expiration_time": rfc3339(_now() + timedelta(days=29)),
@@ -130,7 +134,7 @@ class StandInPayPal:
         self._parents[aid] = parent or aid
         self._captured[aid] = 0
         self._log(REAUTHORIZATION if parent else AUTHORIZATION, amt["value"], amt["currency_code"],
-                  aid, status="P", reference=parent or order_id)
+                  aid, status="P", reference=parent or order_id, custom=custom)
         return auth
 
     # Payments v2: authorizations
@@ -162,7 +166,7 @@ class StandInPayPal:
             # A final capture closes the authorization; a smaller one leaves the rest capturable.
             auth["status"] = "CAPTURED" if final or whole else "PARTIALLY_CAPTURED"
             self._log(CAPTURE, cap["amount"]["value"], currency, cid, reference=authorization_id,
-                      invoice_id=invoice_id)
+                      invoice_id=invoice_id, custom=auth.get("custom_id", ""))
             return cap
         return self._once(request_id, make)
 
@@ -187,7 +191,7 @@ class StandInPayPal:
                     rest = to_cents(held["amount"]["value"]) - self._captured[aid]
                     held["status"] = "VOIDED"
                     self._log(VOID, f"-{to_value(rest)}", held["amount"]["currency_code"],
-                              self._id("VOID"), reference=aid)
+                              self._id("VOID"), reference=aid, custom=held.get("custom_id", ""))
             return {}
         return self._once(request_id, make)
 
@@ -225,7 +229,8 @@ class StandInPayPal:
             self.payouts[pid] = {"batch_header": header, "items": []}
             for it in items:
                 item_id = self._id("PAYOUTITEM")
-                self._log(PAYOUT, f"-{to_value(it['cents'])}", currency, item_id, reference=pid)
+                self._log(PAYOUT, f"-{to_value(it['cents'])}", currency, item_id, reference=pid,
+                          custom=it["item_id"])
                 self.payouts[pid]["items"].append({
                     "payout_item_id": item_id, "transaction_status": "SUCCESS", "payout_batch_id": pid,
                     "payout_item": {"sender_item_id": it["item_id"], "receiver": it["email"]}})

@@ -80,12 +80,22 @@ def release_batch(req: SpendRequest) -> str:
     return key("release", req)
 
 
+def payout_item(batch_id: str) -> str:
+    """The sender_item_id of a payout's one item: PayPal lists the payout under it as custom_field."""
+    return f"{batch_id}-1"
+
+
 def is_wages(req: SpendRequest) -> bool:
     return req.origin == WAGES
 
 
 def _tag(value: str) -> str:
     return hashlib.sha256(value.encode()).hexdigest()[:6]
+
+
+def order_custom(req: SpendRequest) -> str:
+    """The custom_id on the owner's order: one per request, kept when an order lapses."""
+    return key("order", req)
 
 
 def order_key(req: SpendRequest) -> str:
@@ -154,6 +164,7 @@ async def open_order(session: Session, pp: PayPal, req: SpendRequest) -> str:
         order = await pp.create_authorize_order(
             reference_id=f"musha-req-{req.id}", cents=req.amount_cents, currency=shop.currency,
             description=f"{describe(req)} for {shop.name}", request_id=order_key(req),
+            custom_id=order_custom(req),
         )
     except httpx.HTTPError:
         raise FlowError(f"{SLOW} Approve again in a minute.")
@@ -476,7 +487,7 @@ async def release_to_shop(session: Session, pp: PayPal, req: SpendRequest, *,
         note = (req.words or f"Wages for {shop.manager.name}") if wages else f"Released for {describe(req)}"
         resp = await pp.create_payout(batch_id=batch_id, subject=subject, currency=shop.currency, items=[{
             "email": shop.manager.email, "cents": hold.captured_cents, "note": note[:200],
-            "item_id": f"{batch_id}-1"}])
+            "item_id": payout_item(batch_id)}])
     except (PayPalError, httpx.HTTPError):
         # The capture stands; the job sends the payout again on its next run.
         payout.status = "failed"
