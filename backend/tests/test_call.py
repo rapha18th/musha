@@ -282,6 +282,35 @@ async def test_ask_farai_posts_to_her_thread_for_the_bridge(app, db, monkeypatch
     assert carried == [1, 1, 1]  # each line goes to the bridge at once
 
 
+async def test_ask_farai_reaches_the_managers_whatsapp_from_the_calls_worker_thread(app, db, monkeypatch):
+    """ask_farai writes the line on asyncio's worker thread; the WhatsApp outbox still takes it, on the app's loop."""
+    from musha import whatsapp as wa
+
+    async def localize_soon(session, model, shop, wait=None):
+        return None
+
+    monkeypatch.setattr(call, "localize_soon", localize_soon)
+    taken = []
+
+    class Box(wa.Outbox):
+        async def send_lines(self, shop_id, ids):
+            taken.append((shop_id, ids))
+
+    box = Box(app.state.sessions, app.state.settings, None, cloud=object())
+    box.start()
+    wa.register(app.state.engine, box)
+    try:
+        out = await a_call(app).tool("ask_farai", {"message": "Thank you for finding the oil cheaper."})
+        for _ in range(50):
+            if taken:
+                break
+            await asyncio.sleep(0.02)
+        await box.idle()
+    finally:
+        wa._outboxes.pop(app.state.engine, None)
+    assert taken == [(1, [out["message_id"]])]
+
+
 async def test_an_unknown_tool_answers_in_words(app):
     assert "error" in await a_call(app).tool("release", {"amount": "24.00"})
 

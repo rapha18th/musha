@@ -62,6 +62,9 @@ def create_app(settings: Settings | None = None, paypal=None, model=None) -> Fas
             except Exception:
                 session.rollback()
                 log.exception("seeding the sandbox shop again")
+        outbox = getattr(app.state, "whatsapp", None)
+        if outbox is not None:
+            outbox.start()  # lines committed on a worker thread reach the manager's WhatsApp from this loop
         tasks = []
         if settings.jobs_every_minutes > 0:
             tasks.append(asyncio.create_task(_keep_holds(sessions, pp, app.state.model,

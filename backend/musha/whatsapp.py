@@ -396,6 +396,11 @@ class Outbox:
         self.cloud = cloud or Cloud(settings)
         self._waiting: dict[int, set[int]] = {}
         self._running: dict[int, asyncio.Task] = {}
+        self._loop: asyncio.AbstractEventLoop | None = None
+
+    def start(self) -> None:
+        """The app's loop, from its lifespan: lines committed on any thread go out from it."""
+        self._loop = asyncio.get_running_loop()
 
     def wake(self, lines: list[tuple[int, int]]) -> None:
         """New (shop, line) pairs, from whichever thread committed them."""
@@ -404,12 +409,20 @@ class Outbox:
         except RuntimeError:
             try:
                 anyio.from_thread.run_sync(self._take, lines)  # a sync route's worker thread: over to the loop
-            except RuntimeError:  # a script without a loop: the dashboard has the lines
+                return
+            except RuntimeError:
+                pass
+            loop = self._loop
+            if loop is not None and loop.is_running() and not loop.is_closed():
+                loop.call_soon_threadsafe(self._take, lines)  # asyncio's own thread, such as the shop call's tools
+            else:  # a script without a loop: the dashboard has the lines
                 log.info("%d line(s) stay off WhatsApp: no event loop", len(lines))
             return
         self._take(lines)
 
     def _take(self, lines: list[tuple[int, int]]) -> None:
+        if self._loop is None:
+            self._loop = asyncio.get_running_loop()
         for shop_id, line_id in lines:
             self._waiting.setdefault(shop_id, set()).add(line_id)
             if shop_id not in self._running:

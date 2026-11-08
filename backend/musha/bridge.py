@@ -90,6 +90,9 @@ Translate each line from English into {language}, the way people write it on Wha
 Keep names, numbers, dates, money amounts such as US$180.00, and item names exact. Write every \
 number in digits, as in the English. Return a JSON list with one translated line for each input \
 line, in the same order."""
+# The names the lines carry, spelled out: a supplier such as "Mbare wholesale" otherwise comes back as
+# "wholesale yekuMbare", and `faithful` keeps the English.
+KEEP_NAMES = " Keep these names exactly as written, letter for letter: {names}."
 
 NUMBER = re.compile(r"\d+(?:,\d{3})*(?:\.\d+)?")
 
@@ -191,12 +194,15 @@ async def localize_pending(session: Session, model, shop: Shop, *, wait: bool | 
         return
     english = [m.text_en or m.text for m in pending]
     names = [shop.owner.name, manager.name, *payees_of(session, shop, products(session, shop))]
+    system = LOCALIZE_SYSTEM.format(manager=manager.name, shop=shop.name, place=shop.place,
+                                    language=language_name(manager.language))
+    kept = [n for n in dict.fromkeys(names) if n and any(n.lower() in e.lower() for e in english)]
+    if kept:
+        system += KEEP_NAMES.format(names=", ".join(kept))
     done = asyncio.Event()
     _localizing[shop.id] = (done, time.monotonic())
     try:
-        out = await bounded(_translate(model, english, LOCALIZE_SYSTEM.format(
-            manager=manager.name, shop=shop.name, place=shop.place, language=language_name(manager.language))),
-            LOCALIZE_BUDGET)
+        out = await bounded(_translate(model, english, system), LOCALIZE_BUDGET)
         if out is None:  # it ran past its budget: each line counts a failed try
             log.warning("translation for shop %s ran past %ss", shop.id, LOCALIZE_BUDGET)
             out = dict.fromkeys(range(len(english)))

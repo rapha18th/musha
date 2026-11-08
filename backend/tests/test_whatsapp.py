@@ -530,6 +530,24 @@ def test_a_line_committed_on_a_worker_thread_goes_out_from_the_loop(app, client,
     assert [b["text"]["body"] for b in sent] == ["Count the bread tonight."]
 
 
+def test_a_line_committed_on_asyncios_own_thread_goes_out_from_the_loop(app, client, sent):
+    """The shop call writes the owner's words for the manager on asyncio's worker thread (call.Call._ask_farai
+    runs post_to_manager through asyncio.to_thread), where anyio's way back to the loop is closed."""
+    wrote(app)
+
+    def write():
+        with app.state.sessions() as s:
+            flows.say(s, 1, "Thank you for finding the oil cheaper.", sender="owner")
+            s.commit()
+
+    async def on_a_thread():
+        await asyncio.to_thread(write)
+
+    client.portal.call(on_a_thread)
+    settle(client)
+    assert [b["text"]["body"] for b in sent] == ["Chipo: Thank you for finding the oil cheaper."]
+
+
 def test_a_line_rolled_back_never_goes_out(app, client, sent):
     wrote(app)
 

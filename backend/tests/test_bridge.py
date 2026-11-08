@@ -151,6 +151,36 @@ def test_a_translation_keeps_numbers_names_and_a_sane_length():
     assert bridge.faithful("Ok.", "Zvakanaka.", names) == "Zvakanaka."
 
 
+class Describes:
+    """A model that renders a supplier as a description ("wholesale yekuMbare") unless the system names it."""
+    enabled = True
+
+    def __init__(self):
+        self.systems = []
+
+    async def json(self, task, parts, schema, *, system=""):
+        self.systems.append(system)
+        keep = "letter for letter: " in system and "Mbare wholesale" in system.split("letter for letter: ")[1]
+        return [f"[sn] {line}" if keep else f"[sn] {line}".replace("Mbare wholesale", "wholesale yekuMbare")
+                for line in json.loads(parts[-1])]
+
+
+def test_a_translation_is_told_the_names_its_lines_carry(app):
+    """The sugar buy line reached the manager's WhatsApp in English: the model wrote the supplier as a
+    description, and `faithful` kept the English. The prompt now names the names to keep."""
+    async def run():
+        model = Describes()
+        with app.state.sessions() as s:
+            line = flows.say(s, 1, "Buy 40 × 2 kg packs of sugar from Mbare wholesale, then send the receipt.")
+            s.commit()
+            await bridge.localize_pending(s, model, s.get(Shop, 1))
+            assert (line.language, line.text) == (
+                "sn", "[sn] Buy 40 × 2 kg packs of sugar from Mbare wholesale, then send the receipt.")
+            assert "Mbare wholesale" in model.systems[-1].split("letter for letter: ")[1]
+
+    asyncio.run(run())
+
+
 def test_lines_stay_english_with_the_model_off(app):
     with app.state.sessions() as s:
         shop = s.get(Shop, 1)

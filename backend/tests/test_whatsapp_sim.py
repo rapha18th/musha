@@ -255,6 +255,15 @@ def test_the_graph_api_holds_to_metas_rules(app, line):
     assert sim.lines == []
 
 
+def test_the_message_field_leaves_shona_unmarked():
+    """WhatsApp draws no red spellcheck line under Farai's Shona, so the phone's message field asks the browser for
+    none (a desktop Chrome marks every Shona word it does not know)."""
+    page = (SIM_FILE.parent / "page" / "index.html").read_text(encoding="utf-8")
+    field = re.search(r"<input id=\"text\"[^>]*>", page)[0]
+    for attr in ('spellcheck="false"', 'autocorrect="off"', 'autocapitalize="off"'):
+        assert attr in field
+
+
 def sample_captions() -> dict[str, str]:
     """The caption the phone's page gives each sample photo (page/chat.js, SAMPLES)."""
     found = re.search(r"const SAMPLES = (\{.*?\});", PAGE_JS.read_text(encoding="utf-8"))
