@@ -1,13 +1,16 @@
+import asyncio
 import hashlib
 import hmac
 import io
 import json
 import time
+from dataclasses import replace
 from datetime import timedelta
 
 import anyio.to_thread
 import httpx
 import pytest
+import respx
 from fastapi.testclient import TestClient
 from PIL import Image
 from sqlalchemy import func, select
@@ -16,7 +19,7 @@ from musha import accounts, bridge, flows, proof
 from musha import seed as seeding
 from musha import whatsapp as wa
 from musha.api import create_app
-from musha.config import GRAPH_VERSION, Settings
+from musha.config import GRAPH_BASE, GRAPH_VERSION, Settings, get_settings, graph_base
 from musha.models import Attachment, Message, Shop, SpendRequest, WhatsAppMessage
 from musha.paypal import PayPal
 from musha.routes import evidence as upload
@@ -51,14 +54,23 @@ def settings(tmp_path):
                     whatsapp_app_secret=SECRET, whatsapp_verify_token="verify-me")
 
 
+class Sent(list):
+    """The messages Musha sent, in order, and in `read` the ids of the manager's messages it marked read."""
+    read: list
+
+
 @pytest.fixture
 def sent(sandbox):
     """Meta's Graph API: each send is kept and answers with a message id of its own."""
-    out = []
+    out = Sent()
+    out.read = []
 
     def send(request: httpx.Request):
         assert request.headers["Authorization"] == "Bearer wa-token"
         body = json.loads(request.content)
+        if body.get("status") == "read":
+            out.read.append(body["message_id"])
+            return httpx.Response(200, json={"success": True})
         out.append(body)
         return httpx.Response(200, json={"messaging_product": "whatsapp",
                                          "contacts": [{"input": body["to"], "wa_id": body["to"][1:]}],
@@ -201,13 +213,14 @@ def test_a_signed_webhook_is_answered_and_a_reaction_gets_no_reply(app, client, 
     before = len(lines(app))
     r = post(client, hook(reaction()))
     assert (r.status_code, r.json()) == (200, {"ok": True})
-    assert len(lines(app)) == before and sent == []
+    assert len(lines(app)) == before and sent == [] and sent.read == []
     assert [(x.kind, x.state) for x in rows(app, direction="in")] == [("reaction", "done")]
 
 
 def test_farais_text_lands_in_her_thread_and_musha_answers_on_her_whatsapp(app, client, model, sent):
     model.answers["localize"] = shona
     assert post(client, hook(text(WORDS))).status_code == 200
+    assert sent.read == ["wamid.in1"]  # Musha read it: blue ticks on her phone
     farai = lines(app, sender="manager")[-1]
     assert (farai.text, farai.request_id is not None) == (WORDS, True)
     with app.state.sessions() as s:
@@ -294,6 +307,19 @@ def test_a_voice_note_is_transcribed_like_one_from_the_dashboard(app, client, sa
     with app.state.sessions() as s:
         voice = s.get(Attachment, farai.attachment_id)
         assert (voice.kind, voice.content_type, voice.data) == ("voice", "audio/ogg", note)
+
+
+def test_a_whatsapp_reply_to_the_owners_question_answers_it(app, client, sent):
+    wrote(app)  # her window is open, so the question goes out as text
+    gap = next(a for a in client.get("/api/shops/1/alerts").json() if a["kind"] == "stock_gap")
+    question = client.post(f"/api/alerts/{gap['id']}/act", json={"action": "ask"}).json()["message"]
+    settle(client)
+    out = next(r for r in rows(app, direction="out", line_id=question["id"]))
+    words = "Two trays broke when the bus dropped the crate."
+    post(client, hook({**text(words, wamid="wamid.answer"), "context": {"from": "15550783881", "id": out.wamid}}))
+    after = next(a for a in client.get("/api/shops/1/alerts").json() if a["id"] == gap["id"])
+    assert (after["waiting"], after["data"]["answer"]) == (False, words)
+    assert sent[-1]["text"]["body"] == "Thank you. Chipo has your answer."
 
 
 # The manager's number, proved
@@ -578,3 +604,59 @@ def test_a_template_parameter_is_one_line_inside_the_body():
     assert wa.parameter("One\n\ntwo\tthree     four") == "One two three four"
     long = wa.parameter("word " * 400)
     assert len(long) == wa.PARAMETER_LIMIT and long.endswith("…")
+
+
+# The Graph base: Meta's, or the simulator's on this computer
+
+def test_every_graph_call_goes_to_the_graph_base(settings):
+    other = replace(settings, whatsapp_graph_base="https://graph.example.test/")
+    base = f"https://graph.example.test/{GRAPH_VERSION}"
+    with respx.mock(assert_all_called=True) as graph:
+        graph.post(f"{base}/{NUMBER_ID}/messages").respond(200, json={"messages": [{"id": "wamid.out1"}]})
+        graph.get(f"{base}/{NUMBER_ID}").respond(200, json={"display_phone_number": "+1 555-016-8742", "id": NUMBER_ID})
+        graph.get(f"{base}/MEDIA-1").respond(200, json={
+            "url": "https://graph.example.test/files/1", "mime_type": "image/jpeg", "file_size": 3, "id": "MEDIA-1"})
+        graph.get("https://graph.example.test/files/1").respond(200, content=b"abc")
+
+        async def calls():
+            cloud = wa.Cloud(other)
+            return await cloud.send_text(FARAI, "Hello"), await cloud.display_number(), await cloud.media("MEDIA-1", 10)
+
+        assert asyncio.run(calls()) == ("wamid.out1", "+1 555-016-8742", (b"abc", "image/jpeg"))
+        assert {c.request.url.host for c in graph.calls} == {"graph.example.test"}
+        assert all(c.request.headers["Authorization"] == "Bearer wa-token" for c in graph.calls)
+
+
+def test_the_token_goes_to_a_media_url_on_https_or_on_the_graph_base_alone(settings):
+    local = replace(settings, whatsapp_graph_base="http://127.0.0.1:8090")
+    base = f"http://127.0.0.1:8090/{GRAPH_VERSION}"
+    with respx.mock(assert_all_called=False) as graph:
+        graph.get(f"{base}/MEDIA-1").respond(200, json={
+            "url": "http://127.0.0.1:8090/whatsapp_business/attachments/?mid=MEDIA-1", "mime_type": "image/jpeg"})
+        graph.get("http://127.0.0.1:8090/whatsapp_business/attachments/").respond(200, content=b"abc")
+        graph.get(f"{base}/MEDIA-2").respond(200, json={"url": "http://127.0.0.1:8099/files/2", "mime_type": "image/jpeg"})
+        elsewhere = graph.get(url__regex=r"http://127\.0\.0\.1:8099/.*").respond(200, content=b"abc")
+
+        async def calls():
+            cloud = wa.Cloud(local)
+            got = await cloud.media("MEDIA-1", 10)
+            with pytest.raises(wa.WhatsAppError):
+                await cloud.media("MEDIA-2", 10)
+            return got
+
+        assert asyncio.run(calls()) == (b"abc", "image/jpeg")
+        assert not elsewhere.called
+
+
+def test_the_graph_base_is_metas_unless_named_and_plain_http_stays_on_this_computer(monkeypatch):
+    assert graph_base("") == GRAPH_BASE == "https://graph.facebook.com"
+    assert graph_base(" http://127.0.0.1:8090/ ") == "http://127.0.0.1:8090"
+    assert graph_base("http://localhost:8090") == "http://localhost:8090"
+    assert graph_base("https://graph.example.test") == "https://graph.example.test"
+    for wrong in ("http://graph.example.test", "ftp://127.0.0.1", "127.0.0.1:8090"):
+        with pytest.raises(RuntimeError):
+            graph_base(wrong)
+    monkeypatch.setenv("WHATSAPP_GRAPH_BASE", "http://127.0.0.1:8090/")
+    assert get_settings().whatsapp_graph_base == "http://127.0.0.1:8090"
+    monkeypatch.delenv("WHATSAPP_GRAPH_BASE")
+    assert get_settings().whatsapp_graph_base == GRAPH_BASE

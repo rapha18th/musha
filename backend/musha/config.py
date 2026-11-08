@@ -2,6 +2,7 @@
 import os
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from dotenv import load_dotenv
 
@@ -18,6 +19,10 @@ LIVE_MODEL_VERTEX = "gemini-live-2.5-flash"
 # goes out as past the 24-hour window. WHATSAPP_GRAPH_VERSION and WHATSAPP_TEMPLATE name others.
 GRAPH_VERSION = "v27.0"
 TEMPLATE = "musha_update"
+# Where the Graph API answers: Meta, or the WhatsApp simulator on this computer (whatsapp-sim/), named by
+# WHATSAPP_GRAPH_BASE. The token goes with every call, so plain http stays on this computer.
+GRAPH_BASE = "https://graph.facebook.com"
+LOOPBACK = ("127.0.0.1", "localhost", "::1")
 
 
 @dataclass(frozen=True)
@@ -50,6 +55,7 @@ class Settings:
     whatsapp_app_secret: str = ""  # signs Meta's webhooks
     whatsapp_verify_token: str = ""  # Meta's webhook handshake
     whatsapp_graph_version: str = GRAPH_VERSION
+    whatsapp_graph_base: str = GRAPH_BASE  # Meta's Graph API, or the simulator for a local run
     # the approved template a line goes out as past the 24-hour window, while PayPal holds money for the manager
     whatsapp_template: str = TEMPLATE
 
@@ -95,8 +101,21 @@ def get_settings() -> Settings:
         whatsapp_app_secret=_secret("WHATSAPP_APP_SECRET"),
         whatsapp_verify_token=_secret("WHATSAPP_VERIFY_TOKEN"),
         whatsapp_graph_version=os.getenv("WHATSAPP_GRAPH_VERSION", "").strip() or GRAPH_VERSION,
+        whatsapp_graph_base=graph_base(os.getenv("WHATSAPP_GRAPH_BASE", "")),
         whatsapp_template=os.getenv("WHATSAPP_TEMPLATE", "").strip() or TEMPLATE,
     )
+
+
+def graph_base(value: str) -> str:
+    """WHATSAPP_GRAPH_BASE without its last slash; empty is Meta's Graph API. Another base is an https URL,
+    or an http one on this computer, where the WhatsApp simulator runs."""
+    base = value.strip().rstrip("/")
+    if not base:
+        return GRAPH_BASE
+    url = urlsplit(base)
+    if url.hostname and (url.scheme == "https" or url.scheme == "http" and url.hostname in LOOPBACK):
+        return base
+    raise RuntimeError("WHATSAPP_GRAPH_BASE is an https URL, or http://127.0.0.1:<port> for the WhatsApp simulator.")
 
 
 def _secret(name: str) -> str:

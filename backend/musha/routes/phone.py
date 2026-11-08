@@ -27,7 +27,7 @@ TOO_BIG = "Keep voice notes under 8 MB."
 VOICE_FORM = {"requestBody": {"required": True, "content": {"multipart/form-data": {"schema": {
     "type": "object", "required": ["audio"],
     "properties": {"audio": {"type": "string", "format": "binary"}, "client_id": {"type": "string"},
-                   "request_id": {"type": "integer"}}}}}}}
+                   "request_id": {"type": "integer"}, "reply_to": {"type": "integer"}}}}}}}
 
 
 class Say(BaseModel):
@@ -37,6 +37,7 @@ class Say(BaseModel):
 class PhoneSay(Say):
     client_id: str | None = Field(default=None, max_length=64)  # the phone's own id for this message
     request_id: int | None = None  # the request whose question this replies to, when the phone knows it
+    reply_to: int | None = None  # the line this replies to, such as the owner's question on an alert
 
 
 async def heard(session: Session, m, shop: Shop, since: int, requests, until: int | None = None) -> dict:
@@ -77,19 +78,22 @@ async def phone_message(body: PhoneSay, shop: Shop = Depends(shop_for("manager")
                         idempotency_key: str | None = Header(default=None, max_length=64)):
     key = bridge.message_key(client_id=body.client_id or idempotency_key, text=body.text,
                              request_id=body.request_id)
-    return await hear_once(session, pp, m, shop, key, text=body.text, request_id=body.request_id)
+    return await hear_once(session, pp, m, shop, key, text=body.text, request_id=body.request_id,
+                           reply_to=body.reply_to)
 
 
 @router.post("/shops/{shop_id}/phone/voice", openapi_extra=VOICE_FORM, dependencies=[Depends(limit("phone", 20, 60))])
 async def phone_voice(request: Request, shop: Shop = Depends(shop_for("manager")), session: Session = Depends(db),
                       pp=Depends(paypal), m=Depends(model),
                       idempotency_key: str | None = Header(default=None, max_length=64)):
-    """multipart/form-data with the voice note in `audio`, up to 8 MB, and `request_id` when the
-    note replies to Musha's question on that request. The body is read in bounded chunks, so a
-    larger upload is refused before it reaches memory or disk."""
-    data, content_type, client_id, request_id = await voice_form(request)
+    """multipart/form-data with the voice note in `audio`, up to 8 MB, `request_id` when the
+    note replies to Musha's question on that request, and `reply_to` for the line it replies to,
+    such as the owner's question on an alert. The body is read in bounded chunks, so a larger
+    upload is refused before it reaches memory or disk."""
+    data, content_type, client_id, request_id, reply_to = await voice_form(request)
     key = bridge.message_key(client_id=client_id or idempotency_key, data=data)
-    return await hear_once(session, pp, m, shop, key, voice=(data, content_type), request_id=request_id)
+    return await hear_once(session, pp, m, shop, key, voice=(data, content_type), request_id=request_id,
+                           reply_to=reply_to)
 
 
 @router.post("/shops/{shop_id}/owner/to-manager", dependencies=[Depends(limit("to_manager", 20, 60))])
@@ -113,9 +117,9 @@ async def capped(stream, limit: int):
         yield chunk
 
 
-async def voice_form(request: Request) -> tuple[bytes, str, str, int | None]:
-    """The voice note's bytes, its media type, the phone's message id and the request it replies
-    to, from a bounded form."""
+async def voice_form(request: Request) -> tuple[bytes, str, str, int | None, int | None]:
+    """The voice note's bytes, its media type, the phone's message id, the request it replies
+    to and the line it replies to, from a bounded form."""
     limit = VOICE_LIMIT + FORM_OVERHEAD
     length = request.headers.get("content-length", "")
     if length.isdigit() and int(length) > limit:
@@ -124,7 +128,7 @@ async def voice_form(request: Request) -> tuple[bytes, str, str, int | None]:
         raise HTTPException(422, "Send the voice note as a file in the field audio.")
     try:
         form = await MultiPartParser(request.headers, capped(request.stream(), limit), max_files=1,
-                                     max_fields=4).parse()
+                                     max_fields=5).parse()
     except MultiPartException as e:
         raise HTTPException(422, str(e))
     try:
@@ -139,17 +143,19 @@ async def voice_form(request: Request) -> tuple[bytes, str, str, int | None]:
         data = await audio.read(VOICE_LIMIT + 1)
         client_id = form.get("client_id")
         asked = form.get("request_id")
+        line = form.get("reply_to")
     finally:
         await form.close()
     if len(data) > VOICE_LIMIT:
         raise HTTPException(413, TOO_BIG)
     if not data:
         raise HTTPException(422, "The voice note is empty.")
-    return data, content_type, client_id if isinstance(client_id, str) else "", request_number(asked)
+    return (data, content_type, client_id if isinstance(client_id, str) else "", id_number(asked),
+            id_number(line))
 
 
-def request_number(value) -> int | None:
-    """A request id from a form field; anything else is no request."""
+def id_number(value) -> int | None:
+    """A request or line id from a form field; anything else is none."""
     text = value.strip() if isinstance(value, str) else ""
     return int(text) if text.isascii() and text.isdigit() and len(text) < 12 else None
 

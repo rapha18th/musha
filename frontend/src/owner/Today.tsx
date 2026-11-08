@@ -4,6 +4,7 @@ import {
   ownerApi, type Alert, type CameraStatus, type CashGapData, type LowStockData, type OwnerRequest,
   type ProofAlertData, type StockGapData, type WeekFacts,
 } from "./api";
+import { AskNote, AskWaiting, askLabel, useAskManager } from "./Ask";
 import { AskMusha } from "./AskMusha";
 import { Lightbox, Thumbs, evidenceOf } from "./Evidence";
 import { InviteManager } from "./Invite";
@@ -462,15 +463,10 @@ function usePausableTimer(card: RefObject<HTMLElement | null>, ms: number, done:
 
 function LowFocal({ alert, shop, refresh }: { alert: Alert; shop: Shop; refresh: () => Promise<void> }) {
   const d = alert.data as LowStockData;
-  const { busy, error, run } = useAction();
-  const [which, setWhich] = useState("");
-  const act = (action: "fund" | "ask") => {
-    setWhich(action);
-    run(async () => {
-      await ownerApi.act(alert.id, action);
-      await refresh();
-    });
-  };
+  const fund = useAction();
+  const asking = useAskManager(alert, refresh);
+  const busy = fund.busy || asking.busy;
+  const manager = shop.manager.name;
   const days = d.days_left ?? 0;
   return (
     <section className="o-focal o-tone-warn" aria-live="polite">
@@ -485,23 +481,29 @@ function LowFocal({ alert, shop, refresh }: { alert: Alert; shop: Shop; refresh:
         <span className="o-muted">covers a week at this pace</span>
       </div>
       <div className="o-row">
-        <button className="o-btn o-primary o-large" disabled={busy} onClick={() => act("fund")}>
-          {busy && which === "fund" ? <Spinner /> : null}Fund it
+        <button className="o-btn o-primary o-large" disabled={busy} onClick={() => fund.run(async () => {
+          await ownerApi.act(alert.id, "fund");
+          await refresh();
+        })}>
+          {fund.busy ? <Spinner /> : null}Fund it
         </button>
-        <button className="o-btn o-ghost" disabled={busy} onClick={() => act("ask")}>
-          {busy && which === "ask" ? <Spinner /> : null}Ask {shop.manager.name}
-        </button>
+        {/* Asked and waiting, the button gives way to the line that says so, in its place. */}
+        {asking.waiting ? <AskWaiting state={asking} manager={manager} inline focus={asking.justAsked} /> : (
+          <button className="o-btn o-ghost" disabled={busy} onClick={asking.ask}>
+            {asking.busy ? <Spinner /> : null}{askLabel(asking, manager)}
+          </button>
+        )}
         <Dismiss alert={alert} refresh={refresh} />
       </div>
-      {d.asked_at && <p className="o-fine">You asked {shop.manager.name} {when(d.asked_at)}.</p>}
-      <Answered alert={alert} shop={shop} />
-      <ErrorLine error={error} />
+      <AskNote state={asking} manager={manager} waitingLine={false} />
+      <ErrorLine error={fund.error || asking.error} />
     </section>
   );
 }
 
 function GapFocal({ alert, shop, refresh }: { alert: Alert; shop: Shop; refresh: () => Promise<void> }) {
-  const { busy, error, run } = useAction();
+  const asking = useAskManager(alert, refresh);
+  const manager = shop.manager.name;
   const cash = alert.kind === "cash_gap";
   const d = alert.data as CashGapData & StockGapData;
   const on = d.day ? longDay(d.day) : "";
@@ -522,31 +524,21 @@ function GapFocal({ alert, shop, refresh }: { alert: Alert; shop: Shop; refresh:
         </span>
       </div>
       <figure className="o-ready">
-        <figcaption>Musha's question for {shop.manager.name}</figcaption>
+        <figcaption>Musha's question for {manager}</figcaption>
         <blockquote>{d.question}</blockquote>
       </figure>
       <div className="o-row">
-        <button className="o-btn o-primary" disabled={busy} onClick={() => run(async () => {
-          await ownerApi.act(alert.id, "ask");
-          await refresh();
-        })}>
-          {busy ? <Spinner /> : null}Ask {shop.manager.name}
-        </button>
+        {asking.waiting ? <AskWaiting state={asking} manager={manager} inline focus={asking.justAsked} /> : (
+          <button className="o-btn o-primary" disabled={asking.busy} onClick={asking.ask}>
+            {asking.busy ? <Spinner /> : null}{askLabel(asking, manager)}
+          </button>
+        )}
         <Dismiss alert={alert} refresh={refresh} />
       </div>
-      {d.asked_at && <p className="o-fine">You asked {shop.manager.name} {when(d.asked_at)}.</p>}
-      <Answered alert={alert} shop={shop} />
-      <ErrorLine error={error} />
+      <AskNote state={asking} manager={manager} waitingLine={false} />
+      <ErrorLine error={asking.error} />
     </section>
   );
-}
-
-/** The manager's answer to the owner's question on an alert, in English. */
-function Answered({ alert, shop }: { alert: Alert; shop: Shop }) {
-  const said = alert.data.answer_en ?? alert.data.answer;
-  if (typeof said !== "string" || !said.trim()) return null;
-  const at = typeof alert.data.answered_at === "string" ? ` ${when(alert.data.answered_at)}` : "";
-  return <p className="o-fine"><b className="o-ink">{shop.manager.name} answered{at}:</b> {said}</p>;
 }
 
 function Dismiss({ alert, refresh, small }: { alert: Alert; refresh: () => Promise<void>; small?: boolean }) {
@@ -570,31 +562,34 @@ function NextRequest({ req, goTo }: { req: OwnerRequest; goTo: (id: number) => v
 }
 
 function NextAlert({ alert, shop, refresh }: { alert: Alert; shop: Shop; refresh: () => Promise<void> }) {
-  const { busy, error, run } = useAction();
-  const asked = typeof alert.data.asked_at === "string";
-  const answer = alert.data.answer_en ?? alert.data.answer;
-  const said = typeof answer === "string" && answer.trim() ? answer.trim() : "";
+  const fund = useAction();
+  const asking = useAskManager(alert, refresh);
+  const busy = fund.busy || asking.busy;
+  const manager = shop.manager.name;
+  const { askedAt, answer, waiting } = asking;
+  const error = fund.error || asking.error;
   const tone = alert.kind === "low_stock" ? "warn" : "danger";
   return (
     <li className="o-next-row">
       <span className={`o-dot o-tone-${tone}`} aria-hidden="true" />
       <span className="o-next-text">
         {alert.title}
-        {asked && !said && <span className="o-muted"> · asked {when(alert.data.asked_at as string)}</span>}
-        {said && <span className="o-muted"> · {shop.manager.name} answered: {said}</span>}
+        {waiting && askedAt && <span className="o-muted"> · asked {when(askedAt)}, waiting for {manager}'s response</span>}
+        {!waiting && answer && <span className="o-muted"> · {manager} answered: {answer}</span>}
+        {!waiting && !answer && askedAt && <span className="o-muted"> · asked {when(askedAt)}</span>}
         {error && <span className="o-danger"> · {error}</span>}
       </span>
       <span className="o-next-actions">
         {alert.kind === "low_stock" && (
-          <button className="o-btn o-outline o-small" disabled={busy} onClick={() => run(async () => {
+          <button className="o-btn o-outline o-small" disabled={busy} onClick={() => fund.run(async () => {
             await ownerApi.act(alert.id, "fund");
             await refresh();
           })}>Fund it</button>
         )}
-        <button className={`o-btn o-small ${alert.kind === "low_stock" || asked ? "o-quiet" : "o-outline"}`} disabled={busy} onClick={() => run(async () => {
-          await ownerApi.act(alert.id, "ask");
-          await refresh();
-        })}>{asked ? "Ask again" : `Ask ${shop.manager.name}`}</button>
+        {!waiting && (
+          <button className={`o-btn o-small ${alert.kind === "low_stock" || askedAt ? "o-quiet" : "o-outline"}`}
+            disabled={busy} onClick={asking.ask}>{askLabel(asking, manager)}</button>
+        )}
         <Dismiss alert={alert} refresh={refresh} small />
       </span>
     </li>

@@ -141,17 +141,22 @@ async def hear(app, session: Session, outbox: wa.Outbox, row_id: int, m: wa.Inbo
     if shop is None:
         return
     pp, model = app.state.paypal, app.state.model
-    asked = replied_to(session, shop, m.reply_to)
+    if m.kind not in wa.SILENT:
+        await outbox.cloud.mark_read(m.id)  # Musha reads it now: blue ticks on the manager's phone
+    line = replied_to(session, shop, m.reply_to)
+    asked, reply = (line.request_id, line.id) if line is not None else (None, None)
     key = bridge.message_key(client_id="wa:" + hashlib.sha256(m.id.encode()).hexdigest()[:40])
     try:
         if row.kind == wa.LINK:
             tell(session, shop, LINKED.format(shop=shop.name))
         elif m.kind in ("text", "button"):
             if m.text:
-                await phone.hear_once(session, pp, model, shop, key, text=m.text[:2000], request_id=asked)
+                await phone.hear_once(session, pp, model, shop, key, text=m.text[:2000], request_id=asked,
+                                      reply_to=reply)
         elif m.kind == "audio":
             data, kind = await outbox.cloud.media(m.media_id, phone.VOICE_LIMIT)
-            await phone.hear_once(session, pp, model, shop, key, voice=(data, kind), request_id=asked)
+            await phone.hear_once(session, pp, model, shop, key, voice=(data, kind), request_id=asked,
+                                  reply_to=reply)
         elif m.kind in ("image", "document"):
             await prove(app, session, outbox, shop, m, asked)
         elif m.kind not in wa.SILENT:
@@ -179,14 +184,14 @@ async def hear(app, session: Session, outbox: wa.Outbox, row_id: int, m: wa.Inbo
         session.commit()
 
 
-def replied_to(session: Session, shop: Shop, wamid: str) -> int | None:
-    """The request of Musha's line this message replies to, when WhatsApp says which line."""
+def replied_to(session: Session, shop: Shop, wamid: str) -> Message | None:
+    """Musha's line this message replies to, when WhatsApp says which line: its request's question, or
+    the owner's question on an alert."""
     if not wamid:
         return None
     line_id = session.scalar(select(WhatsAppMessage.line_id).where(
         WhatsAppMessage.wamid == wamid, WhatsAppMessage.direction == "out", WhatsAppMessage.shop_id == shop.id))
-    line = session.get(Message, line_id) if line_id else None
-    return line.request_id if line is not None else None
+    return session.get(Message, line_id) if line_id else None
 
 
 def tell(session: Session, shop: Shop, text: str) -> None:

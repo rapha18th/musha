@@ -22,6 +22,9 @@ frontend/dist
 # The IP camera bridge runs beside the camera, on its own machine.
 counter-bridge
 
+# The WhatsApp simulator runs on a laptop, in Meta's place, for local runs and the film.
+whatsapp-sim
+
 deploy/*
 !deploy/entrypoint.sh
 !deploy/litestream.yml

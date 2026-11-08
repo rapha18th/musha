@@ -219,7 +219,7 @@ function Made({ made, ...props }: Themed & { made: Made }) {
   );
 }
 
-/** An invite from the owner: the manager sets her sign-in and opens her chat with Musha. */
+/** An invite from the owner: the manager sets her sign-in and opens her dashboard. */
 export function InvitePage({ token, ...props }: Themed & { token: string }) {
   const found = useRetry(() => auth.invite(token).then((v): Invite | null => v, (e) => {
     if (e instanceof ApiError && (e.status === 404 || e.status === 410)) return null;
@@ -267,7 +267,7 @@ export function InvitePage({ token, ...props }: Themed & { token: string }) {
   const first = invite.manager.name.split(" ")[0];
   return (
     <Page title={`Welcome, ${first}`}
-      lede={<>{invite.owner.name} asked you to run <strong>{invite.shop.name}</strong> in {invite.shop.place}. Set your sign-in to open your chat with Musha.</>}
+      lede={<>{invite.owner.name} asked you to run <strong>{invite.shop.name}</strong> in {invite.shop.place}. Set your sign-in to open your dashboard.</>}
       {...props}>
       <form className="au-form" onSubmit={submit}>
         <Field label="Email" type="email" autoComplete="username" inputMode="email" required value={email}

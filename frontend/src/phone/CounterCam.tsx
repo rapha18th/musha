@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, ApiError, type Shop } from "../api";
-import { hasCounterKey, useCounterLink } from "../shell";
 import { phone, SCENES, type CameraStatus, type Frame } from "./api";
-import { Camera, Link } from "./icons";
+import { Camera } from "./icons";
 import { clock } from "./util";
 
 // The pixel gate: 32 by 24 grey pixels, compared by mean absolute difference.
@@ -72,7 +71,7 @@ function still(video: HTMLVideoElement): Promise<Blob> {
 type Mode = "off" | "starting" | "live";
 
 /** The counter phone: consent, the live camera with its pixel gate, Look in, and staged scenes. */
-export function CounterCam({ shopId, embedded = false }: { shopId: number; embedded?: boolean }) {
+export function CounterCam({ shopId }: { shopId: number }) {
   const [shop, setShop] = useState<Shop>();
   const [status, setStatus] = useState<CameraStatus>();
   const [consented, setConsented] = useState(() => readConsent(shopId));
@@ -84,7 +83,6 @@ export function CounterCam({ shopId, embedded = false }: { shopId: number; embed
   const [sending, setSending] = useState(false);
   const [lookedIn, setLookedIn] = useState<string | null>(null);
   const [staging, setStaging] = useState("");
-  const [copied, setCopied] = useState(false);
   const [viewing, setViewing] = useState(false);
   // The owner pressed Disconnect, and the shop's counter key changed: this page's link opens nothing more.
   const [replaced, setReplaced] = useState(false);
@@ -303,12 +301,11 @@ export function CounterCam({ shopId, embedded = false }: { shopId: number; embed
     };
   }, [mode, send, shopId, lock]);
 
-  // The page that was watching before a reload watches again, once the server confirms the agreement;
-  // the phone tab waits for a tap.
+  // The page that was watching before a reload watches again, once the server confirms the agreement.
   const agreed = status?.consented;
   useEffect(() => {
-    if (!embedded && agreed && readConsent(shopId)) void start();
-  }, [embedded, shopId, start, agreed]);
+    if (agreed && readConsent(shopId)) void start();
+  }, [shopId, start, agreed]);
 
   useEffect(() => {
     alive.current = true;
@@ -334,17 +331,6 @@ export function CounterCam({ shopId, embedded = false }: { shopId: number; embed
     setStaging("");
   };
 
-  // The counter key is the owner's to hand out. A page that holds it offers the link to another phone;
-  // the manager's dashboard points to the owner's Connect your shop.
-  const link = useCounterLink(shopId, false);
-  const keyed = hasCounterKey(shopId);
-  const copy = () => {
-    navigator.clipboard?.writeText(link).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
-    }).catch(() => {});
-  };
-
   const owner = shop?.owner.name || "The owner";
   const live = mode === "live";
   const line = read?.line || "";
@@ -355,7 +341,7 @@ export function CounterCam({ shopId, embedded = false }: { shopId: number; embed
 
   if (replaced) {
     return (
-      <div className={`cc cc-consent${embedded ? " cc-embedded" : ""}`}>
+      <div className="cc cc-consent">
         <div className="cc-consent-in" role="status">
           <span className="cc-badge"><Camera size={28} /></span>
           <h2>Counter camera</h2>
@@ -367,7 +353,7 @@ export function CounterCam({ shopId, embedded = false }: { shopId: number; embed
 
   if (!consented && mode === "off" && !viewing) {
     return (
-      <div className={`cc cc-consent${embedded ? " cc-embedded" : ""}`}>
+      <div className="cc cc-consent">
         <div className="cc-consent-in">
           <span className="cc-badge"><Camera size={28} /></span>
           <h2>Counter camera</h2>
@@ -378,13 +364,12 @@ export function CounterCam({ shopId, embedded = false }: { shopId: number; embed
           {error && <p className="cc-error">{error}</p>}
         </div>
         {shop?.sandbox && <Scenes stage={stage} staging={staging} />}
-        {embedded && <OpenOnPhone link={keyed ? link : ""} owner={owner} copy={copy} copied={copied} />}
       </div>
     );
   }
 
   return (
-    <div className={`cc cc-on${embedded ? " cc-embedded" : ""}`}>
+    <div className="cc cc-on">
       <div className={`cc-picture${live ? " live" : ""}`}>
         <video ref={video} playsInline muted autoPlay aria-label="The counter, live" />
         {!live && latest && <img src={latest.url || undefined} alt={latest.line || "The latest still from the counter"} />}
@@ -414,7 +399,6 @@ export function CounterCam({ shopId, embedded = false }: { shopId: number; embed
         )}
       </div>
       {shop?.sandbox && <Scenes stage={stage} staging={staging} />}
-      {embedded && <OpenOnPhone link={keyed ? link : ""} owner={owner} copy={copy} copied={copied} />}
     </div>
   );
 }
@@ -450,19 +434,6 @@ function Scenes({ stage, staging }: { stage: (scene: string) => void; staging: s
           </button>
         ))}
       </div>
-    </div>
-  );
-}
-
-/** The counter link for a phone that stays at the counter. Without the key, the owner's sheet has it. */
-function OpenOnPhone({ link, owner, copy, copied }: { link: string; owner: string; copy: () => void; copied: boolean }) {
-  if (!link) {
-    return <p className="cc-open cc-open-line">{owner} gives the counter phone its own link in Connect your shop.</p>;
-  }
-  return (
-    <div className="cc-open">
-      <a href={link} target="_blank" rel="noreferrer"><Link /> Open the counter page on a phone</a>
-      <button type="button" onClick={copy}>{copied ? "Copied" : "Copy link"}</button>
     </div>
   );
 }

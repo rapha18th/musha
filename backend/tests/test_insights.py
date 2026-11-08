@@ -1,10 +1,10 @@
 import statistics
-from datetime import date
+from datetime import date, datetime, time, timedelta, timezone
 
 from sqlalchemy import func, select
 
 from musha import flows, insights
-from musha.models import Alert, CameraFrame, DayClose, Shop, SpendRequest
+from musha.models import Alert, CameraFrame, DayClose, JsonText, Shop, SpendRequest
 from musha.money import to_value
 from musha.seed import PRODUCTS
 
@@ -153,6 +153,98 @@ def test_the_manager_hears_an_alerts_question_once(client, monkeypatch):
     client.post(f"/api/alerts/{low['id']}/act", json={"action": "fund"})
     r = client.post(f"/api/alerts/{low['id']}/act", json={"action": "ask"})
     assert (r.status_code, r.json()["detail"]) == (409, "This alert is funded already.")
+
+
+def stock_gap_row(client, gap):
+    return next(r for r in week(client)["stock"] if r["day"] == gap["data"]["day"] and r["item"] == gap["data"]["item"])
+
+
+def answer(app, alert_id, english):
+    with app.state.sessions() as s:
+        alert = s.get(Alert, alert_id)
+        insights.answer_alert(s, s.get(Shop, alert.shop_id), alert, words=english, english=english, line_id=None)
+
+
+def test_an_asked_alert_waits_on_the_answer_and_asking_again_changes_nothing(app, client):
+    gap = next(a for a in alerts(client) if a["kind"] == "stock_gap")
+    assert gap["waiting"] is False and "asked_at" not in gap["data"]
+    assert stock_gap_row(client, gap)["waiting"] is False
+    act = f"/api/alerts/{gap['id']}/act"
+    first = client.post(act, json={"action": "ask"}).json()
+    asked_at = first["alert"]["data"]["asked_at"]
+    assert first["alert"]["waiting"] is True
+    assert datetime.fromisoformat(asked_at).utcoffset() == timedelta(0)  # the server's time, in UTC
+    # a second ask while it waits returns the same question, and the alert stays as it was
+    second = client.post(act, json={"action": "ask"}).json()
+    assert second["message"]["id"] == first["message"]["id"]
+    assert second["alert"]["data"] == first["alert"]["data"] and second["alert"]["waiting"] is True
+    assert len(said(client, gap["data"]["question"])) == 1
+    listed = next(a for a in alerts(client) if a["id"] == gap["id"])
+    assert (listed["waiting"], listed["data"]["asked_at"]) == (True, asked_at)
+    row = stock_gap_row(client, gap)
+    assert (row["waiting"], row["asked_at"], row["answer"]) == (True, asked_at, None)
+
+    # the manager answers: the wait ends, and the owner may ask again
+    answer(app, gap["id"], "Two trays broke on the way in.")
+    listed = next(a for a in alerts(client) if a["id"] == gap["id"])
+    assert listed["waiting"] is False and listed["data"]["answer_en"] == "Two trays broke on the way in."
+    row = stock_gap_row(client, gap)
+    assert (row["waiting"], row["answer"]) == (False, "Two trays broke on the way in.")
+    again = client.post(act, json={"action": "ask"}).json()
+    assert again["message"]["id"] != first["message"]["id"] and again["alert"]["waiting"] is True
+    assert datetime.fromisoformat(again["alert"]["data"]["asked_at"]) > datetime.fromisoformat(asked_at)
+    assert len(said(client, gap["data"]["question"])) == 2
+    assert stock_gap_row(client, gap)["waiting"] is True
+
+    # a closed alert waits on nothing
+    client.post(f"/api/alerts/{gap['id']}/dismiss")
+    assert stock_gap_row(client, gap)["waiting"] is False
+
+
+def test_a_question_unanswered_for_a_day_may_be_asked_again(app, client):
+    low = next(a for a in alerts(client) if a["kind"] == "low_stock")
+    act = f"/api/alerts/{low['id']}/act"
+    first = client.post(act, json={"action": "ask"}).json()["message"]
+    with app.state.sessions() as s:  # a day and an hour pass without an answer
+        alert = s.get(Alert, low["id"])
+        data = JsonText.load(alert.data, {})
+        data["asked_at"] = (flows.now() - insights.ASK_WINDOW - timedelta(hours=1)).isoformat()
+        alert.data = JsonText.dump(data)
+        s.commit()
+        assert low["id"] not in [a.id for a in insights.asked_open(s, s.get(Shop, 1))]
+    assert next(a for a in alerts(client) if a["id"] == low["id"])["waiting"] is False
+    again = client.post(act, json={"action": "ask"}).json()
+    assert again["message"]["id"] != first["id"] and again["alert"]["waiting"] is True
+    assert len(said(client, first["text_en"])) == 2
+
+
+def test_a_low_stock_question_waits_past_midnight_on_the_next_days_alert(client, monkeypatch):
+    low = next(a for a in alerts(client) if a["kind"] == "low_stock")
+    asked = client.post(f"/api/alerts/{low['id']}/act", json={"action": "ask"}).json()
+    question = asked["message"]
+    # UTC midnight passes while the question waits, and the shelf stays low: the next day's alert takes over
+    start, real = flows.now(), flows.now
+    midnight = datetime.combine(start.date() + timedelta(days=1), time(), tzinfo=timezone.utc)
+    monkeypatch.setattr(flows, "now", lambda: real() + (midnight - start) + timedelta(seconds=1))
+    fresh = next(a for a in alerts(client) if a["kind"] == "low_stock")
+    assert fresh["key"] == f"low_stock:1:eggs:{today()}" and fresh["id"] != low["id"]
+    assert (fresh["waiting"], fresh["data"]["asked_at"], fresh["data"]["asked_message_id"]) == (
+        True, asked["alert"]["data"]["asked_at"], question["id"])
+    # asking again gets the first question back, so the manager hears it once
+    again = client.post(f"/api/alerts/{fresh['id']}/act", json={"action": "ask"}).json()
+    assert again["message"]["id"] == question["id"] and len(said(client, question["text_en"])) == 1
+    # her reply to the question's line answers it, and the owner has the answer
+    words = "We have 8 trays left. Send 40 trays from Mbare wholesale."
+    client.post("/api/shops/1/phone/messages", json={"text": words, "client_id": "eggs", "reply_to": question["id"]})
+    after = next(a for a in alerts(client) if a["id"] == fresh["id"])
+    assert (after["waiting"], after["data"]["answer"]) == (False, words)
+
+
+def test_the_seeded_gap_is_answered_so_it_waits_on_nothing(client):
+    gap = next(a for a in alerts(client) if a["kind"] == "cash_gap")
+    assert gap["data"]["asked_at"] and gap["waiting"] is False
+    row = next(r for r in week(client)["cash"] if r["day"] == gap["data"]["day"])
+    assert (row["asked_at"], row["waiting"]) == (gap["data"]["asked_at"], False) and row["answer"]
 
 
 def close_body(client, *, short_cents=0):

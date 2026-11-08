@@ -53,14 +53,29 @@ def test_the_owners_sheet_carries_the_counter_key_and_the_connection(app):
     assert view["latest"]["kind"] == "staged"  # the seed's quiet counter, so the sheet has a picture
 
 
-def test_the_sheet_and_its_buttons_are_the_owners_alone(app):
+def test_the_counter_key_opens_none_of_the_sheet(app):
+    shop_id, keys, _ = visitor(app)
+    device = holder(app, keys["counter"])
+    assert device.get(f"/api/shops/{shop_id}/camera").status_code == 200
+    for method, path in (("get", "camera/connect"), ("post", "camera/feed"), ("post", "camera/disconnect"),
+                         ("post", "counter-key")):
+        assert getattr(device, method)(f"/api/shops/{shop_id}/{path}").status_code == 403, path
+
+
+def test_the_manager_opens_the_sheet_and_the_owner_alone_disconnects(app):
     shop_id, keys, owner = visitor(app)
-    for role in ("counter", "manager"):
-        device = holder(app, keys[role]) if role == "counter" else keys[role]
-        assert device.get(f"/api/shops/{shop_id}/camera").status_code == 200
-        for method, path in (("get", "camera/connect"), ("post", "camera/feed"), ("post", "camera/disconnect"),
-                             ("post", "counter-key")):
-            assert getattr(device, method)(f"/api/shops/{shop_id}/{path}").status_code == 403, (role, path)
+    manager = keys["manager"]
+    view = manager.get(f"/api/shops/{shop_id}/camera/connect").json()
+    assert view["counter_key"] == keys["counter"]  # the link a phone at the counter scans
+    assert (view["shop"], view["owner"], view["manager"]) == ("Chipo's Tuck Shop", "Chipo", "Farai")
+    assert manager.post(f"/api/shops/{shop_id}/camera/feed").json()["source"] == "feed"
+    for path in ("camera/disconnect", "counter-key"):
+        assert manager.post(f"/api/shops/{shop_id}/{path}").status_code == 403, path
+    assert owner.get(f"/api/shops/{shop_id}/camera/connect").json()["counter_key"] == keys["counter"]
+    # another shop's manager opens nothing here
+    other = signed_shop(app).manager
+    assert other.get(f"/api/shops/{shop_id}/camera/connect").status_code == 403
+    assert other.post(f"/api/shops/{shop_id}/camera/feed").status_code == 403
 
 
 def test_connecting_the_feed_shows_on_the_sheet(app):

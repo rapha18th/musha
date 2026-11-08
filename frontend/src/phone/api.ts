@@ -37,6 +37,8 @@ export type Alert = {
   request_id: number | null;
   created_at: string;
   dismissed: boolean;
+  /** The owner's question on it waits on the manager's answer. */
+  waiting?: boolean;
 };
 
 export type CashRow = {
@@ -183,20 +185,24 @@ export const phone = {
   alerts: (shopId: number) => call<Alert[]>(`/api/shops/${shopId}/alerts`),
   week: (shopId: number) => call<Week>(`/api/shops/${shopId}/week`),
 
-  /** The manager writes. The same key goes with every retry of one message. */
-  say: (shopId: number, text: string, key: string, requestId?: number) =>
+  /** The manager writes. The same key goes with every retry of one message. `replyTo` is the line she replied to. */
+  say: (shopId: number, text: string, key: string, requestId?: number, replyTo?: number) =>
     send<Heard>(`/api/shops/${shopId}/phone/messages`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Idempotency-Key": key },
-      body: JSON.stringify({ text, client_id: key, ...(requestId ? { request_id: requestId } : {}) }),
+      body: JSON.stringify({
+        text, client_id: key, ...(requestId ? { request_id: requestId } : {}), ...(replyTo ? { reply_to: replyTo } : {}),
+      }),
     }),
 
-  /** A voice note, with the message's own id as client_id, and the request whose question it answers. */
-  voice: (shopId: number, audio: Blob, key: string, requestId?: number) => {
+  /** A voice note, with the message's own id as client_id, the request whose question it answers, and the line
+   *  she replied to (`replyTo`). */
+  voice: (shopId: number, audio: Blob, key: string, requestId?: number, replyTo?: number) => {
     const form = new FormData();
     form.append("audio", audio, `voice${audio.type.includes("mp4") ? ".m4a" : audio.type.includes("ogg") ? ".ogg" : ".webm"}`);
     form.append("client_id", key);
     if (requestId) form.append("request_id", String(requestId));
+    if (replyTo) form.append("reply_to", String(replyTo));
     return send<Heard>(`/api/shops/${shopId}/phone/voice`, {
       method: "POST",
       headers: { "Idempotency-Key": key },

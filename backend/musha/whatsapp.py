@@ -2,6 +2,8 @@
 
 - On. WHATSAPP_TOKEN, WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_APP_SECRET and WHATSAPP_VERIFY_TOKEN together
   (Settings.whatsapp_ready). Without them the dashboard carries the manager's thread alone.
+- Meta. Every Graph API call goes to WHATSAPP_GRAPH_BASE, Meta's by default. A local run points it at the
+  WhatsApp simulator (whatsapp-sim/), which plays Meta's side: its webhooks in, its Graph API out.
 - The number. The owner gives the manager's number at sign-up, and Musha routes it once the manager
   proves it: her dashboard shows a six-digit code, and she sends it from that number (`link`). One
   manager at most holds a proved number, so a sign-up that names someone else's number reaches nobody.
@@ -15,8 +17,8 @@
   parameter, while PayPal holds money that waits on the manager's proof. Otherwise it waits in the
   dashboard. A text Meta refuses for the window (131047) goes again as the template on the same terms.
 - In. routes/whatsapp.py checks Meta's signature (`signed`), reads the payload (`parse`), and hears each
-  message once by its WhatsApp id through the dashboard's own handlers. `media` downloads a photo or a
-  voice note by its media id.
+  message once by its WhatsApp id through the dashboard's own handlers. `mark_read` turns its ticks
+  blue with Musha typing, and `media` downloads a photo or a voice note by its media id.
 """
 import asyncio
 import hashlib
@@ -40,7 +42,6 @@ from .models import Hold, Message, Person, Shop, SpendRequest, WhatsAppMessage
 
 log = logging.getLogger("musha.whatsapp")
 
-GRAPH = "https://graph.facebook.com"
 TEMPLATE_LANGUAGE = "en"  # the language the template is submitted in (deploy/README.md)
 WINDOW = timedelta(hours=23, minutes=55)  # WhatsApp's 24 hours, less a margin for the clocks
 TEXT_LIMIT = 4096  # characters in a text message
@@ -250,10 +251,12 @@ def _body(r: httpx.Response):
 
 
 class Cloud:
-    """The Cloud API calls Musha makes: send a text, send a template, download media."""
+    """The Cloud API calls Musha makes: send a text, send a template, download media. Each goes to the
+    Graph base (Settings.whatsapp_graph_base) with the token."""
 
     def __init__(self, settings: Settings, http: httpx.AsyncClient | None = None):
-        self.base = f"{GRAPH}/{settings.whatsapp_graph_version}"
+        self.root = settings.whatsapp_graph_base.rstrip("/")
+        self.base = f"{self.root}/{settings.whatsapp_graph_version}"
         self.number = settings.whatsapp_phone_number_id
         self._token = settings.whatsapp_token
         self._display: str | None = None
@@ -308,6 +311,21 @@ class Cloud:
             "name": name, "language": {"code": TEMPLATE_LANGUAGE},
             "components": [{"type": "body", "parameters": [{"type": "text", "text": parameter(text)}]}]}})
 
+    async def mark_read(self, wamid: str) -> bool:
+        """Musha read the manager's message: its ticks, and those before it, turn blue on her phone, and
+        she sees Musha typing until the reply comes, 25 seconds at most. A mark that fails changes nothing
+        else, so it is logged and left."""
+        body = {"messaging_product": "whatsapp", "status": "read", "message_id": wamid,
+                "typing_indicator": {"type": "text"}}
+        try:
+            r = await self.http.post(f"{self.base}/{self.number}/messages", json=body, headers=self._auth())
+        except httpx.HTTPError as e:
+            log.warning("marking a WhatsApp message read: %s", type(e).__name__)
+            return False
+        if r.status_code >= 400:
+            log.warning("marking a WhatsApp message read: %s %s", r.status_code, _body(r))
+        return r.status_code < 400
+
     async def media(self, media_id: str, limit: int) -> tuple[bytes, str]:
         """A photo, voice note or file the manager sent: its bytes and its media type. The URL the
         Graph API gives lasts five minutes and needs the same token. Past `limit` bytes it stops."""
@@ -318,7 +336,7 @@ class Cloud:
                                     headers=self._auth())
             info = _body(r)
             url = info.get("url") if isinstance(info, dict) else None
-            if r.status_code != 200 or not isinstance(url, str) or not url.startswith("https://"):
+            if r.status_code != 200 or not isinstance(url, str) or not self._carries_token(url):
                 raise WhatsAppError(r.status_code, info)
             size = info.get("file_size")
             if isinstance(size, int) and size > limit:
@@ -336,6 +354,11 @@ class Cloud:
         except httpx.HTTPError as e:
             raise WhatsAppError(0, {"error": {"message": f"no answer: {type(e).__name__}"}})
         return bytes(data), kind.split(";")[0].strip().lower()
+
+    def _carries_token(self, url: str) -> bool:
+        """A media URL the token may go to: one on https, or one on the Graph base itself, such as the
+        simulator's on this computer."""
+        return url.startswith("https://") or url.startswith(self.root + "/")
 
 
 # The window and the money

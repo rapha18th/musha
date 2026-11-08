@@ -1,6 +1,22 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+/**
+ * Connect your shop: the one way a camera joins the shop, in the owner's console and the manager's
+ * dashboard alike. The dashboard never opens its own device's camera. The phone that stays at the
+ * counter scans the code, or opens the copied link, and runs the counter page there with the manager's
+ * consent. An IP camera joins through the counter bridge. The sample video feed runs the same path.
+ *
+ * The props, the whole contract:
+ *   shopId    the shop to connect.
+ *   role      "owner" or "manager": whose words the sheet uses, and whether it offers Disconnect.
+ *             Disconnect gives the shop a new counter link, so it stays the owner's.
+ *   onClose   given, the sheet is open while the parent renders it, and onClose shuts it. Left out,
+ *             the component draws its own "Connect your shop" button that opens the sheet.
+ *   onChange  called after the connection changed here: the feed connected, or Disconnect.
+ *
+ *   <Connect shopId={shop.id} role="manager" />
+ *   {open && <Connect shopId={shop.id} role="owner" onClose={() => setOpen(false)} onChange={reload} />}
+ */
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import type { Shop } from "../api";
 import { ErrorLine, Spinner } from "./parts";
 import { cap, clock, usePoll, when } from "./lib";
 import { counterUrl, setCounterKey } from "../shell";
@@ -8,7 +24,15 @@ import {
   BRIDGE_GUIDE, CAMERAS, bridgeCommand, connectApi, qrPath,
   type Connection, type Source,
 } from "./connection";
+import "./owner.css";
 import "./connect.css";
+
+export type ConnectProps = {
+  shopId: number;
+  role: "owner" | "manager";
+  onClose?: () => void;
+  onChange?: () => void;
+};
 
 type Way = Source;
 
@@ -24,8 +48,23 @@ const SOURCE_NAME: Record<Source, string> = {
   feed: "The sample video feed",
 };
 
-/** Connect your shop: three ways to give the counter its camera, the connection now, and Disconnect. */
-export function Connect({ shop, onClose, onChange }: { shop: Shop; onClose: () => void; onChange?: () => void }) {
+/** Connect your shop: the sheet, open while the parent renders it, or a button that opens it. */
+export function Connect(props: ConnectProps) {
+  const [open, setOpen] = useState(false);
+  const shut = useCallback(() => setOpen(false), []);
+  if (props.onClose) return <Sheet {...props} onClose={props.onClose} />;
+  return (
+    <>
+      <button type="button" className="o-btn o-ghost" onClick={() => setOpen(true)} aria-haspopup="dialog">
+        Connect your shop
+      </button>
+      {open && <Sheet {...props} onClose={shut} />}
+    </>
+  );
+}
+
+/** Three ways to give the counter its camera, the connection now, and for the owner, Disconnect. */
+function Sheet({ shopId, role, onClose, onChange }: ConnectProps & { onClose: () => void }) {
   const [view, setView] = useState<Connection>();
   const [way, setWay] = useState<Way | null>(null);
   const [busy, setBusy] = useState<"" | "feed" | "disconnect">("");
@@ -36,10 +75,10 @@ export function Connect({ shop, onClose, onChange }: { shop: Shop; onClose: () =
   changed.current = onChange;
 
   usePoll(async () => {
-    const v = await connectApi.view(shop.id);
+    const v = await connectApi.view(shopId);
     setView(v);
     setWay((w) => w ?? v.source ?? "phone");
-  }, 3000, [shop.id]);
+  }, 3000, [shopId]);
 
   useEffect(() => {
     const back = document.activeElement as HTMLElement | null;
@@ -61,7 +100,7 @@ export function Connect({ shop, onClose, onChange }: { shop: Shop; onClose: () =
     setBusy(what);
     setError("");
     try {
-      const v = what === "feed" ? await connectApi.feed(shop.id) : await connectApi.disconnect(shop.id);
+      const v = what === "feed" ? await connectApi.feed(shopId) : await connectApi.disconnect(shopId);
       setView(v);
       setConfirming(false);
       changed.current?.();
@@ -73,10 +112,11 @@ export function Connect({ shop, onClose, onChange }: { shop: Shop; onClose: () =
 
   // After Disconnect the shop has a new counter key: every "Copy the link" in the console carries it.
   useEffect(() => {
-    if (view?.counter_key) setCounterKey(shop.id, view.counter_key);
-  }, [view?.counter_key, shop.id]);
+    if (view?.counter_key) setCounterKey(shopId, view.counter_key);
+  }, [view?.counter_key, shopId]);
 
-  const link = view ? counterUrl(shop.id, view.counter_key) : "";
+  const link = view ? counterUrl(shopId, view.counter_key) : "";
+  const owner = role === "owner";
 
   return createPortal(
     <div className="cn-veil" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
@@ -84,7 +124,7 @@ export function Connect({ shop, onClose, onChange }: { shop: Shop; onClose: () =
         <header className="cn-head">
           <div>
             <h2 id="cn-title">Connect your shop</h2>
-            <p>Give {shop.name} its eyes on the counter. One camera at a time.</p>
+            <p>Give {view?.shop || "the shop"} its eyes on the counter. One camera at a time.</p>
           </div>
           <button ref={close} type="button" className="cn-close" onClick={onClose} aria-label="Close">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
@@ -92,7 +132,8 @@ export function Connect({ shop, onClose, onChange }: { shop: Shop; onClose: () =
         </header>
 
         {view ? <Now view={view} confirming={confirming} setConfirming={setConfirming} busy={busy}
-          disconnect={() => void act("disconnect")} /> : <div className="cn-now cn-loading"><Spinner /> Reading the connection</div>}
+          disconnect={owner ? () => void act("disconnect") : undefined} />
+          : <div className="cn-now cn-loading"><Spinner /> Reading the connection</div>}
 
         <div className="cn-ways" role="tablist" aria-label="Ways to connect">
           {WAYS.map((w) => (
@@ -105,8 +146,8 @@ export function Connect({ shop, onClose, onChange }: { shop: Shop; onClose: () =
         </div>
 
         <div className="cn-body" role="tabpanel">
-          {view && way === "phone" && <Phone link={link} manager={view.manager} />}
-          {view && way === "bridge" && <Bridge link={link} manager={view.manager} agreed={!!view.consented} />}
+          {view && way === "phone" && <Phone link={link} manager={view.manager} you={!owner} />}
+          {view && way === "bridge" && <Bridge link={link} manager={view.manager} you={!owner} agreed={!!view.consented} />}
           {view && way === "feed" && <Feed view={view} busy={busy === "feed"} connect={() => void act("feed")} />}
         </div>
         <ErrorLine error={error} />
@@ -116,12 +157,13 @@ export function Connect({ shop, onClose, onChange }: { shop: Shop; onClose: () =
   );
 }
 
+/** The connection now. `disconnect` comes with the owner's sheet alone. */
 function Now({ view, confirming, setConfirming, busy, disconnect }: {
   view: Connection;
   confirming: boolean;
   setConfirming: (on: boolean) => void;
   busy: string;
-  disconnect: () => void;
+  disconnect?: () => void;
 }) {
   const f = view.latest;
   const source = view.source;
@@ -144,10 +186,10 @@ function Now({ view, confirming, setConfirming, busy, disconnect }: {
         {feedOff && view.feed.stopped_at && (
           <p className="cn-fine">It stopped at {clock(view.feed.stopped_at)} after {view.feed.idle_minutes} quiet minutes. Connect it again below.</p>
         )}
-        {connected && !confirming && (
+        {disconnect && connected && !confirming && (
           <button type="button" className="cn-text cn-danger" onClick={() => setConfirming(true)}>Disconnect</button>
         )}
-        {confirming && (
+        {disconnect && confirming && (
           <div className="cn-confirm">
             <p>The counter link changes. Phones and bridges holding the old one stop.</p>
             <div className="cn-row">
@@ -174,9 +216,11 @@ function useCopy(): [string, (key: string, text: string) => void] {
   return [copied, copy];
 }
 
-function Phone({ link, manager }: { link: string; manager: string }) {
+/** The code the phone at the counter scans, and the link to copy or share to it. The camera runs on that phone. */
+function Phone({ link, manager, you }: { link: string; manager: string; you: boolean }) {
   const code = useMemo(() => (link ? qrPath(link) : null), [link]);
   const [copied, copy] = useCopy();
+  const share = typeof navigator.share === "function";
   return (
     <div className="cn-phone">
       <figure className="cn-qr">
@@ -189,8 +233,8 @@ function Phone({ link, manager }: { link: string; manager: string }) {
       </figure>
       <div className="cn-steps">
         <ol>
-          <li>Scan the code with the phone that stays at the counter. An old Android phone with Chrome is enough.</li>
-          <li>{manager} reads the terms and presses <b>Start the camera</b>.</li>
+          <li>Scan the code with the phone that stays at the counter. The counter page opens there. An old Android phone with Chrome is enough.</li>
+          <li>{you ? <>Read the terms on that phone and press <b>Start the camera</b>.</> : <>{manager} reads the terms and presses <b>Start the camera</b>.</>}</li>
           <li>Prop it on a charger, facing the counter and the door.</li>
         </ol>
         <p className="cn-mono">{link}</p>
@@ -198,14 +242,19 @@ function Phone({ link, manager }: { link: string; manager: string }) {
           <button type="button" className="o-btn o-small o-outline" onClick={() => copy("link", link)}>
             {copied === "link" ? "Link copied" : "Copy the link"}
           </button>
-          <a className="o-btn o-small o-ghost" href={link} target="_blank" rel="noreferrer">Open it here</a>
+          {share && (
+            <button type="button" className="o-btn o-small o-ghost"
+              onClick={() => void navigator.share({ title: "Counter camera", url: link }).catch(() => undefined)}>
+              Share the link
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function Bridge({ link, manager, agreed }: { link: string; manager: string; agreed: boolean }) {
+function Bridge({ link, manager, you, agreed }: { link: string; manager: string; you: boolean; agreed: boolean }) {
   const [kind, setKind] = useState(CAMERAS[0].key);
   const [copied, copy] = useCopy();
   const camera = CAMERAS.find((c) => c.key === kind) ?? CAMERAS[0];
@@ -240,7 +289,9 @@ function Bridge({ link, manager, agreed }: { link: string; manager: string; agre
       </li>
       <li>
         <p>
-          {agreed ? `${manager} has agreed to the counter camera. ` : `The first run prints the terms, and --agree records ${manager}'s yes. `}
+          {agreed
+            ? `${you ? "You have" : `${manager} has`} agreed to the counter camera. `
+            : `The first run prints the terms, and --agree records ${you ? "your" : `${manager}'s`} yes. `}
           A line such as <code>still sent (first)</code> means the shop can see.
         </p>
       </li>
@@ -255,7 +306,7 @@ function Feed({ view, busy, connect }: { view: Connection; busy: boolean; connec
       <p className="cn-lede">Footage of a shop counter plays through Musha's own camera path. Musha reads each still as it reads the counter phone's.</p>
       <ul className="cn-facts">
         <li>{view.feed.stills} stills, one every {view.feed.pace_seconds} seconds, looping.</li>
-        <li>It runs while this console or a counter page is open, and stops itself after {view.feed.idle_minutes} quiet minutes.</li>
+        <li>It runs while this page or a counter page is open, and stops itself after {view.feed.idle_minutes} quiet minutes.</li>
         <li>Each still is read once. Later loops reuse the reading.</li>
         <li>Footage counts in the sandbox shop alone, the way staged scenes count.</li>
       </ul>

@@ -59,6 +59,8 @@ export type Alert = {
   request_id: number | null;
   created_at: string;
   dismissed: boolean;
+  /** The owner's question on it waits on the manager's answer: the console offers no second ask. */
+  waiting?: boolean;
 };
 
 export type ActResult = { alert: Alert; message: Message | null; request: OwnerRequest | null };
@@ -92,6 +94,9 @@ export type CashRow = {
   /** The manager's answer to the gap's question, in English, once it came. */
   answer?: string | null;
   answered_at?: string | null;
+  /** When the owner asked about the gap, and whether that question waits on the answer. */
+  asked_at?: string | null;
+  waiting?: boolean;
 };
 
 export type StockRow = {
@@ -108,6 +113,8 @@ export type StockRow = {
   question: string | null;
   answer?: string | null;
   answered_at?: string | null;
+  asked_at?: string | null;
+  waiting?: boolean;
 };
 
 export type WeekFacts = {

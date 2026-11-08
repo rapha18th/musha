@@ -29,10 +29,10 @@ LOW_DAYS = 2  # under two days left, the owner hears first
 CASH_TOLERANCE = 100  # a count within a dollar of the books is change on the counter
 PRICE_HISTORY = 6  # recent purchases behind a suggested price
 OPEN = ("requested", "approving", "agent_pending", "reviewing", "held", "asking", "flagged", "capturing")
-ASK_AGAIN = timedelta(minutes=10)  # a second tap on "ask" inside this gets the first question back
 ASKED = ("asked_at", "asked_message_id")
 ANSWERED = ("answer", "answer_en", "answered_at", "answer_message_id")  # the manager's answer to it
-ASK_WINDOW = timedelta(days=1)  # an alert's question waits this long for the manager's answer
+ASK_WINDOW = timedelta(days=1)  # an alert's question waits this long for the manager's answer; asking again
+# inside it, before the answer, gets the first question back
 WAITING = ("requested", "approving")  # a request the owner can still approve, or decline when Musha asked
 USED_LATELY = timedelta(days=1)  # the hold job asks for stock in shops someone used this recently
 
@@ -270,9 +270,13 @@ def stock_question(d: date, p: Product, expect: int, counted: int) -> str:
 # Alerts
 
 def alert_view(a: Alert) -> dict:
+    """An alert as the console reads it. `waiting` is true while the owner's question on it waits on the
+    manager's answer: the console shows when she asked, and offers no second ask until the answer comes."""
+    data = JsonText.load(a.data, {})
     return {"id": a.id, "key": a.key, "kind": a.kind, "title": a.title, "body": a.body,
-            "data": JsonText.load(a.data, {}), "request_id": a.request_id,
-            "created_at": iso(a.created_at), "dismissed": a.dismissed}
+            "data": data, "request_id": a.request_id,
+            "created_at": iso(a.created_at), "dismissed": a.dismissed,
+            "waiting": not a.dismissed and awaits_answer(data)}
 
 
 def cash_gap_key(shop: Shop, day: str) -> str:
@@ -323,14 +327,20 @@ def gap_answers(session: Session, shop: Shop) -> dict[str, dict]:
 
 
 def with_answers(session: Session, shop: Shop, week: dict) -> dict:
-    """The week's cash and stock rows, each gap with the manager's answer to it once one came."""
+    """The week's cash and stock rows, each gap with the manager's answer to it once one came, when the
+    owner asked, and `waiting` while her question on the open alert waits on the answer."""
     said = gap_answers(session, shop)
-    for r in week["cash"]:
-        a = said.get(cash_gap_key(shop, r["day"])) or {}
+    gaps = {a.key: a for a in session.scalars(select(Alert).where(
+        Alert.shop_id == shop.id, Alert.kind.in_(("cash_gap", "stock_gap"))))}
+    rows = [(r, cash_gap_key(shop, r["day"])) for r in week["cash"]]
+    rows += [(r, stock_gap_key(shop, r["item"], r["day"])) for r in week["stock"]]
+    for r, k in rows:
+        a = said.get(k) or {}
         r["answer"], r["answered_at"] = a.get("answer"), a.get("answered_at")
-    for r in week["stock"]:
-        a = said.get(stock_gap_key(shop, r["item"], r["day"])) or {}
-        r["answer"], r["answered_at"] = a.get("answer"), a.get("answered_at")
+        alert = gaps.get(k)
+        data = JsonText.load(alert.data, {}) if alert else {}
+        r["asked_at"] = data.get("asked_at")
+        r["waiting"] = bool(alert) and not alert.dismissed and awaits_answer(data)
     return week
 
 
@@ -342,7 +352,9 @@ def open_items(session: Session, shop: Shop) -> set[str]:
 def refresh_alerts(session: Session, shop: Shop) -> list[Alert]:
     """Raise the owner's alerts from the books. Each alert has a key, so raising twice adds nothing.
     A low-stock alert lapses once the item is funded or stocked again, and comes back when the
-    shelf runs low again after its request closed. One the owner dismissed stays dismissed.
+    shelf runs low again after its request closed. Its key carries the day, and the owner's question
+    on it goes on to the next day's alert while the shelf stays low, so the wait for the manager's
+    answer holds past midnight. One the owner dismissed stays dismissed.
     When another reader raises the same alert a moment earlier, this one reads the alerts again
     and adds nothing twice."""
     try:
@@ -399,9 +411,12 @@ def _raise_alerts(session: Session, shop: Shop) -> list[Alert]:
     for row in low_stock(session, shop, books):
         low = row["low"] and key(row["item"]) not in funded
         current = f"low_stock:{shop.id}:{row['item']}:{stamp}"
+        carried = {}  # the owner's question on the item's alert from an earlier day, and the answer to it
         for a in alerts.values():
             if (a.kind == "low_stock" and not a.dismissed and a.key != current
                     and key(JsonText.load(a.data, {}).get("item", "")) == key(row["item"])):
+                old = JsonText.load(a.data, {})
+                carried = {k: old[k] for k in ASKED + ANSWERED if k in old} or carried
                 lapse(a)
         a = alerts.get(current)
         if not low:
@@ -418,9 +433,9 @@ def _raise_alerts(session: Session, shop: Shop) -> list[Alert]:
             "data": {**s, "on_hand": row["on_hand"], "days_left": row["days_left"],
                      "avg_daily": row["avg_daily"]},
         }
-        if a is None:
+        if a is None:  # a new day's alert for a shelf still low: a question on yesterday's still waits here
             raise_(current, kind="low_stock", title=fields["title"], body=fields["body"],
-                   data=JsonText.dump(fields["data"]))
+                   data=JsonText.dump({**fields["data"], **carried}))
             continue
         old = JsonText.load(a.data, {})
         if a.dismissed:
@@ -480,27 +495,33 @@ def question_for(shop: Shop, alert: Alert, data: dict) -> str:
     return data.get("question") or alert.title
 
 
-def asked_lately(session: Session, data: dict) -> Message | None:
-    """The question this alert put to the manager in the last ten minutes."""
-    at, mid = data.get("asked_at"), data.get("asked_message_id")
-    if not at or not mid:
-        return None
-    try:
-        when = flows.utc(datetime.fromisoformat(at))
-    except (TypeError, ValueError):
-        return None
-    return session.get(Message, mid) if flows.now() - when < ASK_AGAIN else None
+def awaits_answer(data: dict) -> bool:
+    """The owner's question on an alert waits on the manager's answer: asked in the last day (ASK_WINDOW),
+    with no answer since. An answer counts for the question asked before it."""
+    asked = _when(data.get("asked_at"))
+    if asked is None or flows.now() - asked > ASK_WINDOW:
+        return False
+    answered = _when(data.get("answered_at"))
+    return answered is None or answered < asked
+
+
+def still_asked(session: Session, data: dict) -> Message | None:
+    """The question this alert put to the manager, while it waits on the answer."""
+    mid = data.get("asked_message_id")
+    return session.get(Message, mid) if mid and awaits_answer(data) else None
 
 
 def ask_manager(session: Session, shop: Shop, alert: Alert) -> Message:
     """Put an alert to the manager as a question, in English; the bridge translates it.
-    The manager hears it once: a second tap inside ten minutes gets the same question back.
-    The alert's data changes only from the data this call read, so of two quick taps one asks."""
+    The manager hears it once while it waits: asking again before the answer, inside a day, gets the
+    same question back and changes nothing. Once the answer comes, or a day passes without one, the
+    owner may ask again. The alert's data changes only from the data this call read, so of two quick
+    taps one asks."""
     for _ in range(3):
         session.refresh(alert)
         seen = alert.data
         data = JsonText.load(seen, {})
-        asked = asked_lately(session, data)
+        asked = still_asked(session, data)
         if asked is not None:
             return asked
         m = flows.say(session, shop.id, question_for(shop, alert, data))
@@ -526,17 +547,9 @@ def _when(value) -> datetime | None:
 def asked_open(session: Session, shop: Shop) -> list[Alert]:
     """The open alerts the owner put to the manager in the last day that wait on an answer,
     newest first. An answer counts for the question asked before it."""
-    out = []
-    for a in session.scalars(select(Alert).where(Alert.shop_id == shop.id, Alert.dismissed.is_(False))
-                             .order_by(Alert.id.desc())):
-        data = JsonText.load(a.data, {})
-        asked = _when(data.get("asked_at"))
-        if asked is None or flows.now() - asked > ASK_WINDOW:
-            continue
-        answered = _when(data.get("answered_at"))
-        if answered is None or answered < asked:
-            out.append(a)
-    return out
+    return [a for a in session.scalars(select(Alert).where(Alert.shop_id == shop.id, Alert.dismissed.is_(False))
+                                       .order_by(Alert.id.desc()))
+            if awaits_answer(JsonText.load(a.data, {}))]
 
 
 def subject(alert: Alert, data: dict) -> str:

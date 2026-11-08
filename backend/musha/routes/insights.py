@@ -91,7 +91,8 @@ def dismiss(alert: Alert = Depends(owners_alert), session: Session = Depends(db)
 @router.post("/alerts/{alert_id}/act")
 async def act(body: Act, alert: Alert = Depends(owners_alert), session: Session = Depends(db),
               pp=Depends(paypal), m=Depends(model)):
-    """Fund a low-stock alert's suggested request, or put any alert to the manager as a question."""
+    """Fund a low-stock alert's suggested request, or put any alert to the manager as a question. Asking
+    again while the question waits on the manager's answer returns the same question and asks nothing."""
     from .. import agent
 
     shop = shop_or_404(session, alert.shop_id)

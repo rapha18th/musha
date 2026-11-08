@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type KeyboardEvent, type PointerEvent } from "react";
 import type { SpendRequest } from "../api";
-import { VARIANTS, type Variant } from "./api";
-import { Camera, Clip, Clock, Close, Doc, Gallery, MicFill, SendFill, Smile, Spark } from "./icons";
-import { describe, seconds, typesNumbers } from "./util";
+import { VARIANTS, type Variant } from "../phone/api";
+import { Box, Clip, Close, Clock, Doc, Gallery, MicFill, SendFill, Spark } from "../phone/icons";
+import { describe, seconds, typesNumbers } from "../phone/util";
 
 export type Attach = {
   targets: SpendRequest[];
@@ -25,20 +25,28 @@ function recordingType(): string {
   return "";
 }
 
-export function Composer({ onText, onVoice, onCamera, attach, reply, clearReply, say }: {
+/** The message box: words, a voice note held on the mic, and proof from the clip. */
+export function Composer({ onText, onVoice, attach, reply, clearReply, say, focus, focused }: {
   onText: (text: string) => void;
   onVoice: (audio: Blob, ms: number) => void;
-  /** The camera in the bar: proof for the newest request waiting for it. */
-  onCamera: () => void;
   attach: Attach;
   /** Musha's open question; `sending` while the answer to it is on its way. */
   reply: { text: string; sending: boolean } | null;
   clearReply: () => void;
   say: (line: string) => void;
+  /** Another view sent the manager here to write: the message box takes focus once, then says so. */
+  focus: boolean;
+  focused: () => void;
 }) {
   const [text, setText] = useState("");
   const [menu, setMenu] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!focus) return;
+    input.current?.focus({ preventScroll: true });
+    focused();
+  }, [focus, focused]);
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -54,58 +62,51 @@ export function Composer({ onText, onVoice, onCamera, attach, reply, clearReply,
   const typed = !!text.trim() && !voice.recording;
 
   return (
-    <div className="ph-compose-wrap">
-      <form className="ph-compose" onSubmit={submit}>
-        <div className="ph-pill">
-          {reply && (
-            <div className={`ph-replyto${reply.sending ? " sending" : ""}`} role="status">
-              <div>
-                <strong>{reply.sending ? "Your answer is on its way" : "Reply to Musha"}</strong>
-                <span>{reply.text}</span>
-              </div>
-              {reply.sending ? (
-                <span className="ph-replyto-wait" aria-hidden="true"><Clock /></span>
-              ) : (
-                <button type="button" onClick={clearReply} aria-label="Clear the reply"><Close size={16} /></button>
-              )}
-            </div>
-          )}
-          {voice.recording ? (
-            <div className={`ph-recording${voice.away ? " away" : ""}${voice.rolling ? "" : " waking"}`} role="status">
-              <span className="ph-rec-dot" />
-              <span className="ph-rec-time">{seconds(voice.elapsed)}</span>
-              <span className="ph-rec-hint">
-                {voice.away ? "Release to cancel" : voice.rolling ? "Release to send. Slide away to cancel." : "Starting the microphone"}
-              </span>
-            </div>
+    <div className="m-compose-wrap">
+      {reply && (
+        <div className={`m-replyto${reply.sending ? " m-sending" : ""}`} role="status">
+          <div>
+            <strong>{reply.sending ? "Your answer is on its way" : "Reply to Musha"}</strong>
+            <span>{reply.text}</span>
+          </div>
+          {reply.sending ? (
+            <span className="m-replyto-wait" aria-hidden="true"><Clock size={16} /></span>
           ) : (
-            <div className="ph-field">
-              <span className="ph-emoji" aria-hidden="true"><Smile /></span>
-              <input
-                ref={input}
-                value={text}
-                placeholder="Message"
-                aria-label="Message to Musha"
-                onChange={(e) => setText(e.target.value)}
-                enterKeyHint="send"
-              />
-              <button type="button" className="ph-clip" aria-label="Attach" aria-expanded={menu} onClick={() => setMenu((v) => !v)}>
-                <Clip />
-              </button>
-              {!typed && (
-                <button type="button" className="ph-cam" aria-label="Send proof with the camera" onClick={onCamera}>
-                  <Camera size={22} />
-                </button>
-              )}
-            </div>
+            <button type="button" className="m-x m-x-small" onClick={clearReply} aria-label="Clear the reply"><Close size={14} /></button>
           )}
         </div>
+      )}
+      <form className="m-compose" onSubmit={submit}>
+        <button type="button" className="m-icon-btn" aria-label="Attach proof" aria-haspopup="menu" aria-expanded={menu}
+          onClick={() => setMenu((v) => !v)}>
+          <Clip size={20} />
+        </button>
+        {voice.recording ? (
+          <div className={`m-recording${voice.away ? " m-away" : ""}${voice.rolling ? "" : " m-waking"}`} role="status">
+            <span className="m-rec-dot" />
+            <span className="m-rec-time">{seconds(voice.elapsed)}</span>
+            <span className="m-rec-hint">
+              {voice.away ? "Release to cancel" : voice.rolling ? "Release to send. Slide away to cancel." : "Starting the microphone"}
+            </span>
+          </div>
+        ) : (
+          <input
+            ref={input}
+            className="m-input"
+            value={text}
+            placeholder="Write to Musha"
+            aria-label="Message to Musha"
+            onChange={(e) => setText(e.target.value)}
+            enterKeyHint="send"
+            maxLength={2000}
+          />
+        )}
         {typed ? (
-          <button type="submit" className="ph-round" aria-label="Send"><SendFill /></button>
+          <button type="submit" className="m-round" aria-label="Send"><SendFill size={20} /></button>
         ) : (
           <button
             type="button"
-            className={`ph-round ph-mic${voice.recording ? " live" : ""}`}
+            className={`m-round m-mic${voice.recording ? " m-live" : ""}`}
             aria-label="Hold to record a voice note"
             disabled={!canRecord}
             title={canRecord ? "Hold to record" : "Voice notes need a microphone"}
@@ -117,7 +118,7 @@ export function Composer({ onText, onVoice, onCamera, attach, reply, clearReply,
             onKeyUp={voice.keyUp}
             onContextMenu={(e) => e.preventDefault()}
           >
-            <MicFill />
+            <MicFill size={20} />
           </button>
         )}
       </form>
@@ -256,23 +257,28 @@ function useVoice(onVoice: (audio: Blob, ms: number) => void, say: (line: string
   };
 }
 
+/** Proof from the clip: a receipt or goods photo from the device, or a sample, for one request waiting for it. */
 function AttachMenu({ attach, close }: { attach: Attach; close: () => void }) {
   const { targets } = attach;
   const [id, setId] = useState(targets[0]?.id);
   const [samples, setSamples] = useState(false);
   const receipt = useRef<HTMLInputElement>(null);
   const goods = useRef<HTMLInputElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
   const req = targets.find((r) => r.id === id) || targets[0];
+  const shut = useRef(close);
+  shut.current = close;
 
   useEffect(() => {
+    panel.current?.querySelector<HTMLElement>("select, button")?.focus({ preventScroll: true });
     const on = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Escape") close();
+      if (e.key === "Escape") shut.current();
     };
     window.addEventListener("keydown", on);
     return () => {
       window.removeEventListener("keydown", on);
     };
-  }, [close]);
+  }, []);
 
   const picked = (kind: "receipt" | "goods") => (e: ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -286,63 +292,59 @@ function AttachMenu({ attach, close }: { attach: Attach; close: () => void }) {
 
   return (
     <>
-      <div className="ph-scrim ph-scrim-clear" onClick={close} />
-      <div className="ph-menu" role="menu">
+      <div className="m-scrim" onClick={close} />
+      <div className="m-menu" role="menu" aria-label="Attach proof" ref={panel}>
         {req ? (
           <>
-            <div className="ph-menu-for">
+            <div className="m-menu-for">
               <span>Proof for</span>
               {targets.length > 1 ? (
-                <select value={req.id} onChange={(e) => setId(Number(e.target.value))} aria-label="Request">
+                <select className="o-select" value={req.id} onChange={(e) => setId(Number(e.target.value))} aria-label="Request">
                   {targets.map((r) => <option key={r.id} value={r.id}>{describe(r)}</option>)}
                 </select>
               ) : (
                 <strong>{describe(req)}</strong>
               )}
             </div>
-            <div className="ph-menu-grid">
-              <button type="button" role="menuitem" className="ph-menu-item" onClick={() => receipt.current?.click()}>
-                <span className="ph-menu-icon ph-hue-doc"><Doc /></span>
-                <strong>Receipt photo</strong>
+            <div className="m-menu-list">
+              <button type="button" role="menuitem" className="m-menu-item" onClick={() => receipt.current?.click()}>
+                <Doc size={20} /><span><strong>Receipt photo</strong><small>A photo or a PDF</small></span>
               </button>
-              <button type="button" role="menuitem" className="ph-menu-item" onClick={() => goods.current?.click()}>
-                <span className="ph-menu-icon ph-hue-photo"><Gallery /></span>
-                <strong>Goods photo</strong>
+              <button type="button" role="menuitem" className="m-menu-item" onClick={() => goods.current?.click()}>
+                <Gallery size={20} /><span><strong>Goods photo</strong><small>The {req.item} as they came</small></span>
               </button>
-              <button type="button" role="menuitem" className="ph-menu-item" aria-expanded={samples} onClick={() => setSamples((v) => !v)}>
-                <span className="ph-menu-icon ph-hue-sample"><Spark /></span>
-                <strong>Sample receipt</strong>
+              <button type="button" role="menuitem" className="m-menu-item" aria-expanded={samples} onClick={() => setSamples((v) => !v)}>
+                <Spark size={20} /><span><strong>Sample receipt</strong><small>Five receipts that test Musha</small></span>
               </button>
-              <button type="button" role="menuitem" className="ph-menu-item" onClick={() => {
+              {samples && (
+                <div className="m-variants" role="group" aria-label="Sample receipts">
+                  {VARIANTS.map((v) => (
+                    <button key={v.key} type="button" role="menuitem" onClick={() => {
+                      attach.onSample(v.key, req);
+                      close();
+                    }}>
+                      <strong>{v.label}</strong><small>{v.hint}</small>
+                    </button>
+                  ))}
+                </div>
+              )}
+              <button type="button" role="menuitem" className="m-menu-item" onClick={() => {
                 attach.onGoods(req);
                 close();
               }}>
-                <span className="ph-menu-icon ph-hue-goods"><Gallery /></span>
-                <strong>Sample goods photo</strong>
+                <Box size={20} /><span><strong>Sample goods photo</strong><small>The {req.item} on the counter</small></span>
               </button>
             </div>
-            {samples && (
-              <div className="ph-variants" role="group" aria-label="Sample receipts">
-                {VARIANTS.map((v) => (
-                  <button key={v.key} type="button" role="menuitem" onClick={() => {
-                    attach.onSample(v.key, req);
-                    close();
-                  }}>
-                    <strong>{v.label}</strong><small>{v.hint}</small>
-                  </button>
-                ))}
-              </div>
-            )}
-            <p className="ph-menu-hint">
+            <p className="m-menu-hint">
               {typesNumbers(req, attach.ai)
                 ? "A receipt photo goes with its total, number and date. You type them next."
-                : "Musha reads the receipt photo. The five sample receipts test Musha."}
+                : "Musha reads the receipt photo."}
             </p>
             <input ref={receipt} type="file" accept="image/*,application/pdf" hidden onChange={picked("receipt")} />
             <input ref={goods} type="file" accept="image/*" hidden onChange={picked("goods")} />
           </>
         ) : (
-          <p className="ph-menu-empty">Proof goes with an approved request. Ask for money first, then send the receipt here once the money is held.</p>
+          <p className="m-menu-empty">Proof goes with an approved request. Ask for money first, then send the receipt here once the money is held.</p>
         )}
       </div>
     </>

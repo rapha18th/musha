@@ -164,7 +164,7 @@ export function counterUrl(id: number, key: string): string {
   return `${window.location.origin}${BASE}${hash}`;
 }
 
-// Counter keys by shop, from the owner's Connect view. A Disconnect gives the shop a new one.
+// Counter keys by shop, from the Connect view. A Disconnect gives the shop a new one.
 const counterKeys = new Map<number, string>();
 const keyWatchers = new Set<() => void>();
 
@@ -175,15 +175,15 @@ export function setCounterKey(id: number, key: string) {
 }
 
 /**
- * The counter page's link for this shop. The owner's sign-in reads the counter key; a sign-in that
- * cannot read it gets the page's own address, which opens on a device signed in to the shop.
+ * The counter page's link for this shop. The owner's and the manager's sign-ins read the counter key;
+ * a sign-in that cannot read it gets the page's own address, which opens on a device signed in to the shop.
  */
-export function useCounterLink(id: number, ask = true): string {
+export function useCounterLink(id: number): string {
   const [, bump] = useState(0);
   useEffect(() => {
     const w = () => bump((n) => n + 1);
     keyWatchers.add(w);
-    if (ask && !counterKeys.has(id)) {
+    if (!counterKeys.has(id)) {
       call<{ counter_key?: string }>(`/api/shops/${id}/camera/connect`).then((v) => {
         if (v.counter_key) setCounterKey(id, v.counter_key);
       }, () => undefined);
@@ -191,12 +191,9 @@ export function useCounterLink(id: number, ask = true): string {
     return () => {
       keyWatchers.delete(w);
     };
-  }, [id, ask]);
+  }, [id]);
   return counterUrl(id, counterKeys.get(id) || "");
 }
-
-/** Whether this page holds the shop's counter key, so its counter link opens on any phone. */
-export const hasCounterKey = (id: number) => counterKeys.has(id);
 
 /** The joined counter key goes with every call from the counter page, beside the cookie. */
 function holdKey(id: number) {

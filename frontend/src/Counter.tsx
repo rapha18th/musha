@@ -15,8 +15,8 @@ export function Counter({ shopId }: { shopId: number | null }) {
           <div className="cc cc-consent">
             <div className="cc-consent-in" role="status">
               <h2>Counter camera</h2>
-              <p className="cc-consent-text">Open the counter link on this phone. The owner's Connect your shop gives it as a link and a code to scan.</p>
-              <p className="cc-fine">The shop's manager can <Link to="/sign-in">sign in</Link> and start the camera from the dashboard.</p>
+              <p className="cc-consent-text">Open the counter link on this phone. Connect your shop gives it as a code to scan and a link to copy.</p>
+              <p className="cc-fine">The owner and the manager each find it on their dashboard once they <Link to="/sign-in">sign in</Link>.</p>
             </div>
           </div>
         ) : <CounterCam shopId={shopId} />}

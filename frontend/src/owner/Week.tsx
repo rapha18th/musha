@@ -3,6 +3,7 @@ import { AgGridReact } from "ag-grid-react";
 import type { ColDef, ICellRendererParams } from "ag-grid-community";
 import { usd, type Entry, type Shop } from "../api";
 import { ownerApi, type Alert, type CashRow, type Product, type StockRow, type Week as WeekData } from "./api";
+import { AskNote, askLabel, askState, freshest, type AskState } from "./Ask";
 import { ErrorLine, Spinner, Tile, useArrived } from "./parts";
 import { cap, clock, dollars, qtyParts, useAction, useCompact, useDocTheme, usePoll, weekday, when } from "./lib";
 import { gridTheme } from "./grid";
@@ -17,37 +18,57 @@ type Props = {
   reloadWeek: () => Promise<void>;
 };
 
-/** Ask the manager the ready question: through the alert when one carries it, else as a plain line. */
-function useAskFarai(shop: Shop, alerts: Alert[], reloadAlerts: () => void) {
-  const [sent, setSent] = useState<Record<string, string>>({});
+type Asked = { asked_at?: string | null; answer?: string | null; answered_at?: string | null; waiting?: boolean };
+
+/**
+ * Ask the manager the ready question: through the alert when one carries it, else as a plain line.
+ * Through the alert, the question waits on the answer and the row offers no second ask until it comes.
+ * A closed alert takes no question, so the plain line goes to the manager's thread, once from this page.
+ * Every time shown is the server's: the alert's asked_at, or the line's own.
+ */
+function useAskFarai(shop: Shop, alerts: Alert[], reload: () => void) {
+  const [sent, setSent] = useState<Record<string, AskState>>({});
+  const [lines, setLines] = useState<Record<string, boolean>>({});
+  const [just, setJust] = useState(""); // the key this page asked last: its waiting line takes the button's focus
   const [busy, setBusy] = useState<string>("");
   const [error, setError] = useState("");
-  const ask = useCallback(async (key: string, question: string) => {
+  const stateOf = useCallback((key: string, row?: Asked): AskState => {
+    const alert = alerts.find((a) => a.key === key);
+    return freshest(alert && askState(alert.data, alert.waiting), row && askState(row, row.waiting), sent[key]);
+  }, [alerts, sent]);
+  const canAsk = useCallback((key: string, s: AskState) => !s.waiting && !lines[key], [lines]);
+  const ask = useCallback(async (key: string, question: string, row?: Asked) => {
+    if (busy || !canAsk(key, stateOf(key, row))) return;
     setBusy(key);
     setError("");
     try {
       const alert = alerts.find((a) => a.key === key);
-      if (alert) await ownerApi.act(alert.id, "ask");
-      else await ownerApi.toManager(shop.id, question);
-      setSent((s) => ({ ...s, [key]: new Date().toISOString() }));
-      reloadAlerts();
+      if (alert) {
+        const r = await ownerApi.act(alert.id, "ask");
+        setSent((s) => ({ ...s, [key]: askState(r.alert.data, r.alert.waiting) }));
+      } else {
+        const m = await ownerApi.toManager(shop.id, question);
+        setSent((s) => ({ ...s, [key]: { askedAt: m.at, waiting: false } }));
+        setLines((l) => ({ ...l, [key]: true }));
+      }
+      setJust(key);
+      reload();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setBusy("");
     }
-  }, [alerts, reloadAlerts, shop.id]);
-  const askedAt = useCallback(
-    (key: string) => sent[key] ?? (alerts.find((a) => a.key === key)?.data.asked_at as string | undefined),
-    [alerts, sent]);
-  return useMemo(() => ({ ask, askedAt, busy, error }), [ask, askedAt, busy, error]);
+  }, [alerts, busy, canAsk, reload, shop.id, stateOf]);
+  return useMemo(() => ({ ask, stateOf, canAsk, busy, error, just }), [ask, stateOf, canAsk, busy, error, just]);
 }
 
 /** "US$23.00 short", "US$5.00 over", "Even": the gap in words, so a shortfall reads as one at a glance. */
 const gapWords = (cents: number | null) =>
   (cents == null ? "" : cents === 0 ? "Even" : `${usd(Math.abs(cents))} ${cents < 0 ? "short" : "over"}`);
 
-export function Week({ shop, week, alerts, entries, refresh, reloadAlerts }: Props) {
+const cashKey = (shopId: number, day: string) => `cash_gap:${shopId}:${day}`;
+
+export function Week({ shop, week, alerts, entries, refresh, reloadAlerts, reloadWeek }: Props) {
   const theme = useDocTheme();
   const [box, narrow] = useCompact<HTMLDivElement>(720);
   // Below 860 px the row's Ask button moves under the grid with its question, so every figure keeps its room.
@@ -56,7 +77,11 @@ export function Week({ shop, week, alerts, entries, refresh, reloadAlerts }: Pro
     box(el);
     box2(el);
   }, [box, box2]);
-  const asker = useAskFarai(shop, alerts, reloadAlerts);
+  const reload = useCallback(() => {
+    void reloadAlerts();
+    void reloadWeek();
+  }, [reloadAlerts, reloadWeek]);
+  const asker = useAskFarai(shop, alerts, reload);
   const manager = shop.manager.name;
   const [products, setProducts] = useState<Product[]>();
   // The shelf reads again whenever the week's figures move.
@@ -85,13 +110,17 @@ export function Week({ shop, week, alerts, entries, refresh, reloadAlerts }: Pro
       cellRenderer: (p: ICellRendererParams<CashRow>) => {
         const row = p.data;
         if (!row?.question) return null;
-        const key = `cash_gap:${shop.id}:${row.day}`;
-        const at = asker.askedAt(key);
-        if (row.answer) return <span className="o-cell-note">{manager} answered</span>;
-        if (at) return <span className="o-cell-note">Asked {clock(at)}</span>;
+        const key = cashKey(shop.id, row.day);
+        const s = asker.stateOf(key, row);
+        // Waiting, the cell keeps the time; the line under the grid says whose answer it waits for.
+        if (s.waiting && s.askedAt) {
+          return <span className="o-cell-note" title={`Waiting for ${manager}'s response`}>Asked {clock(s.askedAt)}</span>;
+        }
+        if (s.answer) return <span className="o-cell-note">{manager} answered</span>;
+        if (!asker.canAsk(key, s)) return <span className="o-cell-note">Asked {clock(s.askedAt)}</span>;
         return (
-          <button className="o-btn o-outline o-small" disabled={asker.busy === key} onClick={() => asker.ask(key, row.question!)}>
-            {asker.busy === key ? <Spinner /> : null}Ask {manager}
+          <button className="o-btn o-outline o-small" disabled={!!asker.busy} onClick={() => void asker.ask(key, row.question!, row)}>
+            {asker.busy === key ? <Spinner /> : null}{askLabel(s, manager)}
           </button>
         );
       },
@@ -126,24 +155,24 @@ export function Week({ shop, week, alerts, entries, refresh, reloadAlerts }: Pro
           <AgGridReact<CashRow> theme={gridTheme} rowData={week.cash} columnDefs={cols} domLayout="autoHeight"
             getRowId={(p) => p.data.day} suppressCellFocus />
         </div>
-        {/* An answered gap shows its answer under the grid at every width; an open one, when its Ask button moves here. */}
-        {questions.filter((row) => tight || row.answer).map((row) => {
-          const key = `cash_gap:${shop.id}:${row.day}`;
-          const at = asker.askedAt(key);
-          return (
+        {/* An answered gap, or one whose question waits, shows under the grid at every width; an open one, when its Ask button moves here. */}
+        {questions.map((row) => ({ row, key: cashKey(shop.id, row.day) }))
+          .map(({ row, key }) => ({ row, key, s: asker.stateOf(key, row) }))
+          .filter(({ s }) => tight || !!s.answer || s.waiting)
+          .map(({ row, key, s }) => (
             <div key={row.day} className="o-mx-detail o-gap-q">
               <p><b>{row.day_name}.</b> Expected {usd(row.expected_close_cents)}, counted {row.counted_cents == null ? "later" : usd(row.counted_cents)}.</p>
               <p className="o-quote">{row.question}</p>
-              {row.answer ? <GapAnswer manager={manager} row={row} /> : at ? <p className="o-fine">You asked {manager} {when(at)}.</p> : (
+              <AskNote state={s} manager={manager} focus={asker.just === key} />
+              {asker.canAsk(key, s) && (
                 <div className="o-row">
-                  <button className="o-btn o-outline o-small" disabled={asker.busy === key} onClick={() => asker.ask(key, row.question!)}>
-                    {asker.busy === key ? <Spinner /> : null}Ask {manager}
+                  <button className="o-btn o-outline o-small" disabled={!!asker.busy} onClick={() => void asker.ask(key, row.question!, row)}>
+                    {asker.busy === key ? <Spinner /> : null}{askLabel(s, manager)}
                   </button>
                 </div>
               )}
             </div>
-          );
-        })}
+          ))}
         <ErrorLine error={asker.error} />
       </section>
 
@@ -168,9 +197,14 @@ function StockMatrix({ rows, shop, asker }: { rows: StockRow[]; shop: Shop; aske
   const cell = (item: string, d: string) => rows.find((r) => r.item === item && r.day === d);
   const [picked, setPicked] = useState<StockRow | null>(() => rows.find((r) => r.question) ?? null);
   const key = picked ? `stock_gap:${shop.id}:${picked.item}:${picked.day}` : "";
-  const at = picked ? asker.askedAt(key) : undefined;
   const fresh = picked ? cell(picked.item, picked.day) : undefined; // the row as the week reads it now
-  const answered = fresh?.answer ? fresh : undefined;
+  const s = picked ? asker.stateOf(key, fresh ?? picked) : undefined;
+  const manager = shop.manager.name;
+  const button = s && picked?.question && asker.canAsk(key, s) && (
+    <button className="o-btn o-outline o-small" disabled={!!asker.busy} onClick={() => void asker.ask(key, picked.question!, fresh ?? picked)}>
+      {asker.busy === key ? <Spinner /> : null}{askLabel(s, manager)}
+    </button>
+  );
   return (
     <div className="o-matrix-wrap">
       <div className="o-matrix" style={{ gridTemplateColumns: `minmax(64px, 1.4fr) repeat(${days.length}, minmax(28px, 1fr))` }} role="table">
@@ -200,27 +234,24 @@ function StockMatrix({ rows, shop, asker }: { rows: StockRow[]; shop: Shop; aske
             <b>{cap(picked.item)}, {picked.day_name}.</b> Opened on {picked.opening}, {picked.stock_in} in, {picked.sold} sold.
             Expected {picked.expected}, counted {picked.counted ?? "later"}.
           </p>
-          {picked.question && (
-            answered ? <><p className="o-quote">{picked.question}</p><GapAnswer manager={shop.manager.name} row={answered} /></>
-            : at ? <p className="o-fine">You asked {shop.manager.name} {when(at)}.</p> : (
+          {picked.question && s && (
+            !s.askedAt && !s.answer ? (
               <div className="o-row">
                 <p className="o-quote">{picked.question}</p>
-                <button className="o-btn o-outline o-small" disabled={asker.busy === key} onClick={() => asker.ask(key, picked.question!)}>
-                  {asker.busy === key ? <Spinner /> : null}Ask {shop.manager.name}
-                </button>
+                {button}
               </div>
+            ) : (
+              <>
+                <p className="o-quote">{picked.question}</p>
+                <AskNote state={s} manager={manager} focus={asker.just === key} />
+                {button && <div className="o-row">{button}</div>}
+              </>
             )
           )}
         </div>
       )}
     </div>
   );
-}
-
-/** The manager's answer on a gap, in English, with when it came. */
-function GapAnswer({ manager, row }: { manager: string; row: { answer?: string | null; answered_at?: string | null } }) {
-  const at = row.answered_at ? ` ${when(row.answered_at)}` : "";
-  return <p className="o-fine o-gap-answer"><b className="o-ink">{manager} answered{at}:</b> {row.answer}</p>;
 }
 
 const COVER = 7;

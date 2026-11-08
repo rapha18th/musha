@@ -1,55 +1,35 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { rereading, usd, type Message, type Shop, type SpendRequest } from "../api";
-import { Alert, Box, Clock, Receipt, Reply, Retry, Tick, Ticks, Wallet } from "./icons";
+import { Box, Receipt, Reply, Retry, Wallet } from "../phone/icons";
+import { asks, clock, dayLabel, describe, languageName, PROVABLE, sameDay, statusOf } from "../phone/util";
 import { MediaOf, type MediaKind } from "./Media";
-import { RecordCard } from "./Record";
-import { settledSignal, useRecord } from "../record";
-import { asks, clock, dayLabel, describe, languageName, PROVABLE, sameDay, statusOf } from "./util";
-
-export type Pending = {
-  key: string;
-  kind: "text" | "voice" | "image";
-  text: string;
-  since: number;
-  at: string;
-  state: "sending" | "reading" | "failed";
-  error?: string;
-  requestId?: number;
-  blob?: Blob;
-  url?: string;
-  ms?: number;
-};
-
-/** A local file shown for a server line while the server's copy loads. */
-export type Local = { url: string; kind: MediaKind; ms?: number };
+import type { Local, Pending, Settled } from "./chat";
+import { toneOf } from "./words";
 
 const CAPTIONS = new Set(["Receipt", "Photo of the goods", "Voice note", "Quote", "Photo"]);
 const EVIDENCE = new Set(["Receipt", "Photo of the goods", "Quote", "Photo"]);
 
-/** Where a line Farai sent stands: on its way, with Musha while it reads, delivered, or read. */
+/** Where a line the manager sent stands: on its way, with Musha while it reads, delivered, or read. */
 type Seen = "sending" | "sent" | "failed" | "delivered" | "read";
 const SEEN_LABEL: Record<Seen, string> = { sending: "Sending", sent: "Sent", failed: "Stopped", delivered: "Delivered", read: "Read" };
 
 function SeenMark({ state }: { state: Seen }) {
-  return (
-    <span className={`ph-ticks ph-ticks-${state}`} role="img" aria-label={SEEN_LABEL[state]}>
-      {state === "sending" ? <Clock /> : state === "failed" ? <Alert /> : state === "sent" ? <Tick /> : <Ticks size={16} />}
-    </span>
-  );
+  return <span className={`m-seen m-seen-${state}`}>{SEEN_LABEL[state]}</span>;
 }
 
+/** The manager's thread with Musha: Musha's lines, the owner's, her own, and a card for each request's status. */
 export function Thread({ shop, messages, pending, settled, local, requests, typing, replyTo, onReply, onProof, onRetry, onDrop }: {
   shop: Shop;
   messages: Message[];
   pending: Pending[];
-  /** Server lines that took over a pending line: they keep its key, so the bubble stays put. */
-  settled: Map<number, { key: string; at: number }>;
+  /** Server lines that took over a pending line: they keep its key, so the line stays put. */
+  settled: Settled;
   local: Map<number, Local>;
   requests: SpendRequest[];
   typing: boolean;
   replyTo: number | null;
   onReply: (m: Message) => void;
-  /** Musha's card for a held request carries a button that opens the proof sheet. */
+  /** Musha's card for a held request carries a button that opens Send proof. */
   onProof: (r: SpendRequest) => void;
   onRetry: (p: Pending) => void;
   onDrop: (p: Pending) => void;
@@ -80,25 +60,12 @@ export function Thread({ shop, messages, pending, settled, local, requests, typi
     return out;
   }, [messages]);
 
-  // Musha has read every line Farai sent before its newest reply: those lines show blue ticks.
+  // Musha has read every line the manager sent before its newest reply.
   const readTo = useMemo(() => {
     let id = 0;
     for (const m of messages) if (m.sender === "musha" && m.id > id) id = m.id;
     return id;
   }, [messages]);
-
-  const initial = (shop.manager.name || "F").trim().charAt(0).toUpperCase();
-
-  // Farai's record sits after Musha's newest line about a release, or at the top before any.
-  const record = useRecord(shop.id, settledSignal(requests));
-  const recordAfter = useMemo(() => {
-    let id: number | null = null;
-    for (const m of messages) {
-      const r = m.request_id ? byId.get(m.request_id) : undefined;
-      if (m.sender === "musha" && r && r.origin !== "wages" && (r.status === "captured" || r.status === "part_captured")) id = m.id;
-    }
-    return id;
-  }, [messages, byId]);
 
   // Stay at the newest line while the reader is there; leave them be when they scroll back.
   const toBottom = () => {
@@ -111,7 +78,7 @@ export function Thread({ shop, messages, pending, settled, local, requests, typi
   useLayoutEffect(() => {
     toBottom();
   }, [messages.length, pending.length, typing]);
-  // The lines grow (a photo loads) or the window shrinks (the phone fits the screen): keep the newest in view.
+  // The lines grow (a photo loads) or the window changes: keep the newest in view.
   useEffect(() => {
     const el = inner.current;
     if (!el || !box.current || typeof ResizeObserver === "undefined") return;
@@ -135,12 +102,10 @@ export function Thread({ shop, messages, pending, settled, local, requests, typi
 
   const rows: ReactNode[] = [];
   const held = new Set(pending.map((p) => p.key));
-  const card = record ? <RecordCard key="record" record={record} /> : null;
-  if (card && recordAfter === null) rows.push(card);
   let prev: { at: string; sender: string } | null = null;
   for (const m of messages) {
     if (!prev || !sameDay(prev.at, m.at)) {
-      rows.push(<div key={`d${m.id}`} className="ph-day"><span>{dayLabel(m.at)}</span></div>);
+      rows.push(<div key={`d${m.id}`} className="m-day"><span>{dayLabel(m.at)}</span></div>);
     }
     const first = !prev || prev.sender !== m.sender || !sameDay(prev.at, m.at);
     const req = m.request_id ? byId.get(m.request_id) : undefined;
@@ -150,7 +115,7 @@ export function Thread({ shop, messages, pending, settled, local, requests, typi
     const own = settle && !held.has(settle.key) ? settle : undefined;
     const provable = showsStatus && !!req && PROVABLE.includes(req.status) && req.origin !== "wages";
     rows.push(
-      bubble(own ? own.key : m.id, {
+      line(own ? own.key : m.id, {
         settled: !!own && own.at >= mounted,
         m,
         shop,
@@ -161,7 +126,6 @@ export function Thread({ shop, messages, pending, settled, local, requests, typi
         local: m.attachment_id ? local.get(m.attachment_id) : undefined,
         kind: m.attachment_id ? kinds.get(m.attachment_id) ?? (EVIDENCE.has(m.text.trim()) ? undefined : "audio") : undefined,
         seen: m.id < readTo ? "read" : "delivered",
-        initial,
         canReply: asking,
         replying: replyTo === m.id,
         onReply: () => onReply(m),
@@ -169,34 +133,35 @@ export function Thread({ shop, messages, pending, settled, local, requests, typi
         onProof: provable && req && (!asking || rereading(req)) ? () => onProof(req) : undefined,
       }),
     );
-    if (card && m.id === recordAfter) rows.push(card);
     prev = { at: m.at, sender: m.sender };
   }
   for (const p of pending) {
     if (!prev || !sameDay(prev.at, p.at)) {
-      rows.push(<div key={`d${p.key}`} className="ph-day"><span>{dayLabel(p.at)}</span></div>);
+      rows.push(<div key={`d${p.key}`} className="m-day"><span>{dayLabel(p.at)}</span></div>);
     }
     const first = !prev || prev.sender !== "manager";
-    rows.push(pendingBubble(p, first, initial, () => onRetry(p), () => onDrop(p)));
+    rows.push(pendingLine(p, first, () => onRetry(p), () => onDrop(p)));
     prev = { at: p.at, sender: "manager" };
   }
 
   return (
     <div
-      className="ph-thread"
+      className="m-thread"
       ref={box}
+      tabIndex={0}
+      aria-label={`Messages with Musha${shop.whatsapp === "live" ? ", also on WhatsApp" : ""}`}
       onScroll={(e) => {
         const el = e.currentTarget;
         if (Math.abs(el.scrollTop - placed.current) < 2) return; // our own scroll, or the browser keeping it
         stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
         placed.current = el.scrollTop;
       }}
-      aria-live="polite"
     >
-      <div className="ph-thread-in" ref={inner}>
+      <div className="m-thread-in" ref={inner} aria-live="polite">
+        {rows.length === 0 && !typing && <p className="m-thread-empty">Write to Musha in your own words. Ask for stock, answer a question, or send a voice note.</p>}
         {rows}
         {typing && (
-          <div className="ph-b ph-in ph-first ph-typing" aria-label="Musha is typing">
+          <div className="m-b m-from-musha m-first m-typing" role="status" aria-label="Musha is writing">
             <span /><span /><span />
           </div>
         )}
@@ -205,11 +170,11 @@ export function Thread({ shop, messages, pending, settled, local, requests, typi
   );
 }
 
-/** One bubble. Pending and server lines render through it with the same slots, so when a server line
+/** One line. Pending and server lines render through it with the same slots, so when a server line
  *  takes a pending line's key React keeps the element: no second rise, and the photo or note stays loaded. */
-function Line({ cls, name, media, body, card, foot, fail, actions }: {
+function Line({ cls, who, media, body, card, foot, fail, actions }: {
   cls: string;
-  name?: ReactNode;
+  who?: ReactNode;
   media?: ReactNode;
   body?: ReactNode;
   card?: ReactNode;
@@ -219,7 +184,7 @@ function Line({ cls, name, media, body, card, foot, fail, actions }: {
 }) {
   return (
     <div className={cls}>
-      {name}
+      {who}
       {media}
       {body}
       {card}
@@ -236,8 +201,8 @@ function kindIcon(req: SpendRequest) {
   return req.kind === "stock" ? <Box size={18} /> : <Receipt size={18} />;
 }
 
-/** A server line. A plain function, like pendingBubble, so both give Thread a Line under the same key. */
-function bubble(key: string | number, { m, shop, first, settled, english, flip, req, local, kind, seen, initial, canReply, replying, onReply, onProof }: {
+/** A server line. A plain function, like pendingLine, so both give Thread a Line under the same key. */
+function line(key: string | number, { m, shop, first, settled, english, flip, req, local, kind, seen, canReply, replying, onReply, onProof }: {
   m: Message;
   kind?: MediaKind;
   shop: Shop;
@@ -248,7 +213,6 @@ function bubble(key: string | number, { m, shop, first, settled, english, flip, 
   req?: SpendRequest;
   local?: Local;
   seen: Seen;
-  initial: string;
   canReply: boolean;
   replying: boolean;
   onReply: () => void;
@@ -268,63 +232,56 @@ function bubble(key: string | number, { m, shop, first, settled, english, flip, 
   // Once PayPal moved the money, the card shows what reached the shop.
   const released = req && (req.status === "captured" || req.status === "part_captured") && req.hold
     ? req.hold.captured_cents : null;
-  const voiceOf = out ? { initial, heard: seen === "read" } : undefined;
+  const who = m.sender === "owner" ? shop.owner.name : m.sender === "musha" ? "Musha" : "";
   return (
     <Line
       key={key}
-      cls={`ph-b ${out ? "ph-out" : "ph-in"}${first ? " ph-first" : ""}${replying ? " ph-replying" : ""}${settled ? " ph-settled" : ""}${bare ? " ph-b-voice" : ""}`}
-      name={m.sender === "owner" && first && <span className="ph-name">{shop.owner.name}</span>}
+      cls={`m-b m-from-${m.sender}${first ? " m-first" : ""}${replying ? " m-replying" : ""}${settled ? " m-settled" : ""}${bare ? " m-b-voice" : ""}${m.attachment_url && !bare ? " m-b-media" : ""}`}
+      who={first && who ? <span className="m-who">{who}</span> : undefined}
       media={m.attachment_url ? (
-        <MediaOf
-          url={local?.url || m.attachment_url}
-          known={local?.kind ?? kind}
-          knownMs={local?.ms}
-          alt={m.text_en || m.text || "Attachment"}
-          voice={voiceOf}
-        />
+        <MediaOf url={local?.url || m.attachment_url} known={local?.kind ?? kind} knownMs={local?.ms} alt={m.text_en || m.text || "Attachment"} />
       ) : null}
       body={bare ? null : caption ? (
-        <p className="ph-caption">{m.text}</p>
+        <p className="m-caption">{m.text}</p>
       ) : (
-        <p className="ph-text" lang={english ? "en" : undefined}>{shown}</p>
+        <p className="m-text" lang={english ? "en" : undefined}>{shown}</p>
       )}
       card={req && status && (
-        <div className={`ph-req ph-tone-${status.tone}`}>
-          <span className="ph-req-icon" aria-hidden="true">{kindIcon(req)}</span>
-          <span className="ph-req-what">{describe(req)}</span>
-          <span className="ph-req-amount">{usd(released ?? req.amount_cents)}</span>
-          <span className="ph-req-status">
+        <div className={`m-req o-tone-${toneOf(status.tone)}`}>
+          <span className="m-req-icon" aria-hidden="true">{kindIcon(req)}</span>
+          <span className="m-req-what">{describe(req)}</span>
+          <span className="m-req-amount">{usd(released ?? req.amount_cents)}</span>
+          <span className="m-req-status">
             {released != null && req.hold && req.hold.amount_cents > released
               ? <>Released<em>. {usd(req.hold.amount_cents - released)} back to {shop.owner.name}</em></>
               : req.proving ? "Musha is reading the receipt" : rereading(req) ? "Send the receipt again" : status.label}
           </span>
-          {guessed && <span className="ph-req-note">{guessed}</span>}
+          {guessed && <span className="m-req-note">{guessed}</span>}
         </div>
       )}
       foot={(
-        <div className="ph-foot">
-          {translated && !caption && (
-            <button type="button" className="ph-lang" onClick={flip} aria-pressed={english}>
+        <div className="m-foot">
+          {translated && !caption ? (
+            <button type="button" className="m-lang" onClick={flip} aria-pressed={english}>
               {english ? own : "English"}
             </button>
-          )}
-          {null}
-          <span className="ph-meta">
+          ) : null}
+          <span className="m-meta">
             <time dateTime={m.at}>{clock(m.at)}</time>
             {out && <SeenMark state={seen} />}
           </span>
         </div>
       )}
       actions={(canReply || onProof) && (
-        <div className="ph-actions">
+        <div className="m-actions">
           {canReply && (
-            <button type="button" className="ph-action" onClick={onReply}>
-              <Reply size={16} /> Reply
+            <button type="button" className="o-btn o-small o-outline" onClick={onReply}>
+              <Reply size={15} /> Reply
             </button>
           )}
           {onProof && req && (
-            <button type="button" className="ph-action" onClick={onProof}>
-              <Receipt size={16} /> Send proof
+            <button type="button" className="o-btn o-small o-primary" onClick={onProof}>
+              <Receipt size={15} /> Send proof
             </button>
           )}
         </div>
@@ -349,34 +306,32 @@ function guessedLine(req: SpendRequest & { inferred?: string[] }): string {
   return "";
 }
 
-/** A line on its way. Its slots match Bubble's, so its server copy takes over the same element. */
-function pendingBubble(p: Pending, first: boolean, initial: string, onRetry: () => void, onDrop: () => void) {
+/** A line on its way. Its slots match line()'s, so its server copy takes over the same element. */
+function pendingLine(p: Pending, first: boolean, onRetry: () => void, onDrop: () => void) {
   const failed = p.state === "failed";
   return (
     <Line
       key={p.key}
-      cls={`ph-b ph-out ph-pending${first ? " ph-first" : ""}${failed ? " ph-failed" : ""}${p.kind === "voice" ? " ph-b-voice" : ""}`}
-      media={p.kind === "image" ? (p.url ? <MediaOf url={p.url} known="image" alt={p.text} /> : <div className="ph-media-wait" />)
-        : p.kind === "voice" && p.url ? <MediaOf url={p.url} known="audio" knownMs={p.ms} alt="Voice note" voice={{ initial, heard: false }} /> : null}
-      body={p.kind === "text" ? <p className="ph-text">{p.text}</p> : p.kind === "image" ? <p className="ph-caption">{p.text}</p> : null}
+      cls={`m-b m-from-manager m-pending${first ? " m-first" : ""}${failed ? " m-failed" : ""}${p.kind === "voice" ? " m-b-voice" : ""}${p.kind === "image" ? " m-b-media" : ""}`}
+      media={p.kind === "image" ? (p.url ? <MediaOf url={p.url} known="image" alt={p.text} /> : <div className="m-media-wait" />)
+        : p.kind === "voice" && p.url ? <MediaOf url={p.url} known="audio" knownMs={p.ms} alt="Voice note" /> : null}
+      body={p.kind === "text" ? <p className="m-text">{p.text}</p> : p.kind === "image" ? <p className="m-caption">{p.text}</p> : null}
       foot={(
-        <div className="ph-foot">
+        <div className="m-foot">
           {null}
-          {null}
-          <span className="ph-meta">
+          <span className="m-meta">
             <time dateTime={p.at}>{clock(p.at)}</time>
             <SeenMark state={failed ? "failed" : p.state === "reading" ? "sent" : "sending"} />
           </span>
         </div>
       )}
       fail={failed && (
-        <div className="ph-failed-row">
-          <p className="ph-failed-why">{p.error || "Sending stopped."}</p>
-          <button type="button" className="ph-retry" onClick={onRetry}><Retry /> Send again</button>
-          <button type="button" className="ph-retry ph-drop" onClick={onDrop}>Delete</button>
+        <div className="m-failed-row">
+          <p className="m-failed-why">{p.error || "Sending stopped."}</p>
+          <button type="button" className="o-textbtn o-danger" onClick={onRetry}><Retry /> Send again</button>
+          <button type="button" className="o-textbtn m-drop" onClick={onDrop}>Delete</button>
         </div>
       )}
     />
   );
 }
-

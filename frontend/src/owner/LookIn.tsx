@@ -112,9 +112,9 @@ export function LookIn({ shop, onStatus }: { shop: Shop; onStatus?: (s: CameraSt
         {late && (
           <p className="o-fine">The counter phone was last seen at {clock(status?.seen_at)}. It sends a still as soon as it is open.</p>
         )}
+        {/* The console hands out the counter link; the phone at the counter opens it and runs the camera there. */}
         <p className="o-fine o-lookin-link">
-          <a className="o-link" href={link} target="_blank" rel="noreferrer">Open the counter camera</a>
-          {" "}on the phone at the counter.{" "}
+          The phone at the counter is the camera. Send it the counter link.{" "}
           <button className="o-textbtn" onClick={copy}>{copied ? "Link copied" : "Copy the link"}</button>
         </p>
         {status?.consent_line && <p className="o-fine">{status.consent_line}</p>}
@@ -123,7 +123,7 @@ export function LookIn({ shop, onStatus }: { shop: Shop; onStatus?: (s: CameraSt
       {open && f && (
         <Lightbox items={item} index={0} setIndex={() => undefined} onClose={() => setOpen(false)} manager={shop.manager.name} />
       )}
-      {connecting && <Connect shop={shop} onClose={closeConnect} onChange={() => void poll()} />}
+      {connecting && <Connect shopId={shop.id} role="owner" onClose={closeConnect} onChange={() => void poll()} />}
     </section>
   );
 }

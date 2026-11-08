@@ -1,4 +1,4 @@
-/** Connect your shop: the owner's sheet talks to these routes (backend/musha/routes/camera.py and core.py). */
+/** Connect your shop: the owner's and the manager's sheet talks to these routes (backend/musha/routes/camera.py and core.py). */
 import { call, post } from "../api";
 import type { CameraStatus, Frame } from "./api";
 
@@ -21,6 +21,9 @@ export type Connection = CameraStatus & {
   source: Source | null;
   feed: FeedState;
   counter_key: string;
+  /** The names the sheet speaks of: the shop, its owner and its manager. */
+  shop: string;
+  owner: string;
   manager: string;
   latest: Frame | null;
 };

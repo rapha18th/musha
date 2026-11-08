@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>WhatsApp simulator</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23b4532a'/%3E%3Cpath d='M18 44V22l14 12 14-12v22' fill='none' stroke='%23fffdf9' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/page/chat.css">
+</head>
+<body>
+  <div class="stage">
+    <section class="ph" id="phone" aria-label="The manager's phone">
+      <div class="ph-status" aria-hidden="true">
+        <span id="clock">9:41</span>
+        <span class="ph-island"></span>
+        <span class="ph-sys" id="sys"></span>
+      </div>
+
+      <header class="ph-head">
+        <div class="ph-bar">
+          <span class="ph-back" aria-hidden="true" data-icon="back"></span>
+          <span class="ph-avatar" aria-hidden="true" data-icon="mark"></span>
+          <div class="ph-who">
+            <strong id="who">Musha</strong>
+            <span id="sub">test number</span>
+          </div>
+          <div class="ph-head-icons">
+            <span aria-hidden="true" data-icon="video"></span>
+            <span aria-hidden="true" data-icon="call"></span>
+            <button type="button" class="ph-more" id="more" aria-label="More options" aria-haspopup="menu"
+              aria-expanded="false" data-icon="dots"></button>
+          </div>
+        </div>
+      </header>
+
+      <div class="ph-pop" id="moreMenu" role="menu" hidden>
+        <button type="button" role="menuitem" data-act="verify">Verify the webhook</button>
+        <button type="button" role="menuitem" data-act="theme">Dark theme</button>
+        <button type="button" role="menuitem" data-act="wire">Hide the wire</button>
+        <button type="button" role="menuitem" data-act="clear">Clear chat</button>
+      </div>
+
+      <main class="ph-chat">
+        <div class="ph-thread" id="thread">
+          <div class="ph-thread-in" id="lines" role="log" aria-live="polite" aria-label="Chat with Musha">
+            <div class="ph-notice" id="notice">Musha's WhatsApp Business test number.</div>
+          </div>
+        </div>
+
+        <div class="ph-toast" id="toast" role="status" hidden></div>
+
+        <div class="ph-compose-wrap">
+          <div class="ph-menu" id="attach" role="menu" aria-label="Attach" hidden>
+            <div class="ph-menu-grid">
+              <button type="button" role="menuitem" class="ph-menu-item" data-pick="doc">
+                <span class="ph-menu-icon ph-hue-doc" data-icon="doc"></span><strong>Document</strong>
+              </button>
+              <button type="button" role="menuitem" class="ph-menu-item" data-pick="camera">
+                <span class="ph-menu-icon ph-hue-camera" data-icon="camera"></span><strong>Camera</strong>
+              </button>
+              <button type="button" role="menuitem" class="ph-menu-item" data-pick="photo">
+                <span class="ph-menu-icon ph-hue-photo" data-icon="gallery"></span><strong>Gallery</strong>
+              </button>
+              <button type="button" role="menuitem" class="ph-menu-item" data-pick="audio">
+                <span class="ph-menu-icon ph-hue-audio" data-icon="headphones"></span><strong>Audio</strong>
+              </button>
+              <button type="button" role="menuitem" class="ph-menu-item" data-pick="receipt">
+                <span class="ph-menu-icon ph-hue-receipt" data-icon="receipt"></span><strong>Sample receipt</strong>
+              </button>
+              <button type="button" role="menuitem" class="ph-menu-item" data-pick="goods">
+                <span class="ph-menu-icon ph-hue-goods" data-icon="box"></span><strong>Sample goods</strong>
+              </button>
+            </div>
+          </div>
+
+          <form class="ph-compose" id="compose" autocomplete="off">
+            <div class="ph-pill">
+              <div class="ph-replyto" id="replyto" hidden>
+                <div><strong>Musha</strong><span id="replytoText"></span></div>
+                <button type="button" id="replytoClose" aria-label="Cancel the reply" data-icon="close"></button>
+              </div>
+              <div class="ph-field" id="field">
+                <span class="ph-emoji" aria-hidden="true" data-icon="smile"></span>
+                <input id="text" type="text" placeholder="Message" aria-label="Message" enterkeyhint="send">
+                <button type="button" class="ph-clip" id="clip" aria-label="Attach" aria-haspopup="menu"
+                  aria-expanded="false" data-icon="clip"></button>
+                <button type="button" class="ph-cam" id="cam" aria-label="Camera" data-icon="camera"></button>
+              </div>
+              <div class="ph-recording" id="recording" hidden>
+                <button type="button" class="ph-trash" id="trash" aria-label="Delete the voice note" data-icon="trash"></button>
+                <span class="ph-rec-dot" aria-hidden="true"></span>
+                <span class="ph-rec-time" id="recTime">0:00</span>
+                <span class="ph-rec-hint">Recording. Tap send.</span>
+              </div>
+            </div>
+            <button type="button" class="ph-round" id="round" aria-label="Record a voice note" data-icon="mic"></button>
+          </form>
+        </div>
+      </main>
+
+      <div class="ph-preview" id="preview" role="dialog" aria-modal="true" aria-label="Send a file" hidden>
+        <div class="ph-preview-top">
+          <button type="button" id="previewClose" aria-label="Close" data-icon="close"></button>
+          <span id="previewName"></span>
+        </div>
+        <div class="ph-preview-body" id="previewBody"></div>
+        <form class="ph-preview-bar" id="previewForm" autocomplete="off">
+          <input id="caption" type="text" placeholder="Add a caption" aria-label="Caption">
+          <button type="submit" class="ph-round" aria-label="Send" data-icon="send"></button>
+        </form>
+      </div>
+
+      <div class="ph-zoom" id="zoom" role="dialog" aria-modal="true" aria-label="Photo" hidden>
+        <button type="button" id="zoomClose" aria-label="Close" data-icon="close"></button>
+        <img id="zoomImg" alt="">
+      </div>
+
+      <input type="file" id="pickDoc" accept="application/pdf,image/*" hidden>
+      <input type="file" id="pickCamera" accept="image/*" capture="environment" hidden>
+      <input type="file" id="pickPhoto" accept="image/*" hidden>
+      <input type="file" id="pickAudio" accept="audio/*" hidden>
+    </section>
+
+    <aside class="wire" id="wire" aria-labelledby="wireTitle">
+      <header class="wire-head">
+        <h1 id="wireTitle">The wire</h1>
+        <p>Every webhook the phone sends Musha, signed as Meta signs it, and every Graph API call Musha makes.</p>
+        <p class="wire-line" id="wireLine"></p>
+      </header>
+      <ol class="wire-list" id="wireList"></ol>
+    </aside>
+  </div>
+  <script src="/page/chat.js"></script>
+</body>
+</html>

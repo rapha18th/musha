@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { api, type LinkCode, type Message, type Session, type Shop } from "./api";
-import { Link, ThemeButton } from "./Bar";
-import { Phone } from "./Phone";
-import { go, setSession, signOut } from "./shell";
+import { useEffect, useRef, useState } from "react";
+import type { Message, Session } from "./api";
+import { Bar } from "./Bar";
+import { Manager } from "./manager/Manager";
+import { go, setSession } from "./shell";
 import { useShop } from "./useShop";
 import { Waiting } from "./Waiting";
 
@@ -27,7 +27,7 @@ function useUnread(messages: Message[], loaded: boolean) {
       return;
     }
     const after = seen.current;
-    setUnread(messages.filter((m) => m.sender === "musha" && m.id > after).length);
+    setUnread(messages.filter((m) => m.sender !== "manager" && m.id > after).length);
   }, [messages, loaded]);
 
   useEffect(() => {
@@ -50,71 +50,7 @@ function useUnread(messages: Message[], loaded: boolean) {
   }, []);
 }
 
-/**
- * The manager proves her WhatsApp number: Musha gives a code, and she sends it from that number. The shop's
- * next poll says the thread is live, and this card goes.
- */
-function LinkWhatsApp({ shop }: { shop: Shop }) {
-  const [code, setCode] = useState<LinkCode>();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  // Another number, while the manager types it; null while she keeps the one the owner gave.
-  const [other, setOther] = useState<string | null>(null);
-
-  const ask = async (phone = "") => {
-    setBusy(true);
-    setError("");
-    try {
-      setCode(await api.linkWhatsApp(shop.id, phone));
-      setOther(null);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    }
-    setBusy(false);
-  };
-  const change = (e: FormEvent) => {
-    e.preventDefault();
-    if (other?.trim()) void ask(other);
-  };
-
-  return (
-    <section className="mg-wa" aria-labelledby="mg-wa-title">
-      <h2 id="mg-wa-title">Link your WhatsApp</h2>
-      {code ? (
-        <>
-          <p>From <strong>{code.phone}</strong>, send this code to Musha{code.to ? <> on <strong>{code.to}</strong></> : null}.</p>
-          <p className="mg-wa-code" aria-live="polite">{code.code}</p>
-          {code.url && <a className="mg-wa-go" href={code.url} target="_blank" rel="noreferrer">Open WhatsApp</a>}
-          <p className="mg-wa-fine">
-            The code lasts {code.minutes} minutes.{" "}
-            <button type="button" className="mg-wa-quiet" onClick={() => void ask()} disabled={busy}>New code</button>
-          </p>
-        </>
-      ) : (
-        <>
-          <p>Musha gives you a code. Send it from your WhatsApp, and this chat runs there too.</p>
-          <button type="button" className="mg-wa-go" onClick={() => void ask()} disabled={busy}>
-            {busy ? "Getting a code" : "Get a code"}
-          </button>
-        </>
-      )}
-      {other === null ? (
-        <p className="mg-wa-fine">
-          <button type="button" className="mg-wa-quiet" onClick={() => setOther("")}>Use another number</button>
-        </p>
-      ) : (
-        <form className="mg-wa-row" onSubmit={change}>
-          <input type="tel" inputMode="tel" autoComplete="tel" aria-label="Your WhatsApp number" placeholder="+263 77 123 4567"
-            value={other} onChange={(e) => setOther(e.target.value)} />
-          <button type="submit" disabled={busy || !other.trim()}>Use it</button>
-        </form>
-      )}
-      {error && <p className="mg-wa-error" role="alert">{error}</p>}
-    </section>
-  );
-}
-
-/** Farai's page: her chat with Musha, the requests and proofs inside it, and the counter camera. Phone first. */
+/** Farai's page: her dashboard for the shop she runs, the whole width of the window, phone first. */
 export default function ManagerPage({ session, theme, toggleTheme }: {
   session: Session;
   theme: string;
@@ -132,19 +68,10 @@ export default function ManagerPage({ session, theme, toggleTheme }: {
   if (!shop) return <Waiting failures={misses} />;
 
   return (
-    <div className="mg">
-      <header className="mg-top">
-        <Link className="mg-brand" to="/">Musha</Link>
-        <span className="mg-shop" title={`${shop.name}, ${shop.place}`}>{shop.name}</span>
-        <div className="mg-actions">
-          <ThemeButton theme={theme} toggleTheme={toggleTheme} />
-          <button type="button" className="theme" onClick={() => void signOut()}>Sign out</button>
-        </div>
-      </header>
-      <main className="mg-main">
-        <h1 className="mg-title">{session.person.name}'s chat with Musha</h1>
-        <Phone shop={shop} requests={requests} messages={messages} loading={!linesIn} refresh={refresh} />
-        {shop.whatsapp === "link" && <LinkWhatsApp shop={shop} />}
+    <div className="app app-manager">
+      <Bar who={session.person.name} theme={theme} toggleTheme={toggleTheme} />
+      <main>
+        <Manager shop={shop} requests={requests} messages={messages} loading={!linesIn} refresh={refresh} />
       </main>
     </div>
   );

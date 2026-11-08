@@ -236,20 +236,22 @@ def test_a_manager_session_opens_the_managers_and_the_counters_routes_of_her_sho
     a_id, b_id = a["shop"]["id"], b["shop"]["id"]
     assert manager.get("/api/auth/me").json()["person"]["role"] == "manager"
     assert manager.get(f"/api/shops/{a_id}").json()["role"] == "manager"
-    for path in ("requests", "ledger", "messages", "alerts", "week", "products", "camera", "camera/frames"):
+    for path in ("requests", "ledger", "messages", "alerts", "week", "products", "camera", "camera/frames",
+                 "camera/connect"):
         assert manager.get(f"/api/shops/{a_id}/{path}").status_code == 200, path
     asked = manager.post(f"/api/shops/{a_id}/requests", json={"item": "eggs", "amount": "50.00"})
     assert asked.status_code == 201
     assert manager.post(f"/api/shops/{a_id}/camera/heartbeat").status_code == 200
-    for path in ("money", "owner/messages", "camera/connect", "messages?thread=owner"):
+    for path in ("money", "owner/messages", "messages?thread=owner"):
         assert manager.get(f"/api/shops/{a_id}/{path}").status_code == 403, path
     rid = asked.json()["id"]
     for path, body in ((f"/api/requests/{rid}/order", None), (f"/api/requests/{rid}/settle", {"spent": "0"}),
                        (f"/api/shops/{a_id}/wages", {"amount": "10.00"}), (f"/api/shops/{a_id}/counter-key", None),
+                       (f"/api/shops/{a_id}/camera/disconnect", None),
                        (f"/api/shops/{a_id}/invite", None), (f"/api/shops/{a_id}/ask", {"question": "How is it?"}),
                        (f"/api/shops/{a_id}/owner/to-manager", {"text": "Hello."})):
         assert manager.post(path, json=body).status_code == 403, path
-    for path in ("", "/requests", "/messages", "/camera"):
+    for path in ("", "/requests", "/messages", "/camera", "/camera/connect"):
         assert manager.get(f"/api/shops/{b_id}{path}").status_code == 403, path
     assert owner_a.get(f"/api/requests/{rid}").json()["item"] == "eggs"  # the owner sees what she asked for
 

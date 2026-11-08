@@ -1,10 +1,13 @@
 """The counter camera over HTTP: consent, stills in, heartbeat, Look in, the owner's view, and staged scenes.
 The counter key opens the phone's routes; Look in is the owner's.
 
-Connect your shop, the owner's sheet: the connection, the looping video feed, and Disconnect.
-A still arrives from the counter page (source phone) or the counter bridge beside an IP camera
-(source bridge, counter-bridge/ in the repo), on the same route with the same counter key.
-Disconnect stops the feed and gives the shop a new counter key, so old links and bridges stop."""
+Connect your shop, the sheet in the owner's console and the manager's dashboard: the connection with the
+counter link a phone at the counter scans, the looping video feed, and Disconnect. The dashboard hands
+out the link; it never opens its own camera. A still arrives from the counter page (source phone) or the
+counter bridge beside an IP camera (source bridge, counter-bridge/ in the repo), on the same route with
+the same counter key. The manager holds the counter's rights already, so the sheet and the feed open to
+the manager too. Disconnect stops the feed and gives the shop a new counter key, so old links and
+bridges stop: that stays the owner's."""
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, Response
@@ -110,23 +113,26 @@ def heartbeat(body: Beat | None = None, shop: Shop = Depends(shop_for("counter")
 
 @router.get("/shops/{shop_id}/camera")
 def status(shop: Shop = Depends(shop_for("counter")), session: Session = Depends(db)):
-    feed.watch(shop.id)  # the owner's console or a counter page is open: the feed may run
+    feed.watch(shop.id)  # a dashboard or a counter page is open: the feed may run
     return camera.status(session, shop)
 
 
 def connection(session: Session, shop: Shop) -> dict:
-    """The owner's sheet: the camera's status and the counter key the phone link and the bridge carry."""
-    return {**camera.status(session, shop), "counter_key": shop.counter_key or "", "manager": shop.manager.name}
+    """The sheet: the camera's status, the counter key the phone link and the bridge carry, and the names
+    the sheet speaks of."""
+    return {**camera.status(session, shop), "counter_key": shop.counter_key or "", "shop": shop.name,
+            "owner": shop.owner.name, "manager": shop.manager.name}
 
 
 @router.get("/shops/{shop_id}/camera/connect")
-def connect_view(shop: Shop = Depends(shop_for("owner")), session: Session = Depends(db)):
+def connect_view(shop: Shop = Depends(shop_for("manager")), session: Session = Depends(db)):
+    """The sheet for the owner or the manager. The counter link it carries opens the counter alone."""
     feed.watch(shop.id)
     return connection(session, shop)
 
 
 @router.post("/shops/{shop_id}/camera/feed", dependencies=[Depends(limit("feed", 10, 60))])
-def connect_feed(shop: Shop = Depends(shop_for("owner")), session: Session = Depends(db)):
+def connect_feed(shop: Shop = Depends(shop_for("manager")), session: Session = Depends(db)):
     """Connect the sample video feed: shop footage, one still at the counter phone's pace while a page is open."""
     if not camera.feed_stills():
         raise HTTPException(503, "The feed's stills are missing from the assets.")

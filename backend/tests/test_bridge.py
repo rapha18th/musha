@@ -880,6 +880,43 @@ def test_the_reader_sees_the_alert_question_farai_replies_to(app, client, model)
         assert (alert.request_id, alert.dismissed) == (req["id"], True)
 
 
+def test_a_reply_to_the_owners_question_answers_it_with_no_reading(app, client, model):
+    gap = asked_alert(client, "stock_gap")
+    asked = next(a for a in client.get("/api/shops/1/alerts").json() if a["id"] == gap["id"])
+    line = asked["data"]["asked_message_id"]
+    words = "Two trays broke when the bus dropped the crate."
+    # The model gives no reading. Words that reply to no line leave the question waiting.
+    client.post(PHONE, json={"text": words, "client_id": "plain"})
+    assert next(a for a in client.get("/api/shops/1/alerts").json() if a["id"] == gap["id"])["waiting"] is True
+    # The same words in reply to the question's line answer it.
+    r = client.post(PHONE, json={"text": words, "client_id": "reply", "reply_to": line}).json()
+    assert r["messages"][-1]["text_en"] == "Thank you. Chipo has your answer."
+    after = next(a for a in client.get("/api/shops/1/alerts").json() if a["id"] == gap["id"])
+    assert (after["waiting"], after["data"]["answer"]) == (False, words)
+    assert after["data"]["answer_message_id"] == r["messages"][0]["id"]
+
+
+def test_a_voice_note_in_reply_to_the_owners_question_answers_it_with_no_reading(app, client, model):
+    gap = asked_alert(client, "stock_gap")
+    line = next(a for a in client.get("/api/shops/1/alerts").json() if a["id"] == gap["id"])["data"]["asked_message_id"]
+    words = "Two trays broke when the bus dropped the crate."
+    model.answers["transcribe"] = {"text": words, "language": "en", "english": words}
+    # Musha hears the note and gives no reading. The line it replies to carries the answer, as on WhatsApp.
+    r = client.post(VOICE, data={"client_id": "v-reply", "reply_to": str(line)},
+                    files={"audio": ("note.ogg", b"OggS reply", "audio/ogg")}).json()
+    assert r["messages"][-1]["text_en"] == "Thank you. Chipo has your answer."
+    after = next(a for a in client.get("/api/shops/1/alerts").json() if a["id"] == gap["id"])
+    assert (after["waiting"], after["data"]["answer"]) == (False, words)
+    assert after["data"]["answer_message_id"] == r["messages"][0]["id"]
+
+
+def test_a_reply_to_a_line_no_question_holds_answers_nothing(app, client, model):
+    gap = asked_alert(client, "stock_gap")
+    other = client.get("/api/shops/1/messages").json()[0]["id"]  # an old line, before the question
+    client.post(PHONE, json={"text": "Two trays broke.", "reply_to": other})
+    assert next(a for a in client.get("/api/shops/1/alerts").json() if a["id"] == gap["id"])["waiting"] is True
+
+
 # What Musha fills in
 
 def test_a_payee_the_message_never_names_is_marked_inferred(client, model):

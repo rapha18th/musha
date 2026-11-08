@@ -559,7 +559,13 @@ def answered(waiting: list[SpendRequest], request_id: int | None, reading: dict 
     return None
 
 
-def alert_answered(alerts: list[Alert], reading: dict | None) -> Alert | None:
+def alert_answered(alerts: list[Alert], reading: dict | None, reply_to: int | None = None) -> Alert | None:
+    """The owner's question this message answers: the one whose line the manager replied to, which holds
+    with the model off too, else the one the reading names."""
+    if reply_to:
+        replied = next((a for a in alerts if JsonText.load(a.data, {}).get("asked_message_id") == reply_to), None)
+        if replied is not None:
+            return replied
     named = _named(reading, "answers_alert_id")
     return next((a for a in alerts if a.id == named), None) if named else None
 
@@ -676,11 +682,12 @@ def link_alert(session: Session, alert: Alert | None, created: list[SpendRequest
 
 
 async def hear(session: Session, pp, model, shop: Shop, *, text: str | None = None,
-               voice: Attachment | None = None, request_id: int | None = None,
+               voice: Attachment | None = None, request_id: int | None = None, reply_to: int | None = None,
                heard: Heard | None = None) -> list[SpendRequest]:
     """The manager's message. Returns the request it answered, if any, then the open requests it
     chased, then the requests it created. `request_id` names the request whose question the
-    phone replied to. `heard` is the phone's claim on the message: it keeps the manager's line
+    phone replied to, and `reply_to` the line it replied to: the owner's question on an alert,
+    say. `heard` is the phone's claim on the message: it keeps the manager's line
     and each request as they are made. An answer that fails while its question is still open
     raises, so a retry answers again. Transcribing and reading share HEAR_BUDGET; past it, the
     rule reader takes the message."""
@@ -753,7 +760,7 @@ async def hear(session: Session, pp, model, shop: Shop, *, text: str | None = No
     target = answered(waiting, request_id, reading, found)
     if target:  # an answer's own subject stays with its request
         found = [f for f in found if key(str(f.get("item") or "")) != key(target.item)]
-    alert = alert_answered(alerts, reading)
+    alert = alert_answered(alerts, reading, reply_to)
 
     out = []
     if target:
@@ -775,7 +782,7 @@ async def hear(session: Session, pp, model, shop: Shop, *, text: str | None = No
         remember(session, heard, target)
         out.append(target)
     if alert is not None:
-        said = str(reading.get("alert_answer") or "").strip() or english or words
+        said = str((reading or {}).get("alert_answer") or "").strip() or english or words
         insights.answer_alert(session, shop, alert, words=words, english=said, line_id=line.id)
 
     created, chased, priced = [], [], []
