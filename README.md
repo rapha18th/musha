@@ -8,6 +8,8 @@ Musha gives the owner abroad a seat at the table. The manager at home asks for m
 
 The sandbox family: Chipo, a nurse in Leicester, owns a tuck shop in Mbare, Harare. Her sister Farai runs it. Each signs in to a dashboard of her own. Chipo's console shows the money, the proof and the books. Farai's dashboard shows what needs her today, her chat with Musha, the day's close and the counter camera. The same chat runs on her WhatsApp.
 
+![Musha architecture: owner, manager and counter phone talk to Musha on Cloud Run, which holds, releases and returns money through PayPal](docs/architecture.svg)
+
 ## How it works
 
 | Move | What happens | PayPal |
